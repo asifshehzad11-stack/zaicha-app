@@ -352,6 +352,7 @@
           <button class="tab-btn" type="button" data-tab="transits" data-i18n="tabTransits">سیاروی گردش و نظر</button>
           <button class="tab-btn" type="button" data-tab="monthly" data-i18n="tabMonthly">اس مہینے کا رجحان</button>
           <button class="tab-btn" type="button" data-tab="yearly" data-i18n="tabYearly">اس سال کا رجحان</button>
+          <button class="tab-btn" type="button" data-tab="dasha" data-i18n="tabDasha">دور و اثرات</button>
           <button class="tab-btn" type="button" data-tab="remedies" data-i18n="tabRemedies">علاج و تدابیر</button>
           <button class="tab-btn" type="button" data-tab="panchang" data-i18n="tabPanchang">پنچانگ</button>
           <button class="tab-btn" type="button" data-tab="ashtakavarga" data-i18n="tabAshtakavarga">اشٹک ورگ</button>
@@ -388,6 +389,14 @@
         <div class="tab-panel" id="tab-yearly">
           <div id="yearly-note" class="note" style="display:none;"></div>
           <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-dasha">
+          <h4 style="margin:0 0 .4rem;font-size:.85rem;color:var(--text-muted);">موجودہ ادوار (دشا)</h4>
+          <div id="dasha-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">ساڑھ ساتی (Sade Sati)</h4>
+          <div id="sadesati-content"></div>
+          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">مدھم/کمزور سیارے (Combustion)</h4>
+          <div id="combust-content"></div>
         </div>
         <div class="tab-panel" id="tab-remedies">
           <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
@@ -456,6 +465,7 @@
       tabTransits: 'سیاروی گردش و نظر',
       tabMonthly: 'اس مہینے کا رجحان',
       tabYearly: 'اس سال کا رجحان',
+      tabDasha: 'دور و اثرات',
       tabRemedies: 'علاج و تدابیر',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
@@ -499,6 +509,7 @@
       tabTransits: 'Transits & aspects',
       tabMonthly: 'This month',
       tabYearly: 'This year',
+      tabDasha: 'Dasha & effects',
       tabRemedies: 'Remedies',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
@@ -851,6 +862,127 @@
     box.appendChild(pre);
   }
 
+  function fmtDate(iso){
+    if (!iso) return null;
+    var d = String(iso).slice(0, 10);
+    return d;
+  }
+
+  function dashaRow(label, period, natalHouse, isRetro){
+    var card = document.createElement('div');
+    card.className = 'pred-card';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = label + ': ' + (PLANET_NAME_UR_MAP[period.lord] || period.lord);
+    card.appendChild(tag);
+    var p = document.createElement('p');
+    var range = (fmtDate(period.start) && fmtDate(period.end))
+      ? (fmtDate(period.start) + ' سے ' + fmtDate(period.end) + ' تک')
+      : 'تاریخیں دستیاب نہیں';
+    var extra = [];
+    if (natalHouse) extra.push('پیدائشی زائچے میں ' + natalHouse + 'واں گھر');
+    if (isRetro) extra.push('حالتِ رجعت (retrograde) میں');
+    p.textContent = range + (extra.length ? ' — ' + extra.join('، ') : '');
+    card.appendChild(p);
+    return card;
+  }
+
+  function renderDashaPanel(data){
+    var dashaBox = document.getElementById('dasha-content');
+    var sadeSatiBox = document.getElementById('sadesati-content');
+    var combustBox = document.getElementById('combust-content');
+    if (!dashaBox || !sadeSatiBox || !combustBox) return;
+
+    dashaBox.innerHTML = '';
+    var dasha = data.dasha || {};
+    if (dasha.mahadasha) {
+      dashaBox.appendChild(dashaRow('مہادشا', dasha.mahadasha, dasha.mahadashaLordNatalHouse, dasha.mahadashaLordRetrograde));
+    }
+    if (dasha.antardasha) {
+      dashaBox.appendChild(dashaRow('انتردشا', dasha.antardasha, dasha.antardashaLordNatalHouse, dasha.antardashaLordRetrograde));
+    }
+    if (dasha.pratyantardasha) {
+      dashaBox.appendChild(dashaRow('پرتیانتردشا', dasha.pratyantardasha, null, false));
+    }
+    if (!dashaBox.children.length) {
+      dashaBox.innerHTML = '<div class="placeholder">دشا کی تفصیل دستیاب نہیں</div>';
+    }
+
+    sadeSatiBox.innerHTML = '';
+    var isInSadeSati = data.sadeSati && data.sadeSati.is_in_sade_sati;
+    var window_ = data.sadeSatiWindow;
+    var ssCard = document.createElement('div');
+    ssCard.className = 'pred-card';
+    if (isInSadeSati && window_) {
+      var ssTag = document.createElement('span');
+      ssTag.className = 'tag';
+      ssTag.textContent = 'موجودہ مرحلہ: ' + window_.phaseLabel;
+      ssCard.appendChild(ssTag);
+      var ssP = document.createElement('p');
+      ssP.textContent = 'یہ مرحلہ تقریباً ' + window_.currentPhaseStart + ' سے ' + window_.currentPhaseEnd + ' تک رہے گا۔';
+      ssCard.appendChild(ssP);
+      var ssP2 = document.createElement('p');
+      ssP2.style.margin = '.3rem 0 0';
+      ssP2.textContent = 'مکمل ساڑھ ساتی (تینوں مراحل) تقریباً ' + window_.wholeSadeSatiStart + ' سے ' + window_.wholeSadeSatiEnd + ' تک ہے۔';
+      ssCard.appendChild(ssP2);
+      var ssNote = document.createElement('p');
+      ssNote.style.margin = '.4rem 0 0';
+      ssNote.style.fontSize = '.75rem';
+      ssNote.style.color = 'var(--text-muted)';
+      ssNote.textContent = 'نوٹ: یہ تاریخیں زحل کی اوسط رفتار پر مبنی تخمینہ ہیں، حتمی نہیں — Prokerala کا اپنا ڈیٹا صرف موجودہ مرحلہ بتاتا ہے، صحیح تاریخیں نہیں۔';
+      ssCard.appendChild(ssNote);
+    } else if (isInSadeSati) {
+      var ssTag2 = document.createElement('span');
+      ssTag2.className = 'tag';
+      ssTag2.textContent = 'ساڑھ ساتی جاری ہے';
+      ssCard.appendChild(ssTag2);
+      var ssP3 = document.createElement('p');
+      ssP3.textContent = (data.sadeSati && data.sadeSati.transit_phase) || 'مرحلے کی تفصیل دستیاب نہیں۔';
+      ssCard.appendChild(ssP3);
+    } else {
+      var ssTag3 = document.createElement('span');
+      ssTag3.className = 'tag';
+      ssTag3.textContent = 'ابھی ساڑھ ساتی نہیں';
+      ssCard.appendChild(ssTag3);
+      var ssP4 = document.createElement('p');
+      ssP4.textContent = 'اس وقت زحل آپ کے چاند سے ساڑھ ساتی والے گھروں (بارہویں، پہلے، دوسرے) میں نہیں ہے۔';
+      ssCard.appendChild(ssP4);
+    }
+    sadeSatiBox.appendChild(ssCard);
+
+    combustBox.innerHTML = '';
+    var combust = data.combustPlanets || [];
+    var cCard = document.createElement('div');
+    cCard.className = 'pred-card';
+    if (combust.length) {
+      var cTag = document.createElement('span');
+      cTag.className = 'tag';
+      cTag.textContent = 'یہ سیارے آفتاب کے قریب ہونے کی وجہ سے کمزور (combust) ہیں';
+      cCard.appendChild(cTag);
+      combust.forEach(function(c){
+        var cp = document.createElement('p');
+        cp.style.margin = '.25rem 0';
+        cp.textContent = (PLANET_NAME_UR_MAP[c.planet] || c.planet) + ' — آفتاب سے فاصلہ صرف ' + c.distanceFromSun + '° (حد: ' + c.orb + '°)';
+        cCard.appendChild(cp);
+      });
+      var cNote = document.createElement('p');
+      cNote.style.margin = '.4rem 0 0';
+      cNote.style.fontSize = '.75rem';
+      cNote.style.color = 'var(--text-muted)';
+      cNote.textContent = 'کمبست سیارہ اپنا پورا اثر نہیں دکھا پاتا، اس کا پھل کمزور یا مشکل صورت میں ظاہر ہو سکتا ہے۔';
+      cCard.appendChild(cNote);
+    } else {
+      var cTag2 = document.createElement('span');
+      cTag2.className = 'tag';
+      cTag2.textContent = 'کوئی سیارہ کمبست نہیں';
+      cCard.appendChild(cTag2);
+      var cp2 = document.createElement('p');
+      cp2.textContent = 'آپ کی پیدائشی کنڈلی میں فی الحال کوئی سیارہ آفتاب کے اتنے قریب نہیں کہ کمبست شمار ہو۔';
+      cCard.appendChild(cp2);
+    }
+    combustBox.appendChild(cCard);
+  }
+
   function renderAll(data){
     renderChart(data);
     renderTransitChart(data);
@@ -859,6 +991,7 @@
     renderDailyRoutine(data);
     renderPanchang(data);
     renderAshtakavarga(data);
+    renderDashaPanel(data);
   }
 
   function showError(msg){
