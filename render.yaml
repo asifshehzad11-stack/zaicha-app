@@ -1,0 +1,17 @@
+# Render.com Blueprint — is file ki wajah se Render khud-ba-khud samajh
+# jayega ke ye app kaise chalani hai, aur deploy karte waqt sirf 2
+# credentials manga jayega (values yahan kabhi nahi likhi jatin — "sync:
+# false" ka matlab hai ye sirf Render ki website par, khud Asif ke haath
+# se, ek dafa bhari jayengi).
+services:
+  - type: web
+    name: zaicha-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PROKERALA_CLIENT_ID
+        sync: false
+      - key: PROKERALA_CLIENT_SECRET
+        sync: false
