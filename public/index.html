@@ -176,41 +176,109 @@
 
       <!-- INPUT -->
       <div class="phone">
-        <h3>اندراج</h3>
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <h3>اندراج</h3>
+          <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);">نمونہ بھریں (Demo)</a>
+        </div>
         <p class="sub">پیدائشی تفصیلات درج کریں</p>
 
         <div class="field">
           <label>نام</label>
-          <input type="text" id="in-name" value="عائشہ رضا">
+          <input type="text" id="in-name" placeholder="اپنا نام لکھیں">
         </div>
         <div class="field-row">
           <div class="field">
             <label>تاریخِ پیدائش</label>
-            <input type="date" id="in-dob" dir="ltr" value="1994-03-14">
+            <input type="date" id="in-dob" dir="ltr">
           </div>
           <div class="field">
             <label>وقتِ پیدائش</label>
-            <input type="time" id="in-time" dir="ltr" value="06:45">
+            <input type="time" id="in-time" dir="ltr">
           </div>
         </div>
         <div class="field" style="position:relative;">
           <label>جائے پیدائش (شہر)</label>
-          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" value="Lahore, Pakistan" autocomplete="off">
+          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" autocomplete="off">
           <div id="city-suggestions"></div>
         </div>
         <div class="field-row">
           <div class="field">
             <label>عرض بلد (Latitude)</label>
-            <input type="text" id="in-lat" dir="ltr" value="31.5204" readonly>
+            <input type="text" id="in-lat" dir="ltr" readonly placeholder="شہر چنیں">
           </div>
           <div class="field">
             <label>طول بلد (Longitude)</label>
-            <input type="text" id="in-lon" dir="ltr" value="74.3587" readonly>
+            <input type="text" id="in-lon" dir="ltr" readonly placeholder="شہر چنیں">
           </div>
         </div>
         <div class="field">
-          <label>ٹائم زون (UTC آفسیٹ)</label>
-          <input type="text" id="in-offset" dir="ltr" value="+05:00">
+          <label>ملک اور ٹائم زون</label>
+          <select id="in-offset" dir="rtl">
+            <option value="+05:00" selected>پاکستان (UTC+05:00)</option>
+            <option value="+05:30">بھارت / انڈیا (UTC+05:30)</option>
+            <option value="+05:30">سری لنکا (UTC+05:30)</option>
+            <option value="+05:45">نیپال (UTC+05:45)</option>
+            <option value="+06:00">بنگلہ دیش (UTC+06:00)</option>
+            <option value="+06:30">میانمار (UTC+06:30)</option>
+            <option value="+04:30">افغانستان (UTC+04:30)</option>
+            <option value="+03:30">ایران (UTC+03:30)</option>
+            <option value="+03:00">سعودی عرب (UTC+03:00)</option>
+            <option value="+04:00">متحدہ عرب امارات (UTC+04:00)</option>
+            <option value="+03:00">قطر (UTC+03:00)</option>
+            <option value="+03:00">کویت (UTC+03:00)</option>
+            <option value="+03:00">بحرین (UTC+03:00)</option>
+            <option value="+04:00">عمان (UTC+04:00)</option>
+            <option value="+03:00">عراق (UTC+03:00)</option>
+            <option value="+02:00">اردن (UTC+02:00)</option>
+            <option value="+02:00">لبنان (UTC+02:00)</option>
+            <option value="+03:00">شام (UTC+03:00)</option>
+            <option value="+03:00">یمن (UTC+03:00)</option>
+            <option value="+02:00">مصر (UTC+02:00)</option>
+            <option value="+02:00">لیبیا (UTC+02:00)</option>
+            <option value="+01:00">تیونس (UTC+01:00)</option>
+            <option value="+01:00">الجزائر (UTC+01:00)</option>
+            <option value="+01:00">مراکش (UTC+01:00)</option>
+            <option value="+03:00">ترکی (UTC+03:00)</option>
+            <option value="+08:00">چین (UTC+08:00)</option>
+            <option value="+09:00">جاپان (UTC+09:00)</option>
+            <option value="+09:00">جنوبی کوریا (UTC+09:00)</option>
+            <option value="+08:00">ملائیشیا (UTC+08:00)</option>
+            <option value="+08:00">سنگاپور (UTC+08:00)</option>
+            <option value="+07:00">انڈونیشیا (UTC+07:00)</option>
+            <option value="+07:00">تھائی لینڈ (UTC+07:00)</option>
+            <option value="+08:00">فلپائن (UTC+08:00)</option>
+            <option value="+07:00">ویتنام (UTC+07:00)</option>
+            <option value="+00:00">برطانیہ (UTC+00:00)</option>
+            <option value="+00:00">آئرلینڈ (UTC+00:00)</option>
+            <option value="+00:00">پرتگال (UTC+00:00)</option>
+            <option value="+01:00">جرمنی (UTC+01:00)</option>
+            <option value="+01:00">فرانس (UTC+01:00)</option>
+            <option value="+01:00">اٹلی (UTC+01:00)</option>
+            <option value="+01:00">اسپین (UTC+01:00)</option>
+            <option value="+01:00">نیدرلینڈز (UTC+01:00)</option>
+            <option value="+01:00">بیلجیئم (UTC+01:00)</option>
+            <option value="+01:00">سوئٹزرلینڈ (UTC+01:00)</option>
+            <option value="+01:00">پولینڈ (UTC+01:00)</option>
+            <option value="+01:00">سویڈن (UTC+01:00)</option>
+            <option value="+01:00">ناروے (UTC+01:00)</option>
+            <option value="+01:00">ڈنمارک (UTC+01:00)</option>
+            <option value="+02:00">یونان (UTC+02:00)</option>
+            <option value="+02:00">یوکرین (UTC+02:00)</option>
+            <option value="+03:00">روس/ماسکو (UTC+03:00)</option>
+            <option value="+02:00">جنوبی افریقہ (UTC+02:00)</option>
+            <option value="+03:00">کینیا (UTC+03:00)</option>
+            <option value="+01:00">نائیجیریا (UTC+01:00)</option>
+            <option value="-05:00">امریکہ — مشرقی (UTC-05:00)</option>
+            <option value="-06:00">امریکہ — وسطی (UTC-06:00)</option>
+            <option value="-07:00">امریکہ — پہاڑی (UTC-07:00)</option>
+            <option value="-08:00">امریکہ — مغربی (UTC-08:00)</option>
+            <option value="-05:00">کینیڈا — مشرقی (UTC-05:00)</option>
+            <option value="-06:00">میکسیکو (UTC-06:00)</option>
+            <option value="-03:00">برازیل (UTC-03:00)</option>
+            <option value="-03:00">ارجنٹائن (UTC-03:00)</option>
+            <option value="+10:00">آسٹریلیا — سڈنی (UTC+10:00)</option>
+            <option value="+12:00">نیوزی لینڈ (UTC+12:00)</option>
+          </select>
         </div>
         <div class="field">
           <label>نظامِ حساب (Ayanamsa)</label>
@@ -439,6 +507,18 @@
   function hideError(){
     document.getElementById('error-box').style.display = 'none';
   }
+
+  // ---- Demo sample fill (Ayesha Raza test case — sirf link dabane par) ----
+  document.getElementById('fill-demo-link').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('in-name').value = 'عائشہ رضا';
+    document.getElementById('in-dob').value = '1994-03-14';
+    document.getElementById('in-time').value = '06:45';
+    document.getElementById('in-city').value = 'Lahore, Pakistan';
+    document.getElementById('in-lat').value = '31.5204';
+    document.getElementById('in-lon').value = '74.3587';
+    document.getElementById('in-offset').value = '+05:00';
+  });
 
   // ---- City of birth search (koi bhi shehar duniya bhar ka) ----
   (function(){
