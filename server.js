@@ -118,6 +118,57 @@ app.post('/api/debug/kundli-raw', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/geocode-city?q=lahore
+ * "City of birth" search — koi bhi shehar (poori duniya ka) type karte hi
+ * uski latitude/longitude nikal deta hai, taake user ko khud lat/long
+ * dhoondhna na pare (jaisa aap ne shuru se manga tha).
+ *
+ * Ye OpenStreetMap ki mufat "Nominatim" service use karta hai — koi API key
+ * nahi chahiye, koi bhi shehar mil jata hai. NOTE: Nominatim ki apni usage
+ * policy hai (halki traffic ke liye theek hai, bhaari commercial scale par
+ * apna geocoding provider lagana chahiye — README mein note kar diya hai).
+ */
+app.get('/api/geocode-city', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) return res.json({ results: [] });
+
+    const url = new URL('https://nominatim.openstreetmap.org/search');
+    url.searchParams.set('q', q);
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('addressdetails', '1');
+    url.searchParams.set('limit', '8');
+
+    const r = await fetch(url.toString(), {
+      headers: {
+        // Nominatim ki policy ke mutabiq ek pehchan-e-laiq User-Agent zaroori hai.
+        'User-Agent': 'ZaichaApp/0.1 (astrology web app; contact: via app owner)',
+      },
+    });
+    if (!r.ok) throw new Error(`Geocoding failed: ${r.status}`);
+    const raw = await r.json();
+
+    const results = raw.map((item) => {
+      const addr = item.address || {};
+      const city = addr.city || addr.town || addr.village || addr.county || item.name;
+      const state = addr.state || addr.state_district || '';
+      const country = addr.country || '';
+      const label = [city, state, country].filter(Boolean).join(', ');
+      return {
+        label,
+        lat: item.lat,
+        lon: item.lon,
+      };
+    });
+
+    res.json({ results });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Shehar dhoondhne mein masla hua.' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     ok: true,

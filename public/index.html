@@ -90,6 +90,16 @@
   .field input[dir="ltr"]{ font-family:"JetBrains Mono",monospace; text-align:left; }
   .field-row{ display:flex; gap:.6rem; }
   .field-row .field{ flex:1; }
+  .field input[readonly]{ opacity:.7; }
+  #city-suggestions{
+    position:absolute; top:100%; left:0; right:0; z-index:10;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    margin-top:.3rem; max-height:200px; overflow-y:auto; display:none;
+  }
+  #city-suggestions.open{ display:block; }
+  #city-suggestions .city-option{ padding:.5rem .8rem; font-size:.82rem; cursor:pointer; border-bottom:1px solid var(--line-soft); }
+  #city-suggestions .city-option:last-child{ border-bottom:none; }
+  #city-suggestions .city-option:hover{ background:var(--panel); color:var(--gold-soft); }
 
   #generate-btn{ width:100%; margin-top:.4rem; padding:.75rem; border-radius:10px; border:1px solid var(--gold); background:var(--gold-soft); color:var(--ink); font-family:inherit; font-size:.92rem; font-weight:600; cursor:pointer; }
   #generate-btn:disabled{ opacity:.6; cursor:wait; }
@@ -183,19 +193,34 @@
             <input type="time" id="in-time" dir="ltr" value="06:45">
           </div>
         </div>
+        <div class="field" style="position:relative;">
+          <label>جائے پیدائش (شہر)</label>
+          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" value="Lahore, Pakistan" autocomplete="off">
+          <div id="city-suggestions"></div>
+        </div>
         <div class="field-row">
           <div class="field">
             <label>عرض بلد (Latitude)</label>
-            <input type="text" id="in-lat" dir="ltr" value="31.5204">
+            <input type="text" id="in-lat" dir="ltr" value="31.5204" readonly>
           </div>
           <div class="field">
             <label>طول بلد (Longitude)</label>
-            <input type="text" id="in-lon" dir="ltr" value="74.3587">
+            <input type="text" id="in-lon" dir="ltr" value="74.3587" readonly>
           </div>
         </div>
         <div class="field">
           <label>ٹائم زون (UTC آفسیٹ)</label>
           <input type="text" id="in-offset" dir="ltr" value="+05:00">
+        </div>
+        <div class="field">
+          <label>نظامِ حساب (Ayanamsa)</label>
+          <select id="in-ayanamsa">
+            <option value="1">لاہری (Lahiri) — فعال</option>
+            <option value="kp" disabled>KP — جلد آ رہا ہے</option>
+            <option value="raman" disabled>راشی/Raman — جلد آ رہا ہے</option>
+            <option value="naari" disabled>ناڑی — تحقیق باقی ہے (AKSRA)</option>
+            <option value="unani" disabled>یونانی — تحقیق باقی ہے (AKSRA)</option>
+          </select>
         </div>
 
         <button id="generate-btn" type="button">زائچہ بنائیں</button>
@@ -415,6 +440,48 @@
     document.getElementById('error-box').style.display = 'none';
   }
 
+  // ---- City of birth search (koi bhi shehar duniya bhar ka) ----
+  (function(){
+    var cityInput = document.getElementById('in-city');
+    var suggestBox = document.getElementById('city-suggestions');
+    var latInput = document.getElementById('in-lat');
+    var lonInput = document.getElementById('in-lon');
+    var debounceTimer = null;
+
+    cityInput.addEventListener('input', function(){
+      var q = cityInput.value.trim();
+      clearTimeout(debounceTimer);
+      if (q.length < 2) { suggestBox.classList.remove('open'); return; }
+      debounceTimer = setTimeout(function(){
+        fetch('/api/geocode-city?q=' + encodeURIComponent(q))
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var results = data.results || [];
+            suggestBox.innerHTML = '';
+            if (results.length === 0){ suggestBox.classList.remove('open'); return; }
+            results.forEach(function(city){
+              var opt = document.createElement('div');
+              opt.className = 'city-option';
+              opt.textContent = city.label;
+              opt.addEventListener('click', function(){
+                cityInput.value = city.label;
+                latInput.value = parseFloat(city.lat).toFixed(4);
+                lonInput.value = parseFloat(city.lon).toFixed(4);
+                suggestBox.classList.remove('open');
+              });
+              suggestBox.appendChild(opt);
+            });
+            suggestBox.classList.add('open');
+          })
+          .catch(function(){ suggestBox.classList.remove('open'); });
+      }, 400); // debounce — Nominatim ki policy ke mutabiq bahut zyada requests na bhejein
+    });
+
+    document.addEventListener('click', function(e){
+      if (e.target !== cityInput) suggestBox.classList.remove('open');
+    });
+  })();
+
   document.getElementById('generate-btn').addEventListener('click', async function(){
     var btn = this;
     hideError();
@@ -428,7 +495,7 @@
         lat: document.getElementById('in-lat').value,
         lon: document.getElementById('in-lon').value,
         utcOffset: document.getElementById('in-offset').value,
-        ayanamsa: 1
+        ayanamsa: 1 // filhal sirf Lahiri hi kaam karta hai — dropdown ke baaki options abhi disabled hain
       };
       var data = await fetchChartData(person);
       renderAll(data);
