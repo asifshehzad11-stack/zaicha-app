@@ -125,6 +125,8 @@
   .status-pill.weak{ background:rgba(224,85,79,.14); color:var(--weak); border:1px solid rgba(224,85,79,.4); }
   .status-pill.neutral{ background:rgba(139,147,172,.12); color:var(--text-muted); border:1px solid var(--line); }
 
+  .lang-btn{ background:transparent; color:var(--text-muted); }
+  .lang-btn.active{ background:var(--panel-2); color:var(--gold-soft); font-weight:600; }
   .tabs{ display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
   .tab-btn{ flex:1; min-width:100px; font-size:.8rem; padding:.5rem .3rem; text-align:center; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--text-muted); cursor:pointer; font-family:inherit; }
   .tab-btn.active{ background:var(--panel-2); border-color:var(--gold); color:var(--gold-soft); font-weight:600; }
@@ -156,20 +158,26 @@
         <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
       </svg>
       <div class="brand-name latin">Zaicha</div>
-      <span class="brand-sub">زائچہ</span>
+      <span class="brand-sub" data-i18n="brandSub">زائچہ</span>
     </div>
-    <span class="badge gold" id="status-badge">لائیو انجن سے جڑا ہوا</span>
+    <div style="display:flex; align-items:center; gap:.6rem;">
+      <div id="lang-toggle" style="display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:.72rem;">
+        <button type="button" data-lang="ur" class="lang-btn active" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
+        <button type="button" data-lang="en" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">EN</button>
+      </div>
+      <span class="badge gold" id="status-badge" data-i18n="statusBadge">لائیو انجن سے جڑا ہوا</span>
+    </div>
   </header>
 
   <section class="hero">
-    <h1>ذاتی زائچہ اور پیشگوئیاں،<br>ہر صارف کی اپنی زبان میں</h1>
-    <p>پیدائشی تفصیلات درج کریں — کنڈلی، خانوں کے حاکموں کا جائزہ اور موجودہ دشا/گردش پر مبنی پیشگوئی حقیقی حساب سے تیار ہوگی۔</p>
+    <h1 data-i18n="heroTitle">ذاتی زائچہ اور پیشگوئیاں،<br>ہر صارف کی اپنی زبان میں</h1>
+    <p data-i18n="heroSub">پیدائشی تفصیلات درج کریں — کنڈلی، خانوں کے حاکموں کا جائزہ اور موجودہ دشا/گردش پر مبنی پیشگوئی حقیقی حساب سے تیار ہوگی۔</p>
   </section>
 
   <section class="showcase">
     <div class="section-head">
-      <h2>اپنی کنڈلی بنائیں</h2>
-      <span>نظام: لاہری (Vedic)</span>
+      <h2 data-i18n="makeChartH2">اپنی کنڈلی بنائیں</h2>
+      <span data-i18n="systemLahiri">نظام: لاہری (Vedic)</span>
     </div>
 
     <div class="phones">
@@ -177,42 +185,42 @@
       <!-- INPUT -->
       <div class="phone">
         <div style="display:flex; justify-content:space-between; align-items:baseline;">
-          <h3>اندراج</h3>
-          <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);">نمونہ بھریں (Demo)</a>
+          <h3 data-i18n="entryH3">اندراج</h3>
+          <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);" data-i18n="demoLink">نمونہ بھریں (Demo)</a>
         </div>
-        <p class="sub">پیدائشی تفصیلات درج کریں</p>
+        <p class="sub" data-i18n="entrySub">پیدائشی تفصیلات درج کریں</p>
 
         <div class="field">
-          <label>نام</label>
-          <input type="text" id="in-name" placeholder="اپنا نام لکھیں">
+          <label data-i18n="labelName">نام</label>
+          <input type="text" id="in-name" placeholder="اپنا نام لکھیں" data-i18n-placeholder="placeholderName">
         </div>
         <div class="field-row">
           <div class="field">
-            <label>تاریخِ پیدائش</label>
+            <label data-i18n="labelDob">تاریخِ پیدائش</label>
             <input type="date" id="in-dob" dir="ltr">
           </div>
           <div class="field">
-            <label>وقتِ پیدائش</label>
+            <label data-i18n="labelTime">وقتِ پیدائش</label>
             <input type="time" id="in-time" dir="ltr">
           </div>
         </div>
         <div class="field" style="position:relative;">
-          <label>جائے پیدائش (شہر)</label>
-          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" autocomplete="off">
+          <label data-i18n="labelCity">جائے پیدائش (شہر)</label>
+          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" autocomplete="off" data-i18n-placeholder="placeholderCity">
           <div id="city-suggestions"></div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label>عرض بلد (Latitude)</label>
-            <input type="text" id="in-lat" dir="ltr" readonly placeholder="شہر چنیں">
+            <label data-i18n="labelLat">عرض بلد (Latitude)</label>
+            <input type="text" id="in-lat" dir="ltr" readonly placeholder="شہر چنیں" data-i18n-placeholder="placeholderPickCity">
           </div>
           <div class="field">
-            <label>طول بلد (Longitude)</label>
-            <input type="text" id="in-lon" dir="ltr" readonly placeholder="شہر چنیں">
+            <label data-i18n="labelLon">طول بلد (Longitude)</label>
+            <input type="text" id="in-lon" dir="ltr" readonly placeholder="شہر چنیں" data-i18n-placeholder="placeholderPickCity">
           </div>
         </div>
         <div class="field">
-          <label>ملک اور ٹائم زون</label>
+          <label data-i18n="labelOffset">ملک اور ٹائم زون</label>
           <select id="in-offset" dir="rtl">
             <option value="+05:00" selected>پاکستان (UTC+05:00)</option>
             <option value="+05:30">بھارت / انڈیا (UTC+05:30)</option>
@@ -281,25 +289,26 @@
           </select>
         </div>
         <div class="field">
-          <label>نظامِ حساب (Ayanamsa)</label>
+          <label data-i18n="labelAyanamsa">نظامِ حساب (Ayanamsa)</label>
           <select id="in-ayanamsa">
-            <option value="1">لاہری (Lahiri) — فعال</option>
-            <option value="kp" disabled>KP — جلد آ رہا ہے</option>
-            <option value="raman" disabled>راشی/Raman — جلد آ رہا ہے</option>
+            <option value="1">لاہری (Lahiri)</option>
+            <option value="5">KP (کرشنامورتی)</option>
+            <option value="3" disabled>راشی/Raman — جلد آ رہا ہے</option>
             <option value="naari" disabled>ناڑی — تحقیق باقی ہے (AKSRA)</option>
             <option value="unani" disabled>یونانی — تحقیق باقی ہے (AKSRA)</option>
           </select>
+          <p class="sub" id="ayanamsa-note" style="display:none;" data-i18n="ayanamsaNote">نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔</p>
         </div>
 
-        <button id="generate-btn" type="button">زائچہ بنائیں</button>
-        <div id="engine-note">یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔</div>
+        <button id="generate-btn" type="button" data-i18n="generateBtn">زائچہ بنائیں</button>
+        <div id="engine-note" data-i18n="engineNote">یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔</div>
         <div id="error-box"></div>
       </div>
 
       <!-- KUNDLI CHART -->
       <div class="phone">
-        <h3>زائچہ — کنڈلی</h3>
-        <p class="sub" id="chart-subhead">پہلے "زائچہ بنائیں" دبائیں</p>
+        <h3 data-i18n="chartH3">زائچہ — کنڈلی</h3>
+        <p class="sub" id="chart-subhead" data-i18n="chartSubheadDefault">پہلے "زائچہ بنائیں" دبائیں</p>
         <div class="chart-wrap">
           <svg viewBox="0 0 300 300" role="img" aria-label="شمالی ہندی طرز کا کنڈلی چارٹ">
             <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
@@ -328,25 +337,24 @@
 
       <!-- HOUSE & LORD ANALYSIS -->
       <div class="phone">
-        <h3>خانہ و حاکمِ خانہ</h3>
-        <p class="sub">سرخ = کمزور &nbsp;·&nbsp; سفید = مضبوط (اپنے گھر/اعلیٰ میں)</p>
-        <div id="house-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h3 data-i18n="houseH3">خانہ و حاکمِ خانہ</h3>
+        <p class="sub" data-i18n="houseSub">سرخ = کمزور &nbsp;·&nbsp; سفید = مضبوط (اپنے گھر/اعلیٰ میں)</p>
+        <div id="house-list"><div class="placeholder" data-i18n="waitingData">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
       <!-- PREDICTIONS -->
       <div class="phone">
-        <h3>پیشگوئی</h3>
-        <p class="sub" id="pred-subhead">موجودہ دشا اور گردش پر مبنی</p>
+        <h3 data-i18n="predH3">پیشگوئی</h3>
+        <p class="sub" id="pred-subhead" data-i18n="predSubheadDefault">موجودہ دشا اور گردش پر مبنی</p>
 
         <div class="tabs" role="tablist">
-          <button class="tab-btn active" type="button" data-tab="daily">آج کا پیغام</button>
-          <button class="tab-btn" type="button" data-tab="transits">سیاروی گردش</button>
-          <button class="tab-btn" type="button" data-tab="aspects">سیاروی نظر</button>
-          <button class="tab-btn" type="button" data-tab="monthly">اس مہینے کا رجحان</button>
-          <button class="tab-btn" type="button" data-tab="yearly">اس سال کا رجحان</button>
-          <button class="tab-btn" type="button" data-tab="remedies">علاج و تدابیر</button>
-          <button class="tab-btn" type="button" data-tab="panchang">پنچانگ</button>
-          <button class="tab-btn" type="button" data-tab="ashtakavarga">اشٹک ورگ</button>
+          <button class="tab-btn active" type="button" data-tab="daily" data-i18n="tabDaily">آج کا پیغام</button>
+          <button class="tab-btn" type="button" data-tab="transits" data-i18n="tabTransits">سیاروی گردش و نظر</button>
+          <button class="tab-btn" type="button" data-tab="monthly" data-i18n="tabMonthly">اس مہینے کا رجحان</button>
+          <button class="tab-btn" type="button" data-tab="yearly" data-i18n="tabYearly">اس سال کا رجحان</button>
+          <button class="tab-btn" type="button" data-tab="remedies" data-i18n="tabRemedies">علاج و تدابیر</button>
+          <button class="tab-btn" type="button" data-tab="panchang" data-i18n="tabPanchang">پنچانگ</button>
+          <button class="tab-btn" type="button" data-tab="ashtakavarga" data-i18n="tabAshtakavarga">اشٹک ورگ</button>
         </div>
 
         <div class="tab-panel active" id="tab-daily">
@@ -354,12 +362,24 @@
             <span class="tag" id="pred-daily-tag"></span>
             <p id="pred-daily-text">پہلے "زائچہ بنائیں" دبائیں۔</p>
           </div>
+          <p class="sub" id="daily-weekday-note" style="margin-top:.6rem;"></p>
+          <div id="daily-routine-list"></div>
         </div>
         <div class="tab-panel" id="tab-transits">
-          <div id="transit-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
-        <div class="tab-panel" id="tab-aspects">
-          <div id="aspect-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+          <div class="chart-wrap" id="transit-chart-wrap">
+            <svg viewBox="0 0 300 300" role="img" aria-label="سیاروی گردش کا چارٹ">
+              <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
+                <rect x="0" y="0" width="300" height="300"/>
+                <polygon points="150,0 300,150 150,300 0,150"/>
+                <line x1="0" y1="0" x2="300" y2="300"/>
+                <line x1="300" y1="0" x2="0" y2="300"/>
+              </g>
+              <g id="transit-sign-numbers" font-family="JetBrains Mono, monospace" font-size="11" style="fill:var(--text-muted)" text-anchor="middle"></g>
+              <g id="transit-planet-chips" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" text-anchor="middle"></g>
+            </svg>
+          </div>
+          <p class="sub" style="text-align:center;">یہ چارٹ اسی طرح کا شمالی ہندی نمونہ ہے جیسا اوپر کنڈلی میں ہے، فرق صرف یہ ہے کہ گھر وہی ہیں (پیدائشی طالع سے طے شدہ) مگر سیارے اس وقت کی اپنی موجودہ پوزیشن پر ہیں۔</p>
+          <div id="transit-combined-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
         <div class="tab-panel" id="tab-monthly">
           <div id="monthly-note" class="note" style="display:none;"></div>
@@ -379,20 +399,142 @@
           <div id="ashtakavarga-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
 
-        <div class="note">تفصیلی روزانہ/ہفتہ وار/سالانہ کیلنڈر اور Ashtakavarga پر مبنی سکورنگ اگلے ورژن میں شامل ہوگی۔</div>
+        <div class="note" data-i18n="footerNote2">Kundli Matching اور مکمل انگریزی ترجمہ (پیشگوئی کے متن کا) اگلے ورژن میں شامل ہوگا۔</div>
       </div>
 
     </div>
   </section>
 
   <footer>
-    <span>یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔</span>
+    <span data-i18n="footerNote1">یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔</span>
     <span class="ltr">Zaicha v0.1</span>
   </footer>
 
 </div>
 
 <script>
+  // ---- Language toggle (UR/EN) ----
+  // NOTE (honest scope note): ye sirf UI ke sthir (static) chrome — headings,
+  // labels, buttons, tab names — ko translate karta hai. Backend se aane
+  // wali dynamic pishgoi/predictions (narrative, remedies, panchang waghera)
+  // filhal sirf Urdu mein hi rehti hain — unka mukammal tarjuma ek bara
+  // alag kaam hoga (har template string ka English version likhna).
+  var I18N = {
+    ur: {
+      brandSub: 'زائچہ',
+      statusBadge: 'لائیو انجن سے جڑا ہوا',
+      heroTitle: 'ذاتی زائچہ اور پیشگوئیاں،<br>ہر صارف کی اپنی زبان میں',
+      heroSub: 'پیدائشی تفصیلات درج کریں — کنڈلی، خانوں کے حاکموں کا جائزہ اور موجودہ دشا/گردش پر مبنی پیشگوئی حقیقی حساب سے تیار ہوگی۔',
+      makeChartH2: 'اپنی کنڈلی بنائیں',
+      systemLahiri: 'نظام: لاہری (Vedic)',
+      entryH3: 'اندراج',
+      demoLink: 'نمونہ بھریں (Demo)',
+      entrySub: 'پیدائشی تفصیلات درج کریں',
+      labelName: 'نام',
+      placeholderName: 'اپنا نام لکھیں',
+      labelDob: 'تاریخِ پیدائش',
+      labelTime: 'وقتِ پیدائش',
+      labelCity: 'جائے پیدائش (شہر)',
+      placeholderCity: 'شہر کا نام لکھیں…',
+      labelLat: 'عرض بلد (Latitude)',
+      labelLon: 'طول بلد (Longitude)',
+      placeholderPickCity: 'شہر چنیں',
+      labelOffset: 'ملک اور ٹائم زون',
+      labelAyanamsa: 'نظامِ حساب (Ayanamsa)',
+      ayanamsaNote: 'نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔',
+      generateBtn: 'زائچہ بنائیں',
+      generateBtnLoading: 'تیار ہو رہا ہے...',
+      engineNote: 'یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔',
+      chartH3: 'زائچہ — کنڈلی',
+      chartSubheadDefault: 'پہلے "زائچہ بنائیں" دبائیں',
+      houseH3: 'خانہ و حاکمِ خانہ',
+      houseSub: 'سرخ = کمزور &nbsp;·&nbsp; سفید = مضبوط (اپنے گھر/اعلیٰ میں)',
+      waitingData: 'ڈیٹا کا انتظار ہے',
+      predH3: 'پیشگوئی',
+      predSubheadDefault: 'موجودہ دشا اور گردش پر مبنی',
+      tabDaily: 'آج کا پیغام',
+      tabTransits: 'سیاروی گردش و نظر',
+      tabMonthly: 'اس مہینے کا رجحان',
+      tabYearly: 'اس سال کا رجحان',
+      tabRemedies: 'علاج و تدابیر',
+      tabPanchang: 'پنچانگ',
+      tabAshtakavarga: 'اشٹک ورگ',
+      dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
+      footerNote1: 'یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔',
+      footerNote2: 'Kundli Matching اور مکمل انگریزی ترجمہ (پیشگوئی کے متن کا) اگلے ورژن میں شامل ہوگا۔',
+    },
+    en: {
+      brandSub: 'Zaicha',
+      statusBadge: 'Connected to live engine',
+      heroTitle: 'Your personal birth chart and predictions,<br>in your own language',
+      heroSub: 'Enter your birth details — a real, calculated kundli, house-lord analysis, and predictions based on your current dasha/transits.',
+      makeChartH2: 'Create your kundli',
+      systemLahiri: 'System: Lahiri (Vedic)',
+      entryH3: 'Birth details',
+      demoLink: 'Fill demo data',
+      entrySub: 'Enter your birth details',
+      labelName: 'Name',
+      placeholderName: 'Enter your name',
+      labelDob: 'Date of birth',
+      labelTime: 'Time of birth',
+      labelCity: 'Place of birth (city)',
+      placeholderCity: 'Type a city name…',
+      labelLat: 'Latitude',
+      labelLon: 'Longitude',
+      placeholderPickCity: 'Pick a city',
+      labelOffset: 'Country & timezone',
+      labelAyanamsa: 'Ayanamsa (system)',
+      ayanamsaNote: 'Note: the KP system\'s numeric code (5) is based on the standard Swiss Ephemeris constants, not 100% confirmed with Prokerala yet — let us know if results look off.',
+      generateBtn: 'Generate chart',
+      generateBtnLoading: 'Generating...',
+      engineNote: 'This button calls your backend server, which calls the real Prokerala API for a genuine calculation.',
+      chartH3: 'Chart — Kundli',
+      chartSubheadDefault: 'Click "Generate chart" first',
+      houseH3: 'Houses & house lords',
+      houseSub: 'Red = weak &nbsp;·&nbsp; White = strong (in own sign / exalted)',
+      waitingData: 'Waiting for data',
+      predH3: 'Predictions',
+      predSubheadDefault: 'Based on current dasha & transits',
+      tabDaily: "Today's message",
+      tabTransits: 'Transits & aspects',
+      tabMonthly: 'This month',
+      tabYearly: 'This year',
+      tabRemedies: 'Remedies',
+      tabPanchang: 'Panchang',
+      tabAshtakavarga: 'Ashtakavarga',
+      dailyDefaultText: 'Click "Generate chart" first.',
+      footerNote1: 'This chart is built from your real birth details and live astronomical calculation.',
+      footerNote2: 'Kundli matching and a full English translation of the prediction text are coming in a future version.',
+    },
+  };
+  var currentLang = 'ur';
+
+  function applyLanguage(lang){
+    currentLang = lang;
+    var dict = I18N[lang] || I18N.ur;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(b){
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    // Daily tab ka default text (jo generate se pehle dikhta hai) — sirf
+    // us waqt update karein jab abhi tak koi asal data nahi aaya.
+    var dailyText = document.getElementById('pred-daily-text');
+    if (dailyText && !dailyText.dataset.hasRealData) {
+      dailyText.textContent = dict.dailyDefaultText;
+    }
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ applyLanguage(btn.dataset.lang); });
+  });
+
   var HOUSE_GEOMETRY = {
     1:  { signPos:{x:150,y:46},  slots:[{x:128,y:82},{x:172,y:82}] },
     2:  { signPos:{x:75,y:22},   slots:[{x:75,y:30}] },
@@ -506,29 +648,39 @@
 
   function renderPredictions(data){
     document.getElementById('pred-daily-tag').textContent = data.asOfDate + ' — ' + (data.dasha.mahadasha ? data.dasha.mahadasha.lord + ' مہادشا' : '');
-    document.getElementById('pred-daily-text').textContent = data.narrative;
+    var dailyTextEl = document.getElementById('pred-daily-text');
+    dailyTextEl.textContent = data.narrative;
+    dailyTextEl.dataset.hasRealData = 'true';
     document.getElementById('pred-subhead').textContent = data.person.name + ' کے زائچے کی بنیاد پر';
 
-    var list = document.getElementById('transit-list');
-    list.innerHTML = '';
-    (data.currentTransits || []).forEach(function(t){
-      var row = document.createElement('div');
-      row.className = 'transit-row';
-      row.textContent = t.text;
-      list.appendChild(row);
-    });
-
-    var aspectList = document.getElementById('aspect-list');
-    aspectList.innerHTML = '';
-    var aspects = data.transitAspects || [];
-    if (!aspects.length) {
-      aspectList.innerHTML = '<div class="placeholder">اس وقت کوئی خاص نظر (اسپیشل درشٹی) نہیں بن رہی</div>';
+    // "سیاروی گردش و نظر" — ab har graha ka card uska gochar (transit) aur
+    // uski khaas nazar (aspect) dono ek sath dikhata hai, do alag tabs ki
+    // jagah.
+    var combinedList = document.getElementById('transit-combined-list');
+    combinedList.innerHTML = '';
+    var combined = data.transitCombined || [];
+    if (!combined.length) {
+      combinedList.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
     } else {
-      aspects.forEach(function(t){
-        var row = document.createElement('div');
-        row.className = 'transit-row';
-        row.textContent = t.text;
-        aspectList.appendChild(row);
+      combined.forEach(function(c){
+        var card = document.createElement('div');
+        card.className = 'pred-card';
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = c.planetLabel;
+        card.appendChild(tag);
+        var p = document.createElement('p');
+        p.textContent = c.transitText;
+        card.appendChild(p);
+        (c.aspects || []).forEach(function(a){
+          var ap = document.createElement('p');
+          ap.style.margin = '.3rem 0 0';
+          ap.style.fontSize = '.82rem';
+          ap.style.color = 'var(--text-muted)';
+          ap.textContent = '↳ ' + a.text;
+          card.appendChild(ap);
+        });
+        combinedList.appendChild(card);
       });
     }
 
@@ -549,6 +701,66 @@
       card.appendChild(p);
       remediesList.appendChild(card);
     });
+  }
+
+  var PLANET_NAME_UR_MAP = {
+    Sun:'سورج', Moon:'چاند', Mars:'مریخ', Mercury:'عطارد', Jupiter:'مشتری',
+    Venus:'زہرہ', Saturn:'زحل', Rahu:'راہو', Ketu:'کیتو'
+  };
+
+  function renderDailyRoutine(data){
+    var routine = data.dailyRoutine;
+    var note = document.getElementById('daily-weekday-note');
+    var box = document.getElementById('daily-routine-list');
+    if (!routine) { note.textContent = ''; box.innerHTML = ''; return; }
+
+    note.textContent = routine.weekday
+      ? 'آج ' + routine.weekday.name + ' ہے — روایتی حساب سے آج کا حاکم سیارہ ' + (PLANET_NAME_UR_MAP[routine.weekday.planet] || routine.weekday.planet) + '، رنگ: ' + routine.weekday.color
+      : '';
+
+    box.innerHTML = '';
+    (routine.categories || []).forEach(function(c){
+      var card = document.createElement('div');
+      card.className = 'pred-card';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = c.label;
+      var p = document.createElement('p');
+      p.textContent = c.text;
+      card.appendChild(tag);
+      card.appendChild(p);
+      box.appendChild(card);
+    });
+  }
+
+  function renderTransitChart(data){
+    var signG = document.getElementById('transit-sign-numbers');
+    var planetG = document.getElementById('transit-planet-chips');
+    if (!signG || !planetG) return;
+    signG.innerHTML = '';
+    planetG.innerHTML = '';
+    var houses = (data.gochar && data.gochar.houses) || [];
+    if (!houses.length) return;
+
+    for (var h = 1; h <= 12; h++){
+      var geo = HOUSE_GEOMETRY[h];
+      var house = houses[h - 1];
+
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', geo.signPos.x); t.setAttribute('y', geo.signPos.y);
+      t.textContent = house.signId + 1;
+      signG.appendChild(t);
+
+      house.planets.forEach(function(p, i){
+        var slot = geo.slots[Math.min(i, geo.slots.length - 1)];
+        var pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        pt.setAttribute('x', slot.x);
+        pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
+        pt.style.fill = p.color;
+        pt.textContent = p.abbr;
+        planetG.appendChild(pt);
+      });
+    }
   }
 
   function renderLinesWithNote(listId, noteId, outlook){
@@ -641,8 +853,10 @@
 
   function renderAll(data){
     renderChart(data);
+    renderTransitChart(data);
     renderHouseList(data);
     renderPredictions(data);
+    renderDailyRoutine(data);
     renderPanchang(data);
     renderAshtakavarga(data);
   }
@@ -666,6 +880,11 @@
     document.getElementById('in-lat').value = '31.5204';
     document.getElementById('in-lon').value = '74.3587';
     document.getElementById('in-offset').value = '+05:00';
+  });
+
+  // ---- Ayanamsa select: KP intikhab karne par disclaimer note dikhayein ----
+  document.getElementById('in-ayanamsa').addEventListener('change', function(){
+    document.getElementById('ayanamsa-note').style.display = (this.value === '5') ? 'block' : 'none';
   });
 
   // ---- City of birth search (koi bhi shehar duniya bhar ka) ----
@@ -714,7 +933,7 @@
     var btn = this;
     hideError();
     btn.disabled = true;
-    btn.textContent = 'تیار ہو رہا ہے...';
+    btn.textContent = I18N[currentLang].generateBtnLoading;
     try {
       var person = {
         name: document.getElementById('in-name').value,
@@ -723,15 +942,15 @@
         lat: document.getElementById('in-lat').value,
         lon: document.getElementById('in-lon').value,
         utcOffset: document.getElementById('in-offset').value,
-        ayanamsa: 1 // filhal sirf Lahiri hi kaam karta hai — dropdown ke baaki options abhi disabled hain
+        ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1
       };
       var data = await fetchChartData(person);
       renderAll(data);
     } catch (err) {
-      showError('خرابی: ' + err.message);
+      showError((currentLang === 'en' ? 'Error: ' : 'خرابی: ') + err.message);
     } finally {
       btn.disabled = false;
-      btn.textContent = 'زائچہ بنائیں';
+      btn.textContent = I18N[currentLang].generateBtn;
     }
   });
 

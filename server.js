@@ -28,9 +28,11 @@ const {
   generateNarrativeViaLLM,
   buildCurrentTransitLines,
   buildTransitAspectLines,
+  buildCombinedTransitPredictions,
   buildMonthlyOutlook,
   buildYearlyOutlook,
   buildRemedies,
+  buildDailyRoutine,
 } = require('./lib/narrative');
 
 const app = express();
@@ -78,6 +80,7 @@ app.post('/api/kundli', async (req, res) => {
       sadeSati,
       kaalSarp,
       targetDate: now,
+      ayanamsa: ayanamsaVal,
     });
 
     // Panchang aur Ashtakavarga alag se, non-fatal tareeqe se fetch kiye ja
@@ -120,8 +123,10 @@ app.post('/api/kundli', async (req, res) => {
 
     const currentTransits = buildCurrentTransitLines(data.gochar.details);
     const transitAspects = buildTransitAspectLines(data.gochar.details);
+    const transitCombined = buildCombinedTransitPredictions(data.gochar.details);
     const monthlyOutlook = buildMonthlyOutlook(data.gochar.details);
     const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati);
+    const dailyRoutine = buildDailyRoutine(data.houses, data.gochar.details.Moon, now);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
