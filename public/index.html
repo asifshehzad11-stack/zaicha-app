@@ -341,6 +341,7 @@
         <div class="tabs" role="tablist">
           <button class="tab-btn active" type="button" data-tab="daily">آج کا پیغام</button>
           <button class="tab-btn" type="button" data-tab="transits">حالیہ گردش</button>
+          <button class="tab-btn" type="button" data-tab="aspects">سیاروی نظر</button>
         </div>
 
         <div class="tab-panel active" id="tab-daily">
@@ -351,6 +352,9 @@
         </div>
         <div class="tab-panel" id="tab-transits">
           <div id="transit-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-aspects">
+          <div id="aspect-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
 
         <div class="note">تفصیلی روزانہ/ہفتہ وار/سالانہ کیلنڈر اور Ashtakavarga پر مبنی سکورنگ اگلے ورژن میں شامل ہوگی۔</div>
@@ -491,6 +495,20 @@
       row.textContent = t.text;
       list.appendChild(row);
     });
+
+    var aspectList = document.getElementById('aspect-list');
+    aspectList.innerHTML = '';
+    var aspects = data.transitAspects || [];
+    if (!aspects.length) {
+      aspectList.innerHTML = '<div class="placeholder">اس وقت کوئی خاص نظر (اسپیشل درشٹی) نہیں بن رہی</div>';
+    } else {
+      aspects.forEach(function(t){
+        var row = document.createElement('div');
+        row.className = 'transit-row';
+        row.textContent = t.text;
+        aspectList.appendChild(row);
+      });
+    }
   }
 
   function renderAll(data){

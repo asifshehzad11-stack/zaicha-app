@@ -24,7 +24,7 @@ const path = require('path');
 
 const prokerala = require('./lib/prokerala-client');
 const { buildZaichaData } = require('./lib/astro-engine');
-const { generateNarrativeViaLLM, buildCurrentTransitLines } = require('./lib/narrative');
+const { generateNarrativeViaLLM, buildCurrentTransitLines, buildTransitAspectLines } = require('./lib/narrative');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -86,9 +86,10 @@ app.post('/api/kundli', async (req, res) => {
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
     });
 
-    const currentTransits = buildCurrentTransitLines(data.gochar.fromLagna);
+    const currentTransits = buildCurrentTransitLines(data.gochar.details);
+    const transitAspects = buildTransitAspectLines(data.gochar.details);
 
-    res.json({ ...data, narrative, currentTransits, asOfDate: now.toISOString().slice(0, 10) });
+    res.json({ ...data, narrative, currentTransits, transitAspects, asOfDate: now.toISOString().slice(0, 10) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Kuch ghalat ho gaya.' });
