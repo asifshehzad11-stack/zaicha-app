@@ -23,8 +23,15 @@ const express = require('express');
 const path = require('path');
 
 const prokerala = require('./lib/prokerala-client');
-const { buildZaichaData } = require('./lib/astro-engine');
-const { generateNarrativeViaLLM, buildCurrentTransitLines, buildTransitAspectLines } = require('./lib/narrative');
+const { buildZaichaData, normalizePanchang } = require('./lib/astro-engine');
+const {
+  generateNarrativeViaLLM,
+  buildCurrentTransitLines,
+  buildTransitAspectLines,
+  buildMonthlyOutlook,
+  buildYearlyOutlook,
+  buildRemedies,
+} = require('./lib/narrative');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -73,6 +80,31 @@ app.post('/api/kundli', async (req, res) => {
       targetDate: now,
     });
 
+    // Panchang aur Ashtakavarga alag se, non-fatal tareeqe se fetch kiye ja
+    // rahe hain — agar in mein se koi fail ho (khaaskar Ashtakavarga, jiska
+    // asal endpoint abhi tak public docs se confirm nahi ho saka), to poori
+    // /api/kundli request crash nahi hogi, sirf wo ek tab "abhi dastyab
+    // nahi" dikha dega.
+    const [birthPanchangResult, todayPanchangResult, ashtakavargaResult] = await Promise.allSettled([
+      prokerala.getPanchang(person),
+      prokerala.getPanchang(gocharPerson),
+      prokerala.getSarvashtakavargaBestEffort(person),
+    ]);
+
+    const panchang = {
+      birth: birthPanchangResult.status === 'fulfilled' ? normalizePanchang(birthPanchangResult.value) : null,
+      today: todayPanchangResult.status === 'fulfilled' ? normalizePanchang(todayPanchangResult.value) : null,
+      error: birthPanchangResult.status === 'rejected' ? birthPanchangResult.reason.message : null,
+    };
+
+    const ashtakavarga = ashtakavargaResult.status === 'fulfilled'
+      ? { available: true, path: ashtakavargaResult.value.path, raw: ashtakavargaResult.value.data }
+      : { available: false, error: ashtakavargaResult.reason && ashtakavargaResult.reason.message };
+
+    if (ashtakavargaResult.status === 'rejected') {
+      console.error('Ashtakavarga abhi tak wire nahi ho saka:', ashtakavargaResult.reason);
+    }
+
     const narrative = await generateNarrativeViaLLM({
       lifeAreaKey: 'career',
       mahadashaLord: data.dasha.mahadasha && data.dasha.mahadasha.lord,
@@ -88,8 +120,28 @@ app.post('/api/kundli', async (req, res) => {
 
     const currentTransits = buildCurrentTransitLines(data.gochar.details);
     const transitAspects = buildTransitAspectLines(data.gochar.details);
+    const monthlyOutlook = buildMonthlyOutlook(data.gochar.details);
+    const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati);
+    const remedies = buildRemedies({
+      hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
+      hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
+      isInSadeSati: data.sadeSati && data.sadeSati.is_in_sade_sati,
+      sadeSatiPhase: data.sadeSati && data.sadeSati.transit_phase,
+      weakNatalPlanets: data.weakNatalPlanets,
+    });
 
-    res.json({ ...data, narrative, currentTransits, transitAspects, asOfDate: now.toISOString().slice(0, 10) });
+    res.json({
+      ...data,
+      narrative,
+      currentTransits,
+      transitAspects,
+      monthlyOutlook,
+      yearlyOutlook,
+      remedies,
+      panchang,
+      ashtakavarga,
+      asOfDate: now.toISOString().slice(0, 10),
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Kuch ghalat ho gaya.' });
@@ -114,6 +166,35 @@ app.post('/api/debug/kundli-raw', async (req, res) => {
     };
     const raw = await prokerala.getKundliAdvanced(person);
     res.json(raw);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Debug route — Ashtakavarga/Sarvashtakavarga ka asal endpoint aur
+ * response shape abhi live confirm nahi ho saka (README/prokerala-client.js
+ * mein tafseel hai). Ye route har candidate path ka result (kamyaab ya
+ * error) alag alag dikhata hai — jab real credentials se ek dafa test
+ * hoga, jo path kaam karay uska asal JSON shape dekh kar hum
+ * astro-engine.js/narrative.js mein house-wise numbers nikalne wala code
+ * theek se likh sakenge. Production mein hata dena chahiye.
+ */
+app.post('/api/debug/ashtakavarga-raw', async (req, res) => {
+  try {
+    const { dob, time, lat, lon, ayanamsa, utcOffset } = req.body;
+    const offset = utcOffset || '+05:00';
+    const person = {
+      datetime: `${dob}T${time}:00${offset}`,
+      coordinates: `${lat},${lon}`,
+      ayanamsa: ayanamsa || 1,
+    };
+    // getSarvashtakavargaBestEffort khud saaray candidate paths try karta
+    // hai aur agar sab fail hon to har ek ki alag error message ek sath
+    // laut ata hai (prokerala-client.js dekhein) — is liye yahan sirf ek
+    // hi call kaafi hai.
+    const result = await prokerala.getSarvashtakavargaBestEffort(person);
+    res.json({ workingPath: result.path, data: result.data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

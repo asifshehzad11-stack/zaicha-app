@@ -340,8 +340,13 @@
 
         <div class="tabs" role="tablist">
           <button class="tab-btn active" type="button" data-tab="daily">آج کا پیغام</button>
-          <button class="tab-btn" type="button" data-tab="transits">حالیہ گردش</button>
+          <button class="tab-btn" type="button" data-tab="transits">سیاروی گردش</button>
           <button class="tab-btn" type="button" data-tab="aspects">سیاروی نظر</button>
+          <button class="tab-btn" type="button" data-tab="monthly">اس مہینے کا رجحان</button>
+          <button class="tab-btn" type="button" data-tab="yearly">اس سال کا رجحان</button>
+          <button class="tab-btn" type="button" data-tab="remedies">علاج و تدابیر</button>
+          <button class="tab-btn" type="button" data-tab="panchang">پنچانگ</button>
+          <button class="tab-btn" type="button" data-tab="ashtakavarga">اشٹک ورگ</button>
         </div>
 
         <div class="tab-panel active" id="tab-daily">
@@ -355,6 +360,23 @@
         </div>
         <div class="tab-panel" id="tab-aspects">
           <div id="aspect-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-monthly">
+          <div id="monthly-note" class="note" style="display:none;"></div>
+          <div id="monthly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-yearly">
+          <div id="yearly-note" class="note" style="display:none;"></div>
+          <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-remedies">
+          <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-panchang">
+          <div id="panchang-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+        <div class="tab-panel" id="tab-ashtakavarga">
+          <div id="ashtakavarga-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
 
         <div class="note">تفصیلی روزانہ/ہفتہ وار/سالانہ کیلنڈر اور Ashtakavarga پر مبنی سکورنگ اگلے ورژن میں شامل ہوگی۔</div>
@@ -509,12 +531,120 @@
         aspectList.appendChild(row);
       });
     }
+
+    renderLinesWithNote('monthly-list', 'monthly-note', data.monthlyOutlook);
+    renderLinesWithNote('yearly-list', 'yearly-note', data.yearlyOutlook);
+
+    var remediesList = document.getElementById('remedies-list');
+    remediesList.innerHTML = '';
+    (data.remedies || []).forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = r.title;
+      var p = document.createElement('p');
+      p.textContent = r.text;
+      card.appendChild(tag);
+      card.appendChild(p);
+      remediesList.appendChild(card);
+    });
+  }
+
+  function renderLinesWithNote(listId, noteId, outlook){
+    var list = document.getElementById(listId);
+    var noteBox = document.getElementById(noteId);
+    list.innerHTML = '';
+    if (!outlook) { list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>'; return; }
+
+    (outlook.extra || []).forEach(function(text){
+      var row = document.createElement('div');
+      row.className = 'transit-row';
+      row.textContent = text;
+      list.appendChild(row);
+    });
+    (outlook.lines || []).forEach(function(t){
+      var row = document.createElement('div');
+      row.className = 'transit-row';
+      row.textContent = t.text;
+      list.appendChild(row);
+    });
+
+    if (outlook.note) {
+      noteBox.textContent = outlook.note;
+      noteBox.style.display = 'block';
+    } else {
+      noteBox.style.display = 'none';
+    }
+  }
+
+  function panchangCard(title, p){
+    var card = document.createElement('div');
+    card.className = 'pred-card';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = title;
+    card.appendChild(tag);
+    if (!p) {
+      var p1 = document.createElement('p');
+      p1.textContent = 'یہ معلومات ابھی حاصل نہیں ہو سکیں۔';
+      card.appendChild(p1);
+      return card;
+    }
+    var rows = [
+      ['دن', p.vaara],
+      ['تِتھی', p.tithi ? (p.tithi + (p.tithiPaksha ? ' (' + p.tithiPaksha + ')' : '')) : null],
+      ['نچھتر', p.nakshatra],
+      ['یوگ', p.yoga],
+      ['کرن', p.karana],
+      ['طلوعِ آفتاب', p.sunrise],
+      ['غروبِ آفتاب', p.sunset],
+    ];
+    rows.forEach(function(r){
+      if (!r[1]) return;
+      var line = document.createElement('p');
+      line.style.margin = '.2rem 0';
+      line.textContent = r[0] + ': ' + r[1];
+      card.appendChild(line);
+    });
+    return card;
+  }
+
+  function renderPanchang(data){
+    var box = document.getElementById('panchang-content');
+    box.innerHTML = '';
+    var panchang = data.panchang || {};
+    box.appendChild(panchangCard('پیدائش کا پنچانگ', panchang.birth));
+    box.appendChild(panchangCard('آج کا پنچانگ', panchang.today));
+  }
+
+  function renderAshtakavarga(data){
+    var box = document.getElementById('ashtakavarga-content');
+    box.innerHTML = '';
+    var ak = data.ashtakavarga || {};
+    if (!ak.available) {
+      box.innerHTML = '<div class="placeholder">اشٹک ورگ ابھی دستیاب نہیں — اس کا API حصہ ابھی حتمی نہیں ہوا، جلد شامل ہوگا۔</div>';
+      return;
+    }
+    var note = document.createElement('div');
+    note.className = 'note';
+    note.textContent = 'یہ ڈیٹا اپنی خام (raw) شکل میں دکھایا جا رہا ہے جب تک اسے گھر وار خوبصورت شکل میں نہ ڈھالا جائے۔';
+    box.appendChild(note);
+    var pre = document.createElement('pre');
+    pre.style.whiteSpace = 'pre-wrap';
+    pre.style.fontSize = '.75rem';
+    pre.style.direction = 'ltr';
+    pre.style.textAlign = 'left';
+    pre.textContent = JSON.stringify(ak.raw, null, 2);
+    box.appendChild(pre);
   }
 
   function renderAll(data){
     renderChart(data);
     renderHouseList(data);
     renderPredictions(data);
+    renderPanchang(data);
+    renderAshtakavarga(data);
   }
 
   function showError(msg){
