@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zaicha</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#0b1220;
+    --panel:#121b2e;
+    --panel-2:#17233a;
+    --line:#2a3855;
+    --line-soft:#1e2a44;
+    --text:#edeff5;
+    --text-muted:#8b93ac;
+    --gold:#d4a544;
+    --gold-soft:#e9cd8c;
+    --weak:#e0554f;
+    --strong:#f5f1e6;
+    --rose:#f0b8cc;
+    --error:#e0554f;
+
+    --su:#e2672a; --mo:#d8dee9; --ma:#c0392b; --me:#4c9a6a; --ju:#d4a544;
+    --ve:#f0b8cc; --sa:#7d97b3; --ra:#9aa0ac; --ke:#a9836a;
+
+    --fs-hero: clamp(2.1rem, 1.1rem + 3.6vw, 3.4rem);
+    --fs-h2: clamp(1.35rem, 1rem + 1.4vw, 1.9rem);
+    --fs-body: 1.02rem;
+    --fs-small: 0.86rem;
+    --fs-micro: 0.7rem;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq",serif;
+    font-size:var(--fs-body);
+    line-height:2;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .ltr{ direction:ltr; unicode-bidi:isolate; font-family:"JetBrains Mono",ui-monospace,monospace; }
+  .latin{ direction:ltr; unicode-bidi:isolate; font-family:"Cinzel","Times New Roman",serif; }
+
+  .page{ max-width:1180px; margin:0 auto; padding: clamp(1.1rem,2vw,2.4rem) clamp(1.1rem,3vw,2.8rem) 3rem; position:relative; isolation:isolate; }
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(1px 1px at 8% 18%, rgba(237,239,245,.55) 0, transparent 60%),
+      radial-gradient(1.5px 1.5px at 38% 12%, rgba(237,239,245,.5) 0, transparent 60%),
+      radial-gradient(1.5px 1.5px at 68% 30%, rgba(237,239,245,.45) 0, transparent 60%),
+      radial-gradient(1.5px 1.5px at 91% 22%, rgba(237,239,245,.5) 0, transparent 60%),
+      radial-gradient(1200px 700px at 80% -10%, rgba(212,165,68,.08), transparent 60%),
+      var(--ink);
+    background-color:var(--ink);
+  }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding-bottom:1.4rem; margin-bottom:1.8rem; border-bottom:1px solid var(--line-soft); }
+  .brand{ display:flex; align-items:center; gap:.7rem; }
+  .brand svg{ width:38px; height:38px; flex:none; color:var(--gold); }
+  .brand-name{ font-family:"Cinzel",serif; font-size:1.5rem; letter-spacing:.04em; color:var(--text); direction:ltr; }
+  .brand-sub{ font-size:var(--fs-small); color:var(--text-muted); margin-inline-start:.5rem; }
+  .badge{ font-size:var(--fs-micro); letter-spacing:.04em; padding:.35rem .7rem; border-radius:999px; border:1px solid var(--line); color:var(--text-muted); white-space:nowrap; }
+  .badge.gold{ border-color:rgba(212,165,68,.45); color:var(--gold-soft); }
+
+  .hero{ padding:1.6rem 0 2rem; }
+  .hero h1{ font-size:var(--fs-hero); line-height:1.5; margin:0 0 1rem; text-wrap:balance; font-weight:700; }
+  .hero p{ max-width:52ch; color:var(--text-muted); font-size:1.05rem; line-height:2; margin:0; }
+
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+  .section-head h2{ font-size:var(--fs-h2); margin:0; }
+  .section-head span{ font-size:var(--fs-small); color:var(--text-muted); }
+
+  .phones{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 320px)); justify-content:center; gap:1.6rem; margin-bottom: 2rem; }
+  .phone{ background:linear-gradient(180deg, #1a2540, #10192c); border:1px solid var(--line); border-radius:24px; padding:1rem; box-shadow:0 30px 60px -30px rgba(0,0,0,.7); }
+  .phone h3{ margin:0 0 .2rem; font-size:1.05rem; }
+  .phone .sub{ margin:0 0 .9rem; font-size:var(--fs-micro); color:var(--text-muted); }
+
+  .field{ margin-bottom:.8rem; }
+  .field label{ display:block; font-size:var(--fs-micro); color:var(--gold-soft); letter-spacing:.03em; margin-bottom:.35rem; }
+  .field input, .field select{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:.6rem .8rem; font-size:var(--fs-small); color:var(--text); font-family:inherit;
+  }
+  .field input[dir="ltr"]{ font-family:"JetBrains Mono",monospace; text-align:left; }
+  .field-row{ display:flex; gap:.6rem; }
+  .field-row .field{ flex:1; }
+  .field input[readonly]{ opacity:.7; }
+  #city-suggestions{
+    position:absolute; top:100%; left:0; right:0; z-index:10;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    margin-top:.3rem; max-height:200px; overflow-y:auto; display:none;
+  }
+  #city-suggestions.open{ display:block; }
+  #city-suggestions .city-option{ padding:.5rem .8rem; font-size:.82rem; cursor:pointer; border-bottom:1px solid var(--line-soft); }
+  #city-suggestions .city-option:last-child{ border-bottom:none; }
+  #city-suggestions .city-option:hover{ background:var(--panel); color:var(--gold-soft); }
+
+  #generate-btn{ width:100%; margin-top:.4rem; padding:.75rem; border-radius:10px; border:1px solid var(--gold); background:var(--gold-soft); color:var(--ink); font-family:inherit; font-size:.92rem; font-weight:600; cursor:pointer; }
+  #generate-btn:disabled{ opacity:.6; cursor:wait; }
+  #engine-note{ margin-top:.6rem; font-size:.7rem; color:var(--text-muted); }
+  #error-box{ display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(224,85,79,.12); border:1px solid rgba(224,85,79,.4); color:var(--weak); font-size:.78rem; }
+
+  .chart-wrap{ display:flex; justify-content:center; margin-bottom:.8rem; }
+  .chart-wrap svg{ width:100%; max-width:280px; height:auto; }
+  .legend{ display:flex; flex-wrap:wrap; gap:.45rem .7rem; justify-content:center; margin-bottom:1rem; }
+  .legend-item{ display:flex; align-items:center; gap:.3rem; font-size:.72rem; color:var(--text-muted); }
+  .legend-dot{ width:8px; height:8px; border-radius:50%; flex:none; }
+
+  .house-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:.6rem; padding:.7rem 0; border-bottom:1px solid var(--line-soft); }
+  .house-row:last-child{ border-bottom:none; }
+  .house-title{ font-size:.92rem; }
+  .house-title .mono{ font-family:"JetBrains Mono",monospace; direction:ltr; color:var(--gold-soft); }
+  .house-lord{ font-size:.74rem; color:var(--text-muted); }
+  .house-side{ display:flex; flex-direction:column; align-items:flex-end; gap:.3rem; flex:none; }
+  .planet-tag{ font-family:"JetBrains Mono",monospace; direction:ltr; font-size:.82rem; font-weight:600; }
+  .deg{ font-family:"JetBrains Mono",monospace; direction:ltr; font-size:.72rem; }
+  .status-pill{ font-size:.66rem; padding:.15rem .55rem; border-radius:999px; white-space:nowrap; }
+  .status-pill.strong{ background:rgba(245,241,230,.12); color:var(--strong); border:1px solid rgba(245,241,230,.3); }
+  .status-pill.weak{ background:rgba(224,85,79,.14); color:var(--weak); border:1px solid rgba(224,85,79,.4); }
+  .status-pill.neutral{ background:rgba(139,147,172,.12); color:var(--text-muted); border:1px solid var(--line); }
+
+  .tabs{ display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+  .tab-btn{ flex:1; min-width:100px; font-size:.8rem; padding:.5rem .3rem; text-align:center; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--text-muted); cursor:pointer; font-family:inherit; }
+  .tab-btn.active{ background:var(--panel-2); border-color:var(--gold); color:var(--gold-soft); font-weight:600; }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  .pred-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:1rem; margin-bottom: .8rem; }
+  .pred-card .tag{ font-size:var(--fs-micro); color:var(--gold-soft); margin-bottom:.5rem; display:block; }
+  .pred-card p{ margin:0; font-size:.94rem; line-height:1.95; }
+  .transit-row{ padding:.55rem 0; border-bottom:1px solid var(--line-soft); font-size:.85rem; }
+  .transit-row:last-child{ border-bottom:none; }
+  .note{ font-size:.78rem; color:var(--text-muted); background:var(--panel-2); border:1px dashed var(--line); border-radius:10px; padding:.6rem .8rem; margin-top: .8rem; }
+
+  .placeholder{ text-align:center; color:var(--text-muted); font-size:.85rem; padding: 2rem 0; }
+
+  footer{ margin-top:2.5rem; padding-top:1.6rem; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:var(--fs-small); color:var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" role="img" aria-label="زائچہ کا لوگو">
+        <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="24" y1="7" x2="24" y2="41" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+        <line x1="7" y1="24" x2="41" y2="24" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+        <line x1="12.5" y1="12.5" x2="35.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+        <line x1="35.5" y1="12.5" x2="12.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+        <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
+      </svg>
+      <div class="brand-name latin">Zaicha</div>
+      <span class="brand-sub">زائچہ</span>
+    </div>
+    <span class="badge gold" id="status-badge">لائیو انجن سے جڑا ہوا</span>
+  </header>
+
+  <section class="hero">
+    <h1>ذاتی زائچہ اور پیشگوئیاں،<br>ہر صارف کی اپنی زبان میں</h1>
+    <p>پیدائشی تفصیلات درج کریں — کنڈلی، خانوں کے حاکموں کا جائزہ اور موجودہ دشا/گردش پر مبنی پیشگوئی حقیقی حساب سے تیار ہوگی۔</p>
+  </section>
+
+  <section class="showcase">
+    <div class="section-head">
+      <h2>اپنی کنڈلی بنائیں</h2>
+      <span>نظام: لاہری (Vedic)</span>
+    </div>
+
+    <div class="phones">
+
+      <!-- INPUT -->
+      <div class="phone">
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <h3>اندراج</h3>
+          <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);">نمونہ بھریں (Demo)</a>
+        </div>
+        <p class="sub">پیدائشی تفصیلات درج کریں</p>
+
+        <div class="field">
+          <label>نام</label>
+          <input type="text" id="in-name" placeholder="اپنا نام لکھیں">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>تاریخِ پیدائش</label>
+            <input type="date" id="in-dob" dir="ltr">
+          </div>
+          <div class="field">
+            <label>وقتِ پیدائش</label>
+            <input type="time" id="in-time" dir="ltr">
+          </div>
+        </div>
+        <div class="field" style="position:relative;">
+          <label>جائے پیدائش (شہر)</label>
+          <input type="text" id="in-city" placeholder="شہر کا نام لکھیں…" autocomplete="off">
+          <div id="city-suggestions"></div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>عرض بلد (Latitude)</label>
+            <input type="text" id="in-lat" dir="ltr" readonly placeholder="شہر چنیں">
+          </div>
+          <div class="field">
+            <label>طول بلد (Longitude)</label>
+            <input type="text" id="in-lon" dir="ltr" readonly placeholder="شہر چنیں">
+          </div>
+        </div>
+        <div class="field">
+          <label>ملک اور ٹائم زون</label>
+          <select id="in-offset" dir="rtl">
+            <option value="+05:00" selected>پاکستان (UTC+05:00)</option>
+            <option value="+05:30">بھارت / انڈیا (UTC+05:30)</option>
+            <option value="+05:30">سری لنکا (UTC+05:30)</option>
+            <option value="+05:45">نیپال (UTC+05:45)</option>
+            <option value="+06:00">بنگلہ دیش (UTC+06:00)</option>
+            <option value="+06:30">میانمار (UTC+06:30)</option>
+            <option value="+04:30">افغانستان (UTC+04:30)</option>
+            <option value="+03:30">ایران (UTC+03:30)</option>
+            <option value="+03:00">سعودی عرب (UTC+03:00)</option>
+            <option value="+04:00">متحدہ عرب امارات (UTC+04:00)</option>
+            <option value="+03:00">قطر (UTC+03:00)</option>
+            <option value="+03:00">کویت (UTC+03:00)</option>
+            <option value="+03:00">بحرین (UTC+03:00)</option>
+            <option value="+04:00">عمان (UTC+04:00)</option>
+            <option value="+03:00">عراق (UTC+03:00)</option>
+            <option value="+02:00">اردن (UTC+02:00)</option>
+            <option value="+02:00">لبنان (UTC+02:00)</option>
+            <option value="+03:00">شام (UTC+03:00)</option>
+            <option value="+03:00">یمن (UTC+03:00)</option>
+            <option value="+02:00">مصر (UTC+02:00)</option>
+            <option value="+02:00">لیبیا (UTC+02:00)</option>
+            <option value="+01:00">تیونس (UTC+01:00)</option>
+            <option value="+01:00">الجزائر (UTC+01:00)</option>
+            <option value="+01:00">مراکش (UTC+01:00)</option>
+            <option value="+03:00">ترکی (UTC+03:00)</option>
+            <option value="+08:00">چین (UTC+08:00)</option>
+            <option value="+09:00">جاپان (UTC+09:00)</option>
+            <option value="+09:00">جنوبی کوریا (UTC+09:00)</option>
+            <option value="+08:00">ملائیشیا (UTC+08:00)</option>
+            <option value="+08:00">سنگاپور (UTC+08:00)</option>
+            <option value="+07:00">انڈونیشیا (UTC+07:00)</option>
+            <option value="+07:00">تھائی لینڈ (UTC+07:00)</option>
+            <option value="+08:00">فلپائن (UTC+08:00)</option>
+            <option value="+07:00">ویتنام (UTC+07:00)</option>
+            <option value="+00:00">برطانیہ (UTC+00:00)</option>
+            <option value="+00:00">آئرلینڈ (UTC+00:00)</option>
+            <option value="+00:00">پرتگال (UTC+00:00)</option>
+            <option value="+01:00">جرمنی (UTC+01:00)</option>
+            <option value="+01:00">فرانس (UTC+01:00)</option>
+            <option value="+01:00">اٹلی (UTC+01:00)</option>
+            <option value="+01:00">اسپین (UTC+01:00)</option>
+            <option value="+01:00">نیدرلینڈز (UTC+01:00)</option>
+            <option value="+01:00">بیلجیئم (UTC+01:00)</option>
+            <option value="+01:00">سوئٹزرلینڈ (UTC+01:00)</option>
+            <option value="+01:00">پولینڈ (UTC+01:00)</option>
+            <option value="+01:00">سویڈن (UTC+01:00)</option>
+            <option value="+01:00">ناروے (UTC+01:00)</option>
+            <option value="+01:00">ڈنمارک (UTC+01:00)</option>
+            <option value="+02:00">یونان (UTC+02:00)</option>
+            <option value="+02:00">یوکرین (UTC+02:00)</option>
+            <option value="+03:00">روس/ماسکو (UTC+03:00)</option>
+            <option value="+02:00">جنوبی افریقہ (UTC+02:00)</option>
+            <option value="+03:00">کینیا (UTC+03:00)</option>
+            <option value="+01:00">نائیجیریا (UTC+01:00)</option>
+            <option value="-05:00">امریکہ — مشرقی (UTC-05:00)</option>
+            <option value="-06:00">امریکہ — وسطی (UTC-06:00)</option>
+            <option value="-07:00">امریکہ — پہاڑی (UTC-07:00)</option>
+            <option value="-08:00">امریکہ — مغربی (UTC-08:00)</option>
+            <option value="-05:00">کینیڈا — مشرقی (UTC-05:00)</option>
+            <option value="-06:00">میکسیکو (UTC-06:00)</option>
+            <option value="-03:00">برازیل (UTC-03:00)</option>
+            <option value="-03:00">ارجنٹائن (UTC-03:00)</option>
+            <option value="+10:00">آسٹریلیا — سڈنی (UTC+10:00)</option>
+            <option value="+12:00">نیوزی لینڈ (UTC+12:00)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>نظامِ حساب (Ayanamsa)</label>
+          <select id="in-ayanamsa">
+            <option value="1">لاہری (Lahiri) — فعال</option>
+            <option value="kp" disabled>KP — جلد آ رہا ہے</option>
+            <option value="raman" disabled>راشی/Raman — جلد آ رہا ہے</option>
+            <option value="naari" disabled>ناڑی — تحقیق باقی ہے (AKSRA)</option>
+            <option value="unani" disabled>یونانی — تحقیق باقی ہے (AKSRA)</option>
+          </select>
+        </div>
+
+        <button id="generate-btn" type="button">زائچہ بنائیں</button>
+        <div id="engine-note">یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔</div>
+        <div id="error-box"></div>
+      </div>
+
+      <!-- KUNDLI CHART -->
+      <div class="phone">
+        <h3>زائچہ — کنڈلی</h3>
+        <p class="sub" id="chart-subhead">پہلے "زائچہ بنائیں" دبائیں</p>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 300 300" role="img" aria-label="شمالی ہندی طرز کا کنڈلی چارٹ">
+            <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
+              <rect x="0" y="0" width="300" height="300"/>
+              <polygon points="150,0 300,150 150,300 0,150"/>
+              <line x1="0" y1="0" x2="300" y2="300"/>
+              <line x1="300" y1="0" x2="0" y2="300"/>
+            </g>
+            <g id="sign-numbers" font-family="JetBrains Mono, monospace" font-size="11" style="fill:var(--text-muted)" text-anchor="middle"></g>
+            <g id="planet-chips" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" text-anchor="middle"></g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>Lg طالع</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--su)"></span>Su سورج</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--mo)"></span>Mo چاند</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--ma)"></span>Ma مریخ</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--me)"></span>Me عطارد</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--ju)"></span>Ju مشتری</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--ve)"></span>Ve زہرہ</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--sa)"></span>Sa زحل</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--ra)"></span>Ra راہو</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--ke)"></span>Ke کیتو</span>
+        </div>
+      </div>
+
+      <!-- HOUSE & LORD ANALYSIS -->
+      <div class="phone">
+        <h3>خانہ و حاکمِ خانہ</h3>
+        <p class="sub">سرخ = کمزور &nbsp;·&nbsp; سفید = مضبوط (اپنے گھر/اعلیٰ میں)</p>
+        <div id="house-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <!-- PREDICTIONS -->
+      <div class="phone">
+        <h3>پیشگوئی</h3>
+        <p class="sub" id="pred-subhead">موجودہ دشا اور گردش پر مبنی</p>
+
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" type="button" data-tab="daily">آج کا پیغام</button>
+          <button class="tab-btn" type="button" data-tab="transits">حالیہ گردش</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-daily">
+          <div class="pred-card">
+            <span class="tag" id="pred-daily-tag"></span>
+            <p id="pred-daily-text">پہلے "زائچہ بنائیں" دبائیں۔</p>
+          </div>
+        </div>
+        <div class="tab-panel" id="tab-transits">
+          <div id="transit-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+
+        <div class="note">تفصیلی روزانہ/ہفتہ وار/سالانہ کیلنڈر اور Ashtakavarga پر مبنی سکورنگ اگلے ورژن میں شامل ہوگی۔</div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔</span>
+    <span class="ltr">Zaicha v0.1</span>
+  </footer>
+
+</div>
+
+<script>
+  var HOUSE_GEOMETRY = {
+    1:  { signPos:{x:150,y:46},  slots:[{x:128,y:82},{x:172,y:82}] },
+    2:  { signPos:{x:75,y:22},   slots:[{x:75,y:30}] },
+    3:  { signPos:{x:22,y:66},   slots:[{x:25,y:88}] },
+    4:  { signPos:{x:75,y:128},  slots:[{x:53,y:158},{x:97,y:158}] },
+    5:  { signPos:{x:22,y:212},  slots:[{x:25,y:220}] },
+    6:  { signPos:{x:75,y:256},  slots:[{x:75,y:282}] },
+    7:  { signPos:{x:150,y:258}, slots:[{x:128,y:232},{x:172,y:232}] },
+    8:  { signPos:{x:225,y:256}, slots:[{x:225,y:282}] },
+    9:  { signPos:{x:278,y:212}, slots:[{x:275,y:220}] },
+    10: { signPos:{x:225,y:128}, slots:[{x:203,y:158},{x:247,y:158}] },
+    11: { signPos:{x:278,y:66},  slots:[{x:275,y:88}] },
+    12: { signPos:{x:225,y:22},  slots:[{x:225,y:30}] }
+  };
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  async function fetchChartData(person){
+    var res = await fetch('/api/kundli', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(person)
+    });
+    var json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.error || 'Server error');
+    }
+    return json;
+  }
+
+  function renderChart(data){
+    var signG = document.getElementById('sign-numbers');
+    var planetG = document.getElementById('planet-chips');
+    signG.innerHTML = '';
+    planetG.innerHTML = '';
+
+    for (var h = 1; h <= 12; h++){
+      var geo = HOUSE_GEOMETRY[h];
+      var house = data.houses[h - 1];
+
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', geo.signPos.x); t.setAttribute('y', geo.signPos.y);
+      t.textContent = house.signId + 1; // 1-12 sign number
+      signG.appendChild(t);
+
+      house.planets.forEach(function(p, i){
+        var slot = geo.slots[Math.min(i, geo.slots.length - 1)];
+        var pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        pt.setAttribute('x', slot.x);
+        pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
+        pt.style.fill = p.color;
+        pt.textContent = p.abbr;
+        planetG.appendChild(pt);
+      });
+    }
+
+    document.getElementById('chart-subhead').textContent =
+      'طالع: ' + data.person.ascendantSignName + '   ·   نظام: ' + data.person.system;
+  }
+
+  function dignityPillClass(dignity){
+    if (dignity === 'exalted' || dignity === 'own') return 'strong';
+    if (dignity === 'debilitated') return 'weak';
+    return 'neutral';
+  }
+  function dignityLabel(dignity){
+    if (dignity === 'exalted') return 'اعلیٰ';
+    if (dignity === 'own') return 'اپنا گھر';
+    if (dignity === 'debilitated') return 'کمزور';
+    return 'درمیانہ';
+  }
+
+  function renderHouseList(data){
+    var wrap = document.getElementById('house-list');
+    wrap.innerHTML = '';
+    data.houses.forEach(function(house){
+      var row = document.createElement('div');
+      row.className = 'house-row';
+
+      var main = document.createElement('div');
+      main.innerHTML =
+        '<div class="house-title">خانہ <span class="mono">' + house.n + '</span> — ' + house.sign + '</div>' +
+        '<div class="house-lord">حاکم: ' + house.lord + ' <span class="status-pill ' + dignityPillClass(house.lordDignity) + '">' + dignityLabel(house.lordDignity) + '</span></div>';
+
+      var side = document.createElement('div');
+      side.className = 'house-side';
+      if (house.planets.length === 0){
+        side.innerHTML = '<span class="deg" style="color:var(--text-muted)">—</span>';
+      } else {
+        house.planets.forEach(function(p){
+          var tag = document.createElement('span');
+          tag.className = 'planet-tag';
+          tag.style.color = p.color;
+          tag.innerHTML = p.abbr + (p.degree ? ' <span class="deg">' + p.degree + '</span>' : '');
+          side.appendChild(tag);
+        });
+      }
+
+      row.appendChild(main);
+      row.appendChild(side);
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderPredictions(data){
+    document.getElementById('pred-daily-tag').textContent = data.asOfDate + ' — ' + (data.dasha.mahadasha ? data.dasha.mahadasha.lord + ' مہادشا' : '');
+    document.getElementById('pred-daily-text').textContent = data.narrative;
+    document.getElementById('pred-subhead').textContent = data.person.name + ' کے زائچے کی بنیاد پر';
+
+    var list = document.getElementById('transit-list');
+    list.innerHTML = '';
+    (data.currentTransits || []).forEach(function(t){
+      var row = document.createElement('div');
+      row.className = 'transit-row';
+      row.textContent = t.text;
+      list.appendChild(row);
+    });
+  }
+
+  function renderAll(data){
+    renderChart(data);
+    renderHouseList(data);
+    renderPredictions(data);
+  }
+
+  function showError(msg){
+    var box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+  function hideError(){
+    document.getElementById('error-box').style.display = 'none';
+  }
+
+  // ---- Demo sample fill (Ayesha Raza test case — sirf link dabane par) ----
+  document.getElementById('fill-demo-link').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('in-name').value = 'عائشہ رضا';
+    document.getElementById('in-dob').value = '1994-03-14';
+    document.getElementById('in-time').value = '06:45';
+    document.getElementById('in-city').value = 'Lahore, Pakistan';
+    document.getElementById('in-lat').value = '31.5204';
+    document.getElementById('in-lon').value = '74.3587';
+    document.getElementById('in-offset').value = '+05:00';
+  });
+
+  // ---- City of birth search (koi bhi shehar duniya bhar ka) ----
+  (function(){
+    var cityInput = document.getElementById('in-city');
+    var suggestBox = document.getElementById('city-suggestions');
+    var latInput = document.getElementById('in-lat');
+    var lonInput = document.getElementById('in-lon');
+    var debounceTimer = null;
+
+    cityInput.addEventListener('input', function(){
+      var q = cityInput.value.trim();
+      clearTimeout(debounceTimer);
+      if (q.length < 2) { suggestBox.classList.remove('open'); return; }
+      debounceTimer = setTimeout(function(){
+        fetch('/api/geocode-city?q=' + encodeURIComponent(q))
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var results = data.results || [];
+            suggestBox.innerHTML = '';
+            if (results.length === 0){ suggestBox.classList.remove('open'); return; }
+            results.forEach(function(city){
+              var opt = document.createElement('div');
+              opt.className = 'city-option';
+              opt.textContent = city.label;
+              opt.addEventListener('click', function(){
+                cityInput.value = city.label;
+                latInput.value = parseFloat(city.lat).toFixed(4);
+                lonInput.value = parseFloat(city.lon).toFixed(4);
+                suggestBox.classList.remove('open');
+              });
+              suggestBox.appendChild(opt);
+            });
+            suggestBox.classList.add('open');
+          })
+          .catch(function(){ suggestBox.classList.remove('open'); });
+      }, 400); // debounce — Nominatim ki policy ke mutabiq bahut zyada requests na bhejein
+    });
+
+    document.addEventListener('click', function(e){
+      if (e.target !== cityInput) suggestBox.classList.remove('open');
+    });
+  })();
+
+  document.getElementById('generate-btn').addEventListener('click', async function(){
+    var btn = this;
+    hideError();
+    btn.disabled = true;
+    btn.textContent = 'تیار ہو رہا ہے...';
+    try {
+      var person = {
+        name: document.getElementById('in-name').value,
+        dob: document.getElementById('in-dob').value,
+        time: document.getElementById('in-time').value,
+        lat: document.getElementById('in-lat').value,
+        lon: document.getElementById('in-lon').value,
+        utcOffset: document.getElementById('in-offset').value,
+        ayanamsa: 1 // filhal sirf Lahiri hi kaam karta hai — dropdown ke baaki options abhi disabled hain
+      };
+      var data = await fetchChartData(person);
+      renderAll(data);
+    } catch (err) {
+      showError('خرابی: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'زائچہ بنائیں';
+    }
+  });
+
+  // status badge: check backend health + credentials on load
+  fetch('/api/health').then(function(r){ return r.json(); }).then(function(h){
+    var badge = document.getElementById('status-badge');
+    if (!h.credentialsConfigured) {
+      badge.textContent = '⚠ Prokerala کریڈینشلز .env میں سیٹ نہیں';
+      badge.classList.remove('gold');
+    }
+  }).catch(function(){});
+</script>
+</body>
+</html>
