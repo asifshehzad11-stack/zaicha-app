@@ -194,6 +194,18 @@
           <label data-i18n="labelName">نام</label>
           <input type="text" id="in-name" placeholder="اپنا نام لکھیں" data-i18n-placeholder="placeholderName">
         </div>
+        <div class="field">
+          <label data-i18n="labelPhone">فون نمبر (اختیاری — کنڈلی محفوظ رکھنے کے لیے)</label>
+          <input type="text" id="in-phone" dir="ltr" placeholder="03xxxxxxxxx" data-i18n-placeholder="placeholderPhone">
+          <p class="sub" style="margin:.25rem 0 0;" data-i18n="phoneNote">اگر فون نمبر بھریں گے تو یہ تفصیلات محفوظ ہو جائیں گی اور دوبارہ لکھنے کی ضرورت نہیں رہے گی۔</p>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin:-.3rem 0 .5rem;">
+          <a href="#" id="load-saved-link" style="font-size:.72rem; color:var(--gold-soft);" data-i18n="loadSavedLink">محفوظ کنڈلیاں دیکھیں</a>
+        </div>
+        <div class="field" id="saved-profiles-field" style="display:none;">
+          <label data-i18n="labelSavedProfiles">محفوظ کنڈلیاں — چن کر لوڈ کریں</label>
+          <select id="saved-profiles-select" dir="rtl"></select>
+        </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="labelDob">تاریخِ پیدائش</label>
@@ -440,6 +452,11 @@
       demoLink: 'نمونہ بھریں (Demo)',
       entrySub: 'پیدائشی تفصیلات درج کریں',
       labelName: 'نام',
+      labelPhone: 'فون نمبر (اختیاری — کنڈلی محفوظ رکھنے کے لیے)',
+      placeholderPhone: '03xxxxxxxxx',
+      phoneNote: 'اگر فون نمبر بھریں گے تو یہ تفصیلات محفوظ ہو جائیں گی اور دوبارہ لکھنے کی ضرورت نہیں رہے گی۔',
+      loadSavedLink: 'محفوظ کنڈلیاں دیکھیں',
+      labelSavedProfiles: 'محفوظ کنڈلیاں — چن کر لوڈ کریں',
       placeholderName: 'اپنا نام لکھیں',
       labelDob: 'تاریخِ پیدائش',
       labelTime: 'وقتِ پیدائش',
@@ -484,6 +501,11 @@
       demoLink: 'Fill demo data',
       entrySub: 'Enter your birth details',
       labelName: 'Name',
+      labelPhone: 'Phone number (optional — to save this kundli)',
+      placeholderPhone: '03xxxxxxxxx',
+      phoneNote: 'If you enter a phone number, these details will be saved so you don\'t need to type them again.',
+      loadSavedLink: 'View saved kundlis',
+      labelSavedProfiles: 'Saved kundlis — pick one to load',
       placeholderName: 'Enter your name',
       labelDob: 'Date of birth',
       labelTime: 'Time of birth',
@@ -1062,22 +1084,38 @@
     });
   })();
 
-  document.getElementById('generate-btn').addEventListener('click', async function(){
-    var btn = this;
+  // ---- Saved kundliyan (phone number se profile save/reload) ----
+  // loadedProfileId set hote hi agla generate-click sirf profileId bhejta
+  // hai (backend cached natal data reuse karta hai — kam credits lagte
+  // hain). Jaise hi user koi bhi pedaishi field khud badle, ye reset ho
+  // jata hai (kyunke ab wo alag shakhs/tafseelat ho sakti hai).
+  var loadedProfileId = null;
+  ['in-name', 'in-dob', 'in-time', 'in-lat', 'in-lon', 'in-offset', 'in-ayanamsa'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function(){ loadedProfileId = null; });
+    if (el) el.addEventListener('change', function(){ loadedProfileId = null; });
+  });
+
+  async function runGenerate(){
+    var btn = document.getElementById('generate-btn');
     hideError();
     btn.disabled = true;
     btn.textContent = I18N[currentLang].generateBtnLoading;
     try {
-      var person = {
-        name: document.getElementById('in-name').value,
-        dob: document.getElementById('in-dob').value,
-        time: document.getElementById('in-time').value,
-        lat: document.getElementById('in-lat').value,
-        lon: document.getElementById('in-lon').value,
-        utcOffset: document.getElementById('in-offset').value,
-        ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1
-      };
+      var person = loadedProfileId
+        ? { profileId: loadedProfileId }
+        : {
+            name: document.getElementById('in-name').value,
+            dob: document.getElementById('in-dob').value,
+            time: document.getElementById('in-time').value,
+            lat: document.getElementById('in-lat').value,
+            lon: document.getElementById('in-lon').value,
+            utcOffset: document.getElementById('in-offset').value,
+            ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1,
+            phone: document.getElementById('in-phone').value.trim() || undefined
+          };
       var data = await fetchChartData(person);
+      if (data.profileId) loadedProfileId = data.profileId;
       renderAll(data);
     } catch (err) {
       showError((currentLang === 'en' ? 'Error: ' : 'خرابی: ') + err.message);
@@ -1085,6 +1123,55 @@
       btn.disabled = false;
       btn.textContent = I18N[currentLang].generateBtn;
     }
+  }
+
+  document.getElementById('generate-btn').addEventListener('click', runGenerate);
+
+  document.getElementById('load-saved-link').addEventListener('click', async function(e){
+    e.preventDefault();
+    var phone = document.getElementById('in-phone').value.trim();
+    if (!phone) {
+      showError(currentLang === 'en' ? 'Enter a phone number first.' : 'پہلے فون نمبر لکھیں۔');
+      return;
+    }
+    try {
+      var res = await fetch('/api/profiles?phone=' + encodeURIComponent(phone));
+      var json = await res.json();
+      if (!json.available) {
+        showError(currentLang === 'en' ? 'Saved kundlis are not set up on this server yet.' : 'یہ سہولت ابھی اس سرور پر فعال نہیں۔');
+        return;
+      }
+      var field = document.getElementById('saved-profiles-field');
+      var select = document.getElementById('saved-profiles-select');
+      select.innerHTML = '';
+      if (!json.profiles.length) {
+        var opt = document.createElement('option');
+        opt.textContent = currentLang === 'en' ? 'No saved kundlis for this number' : 'اس نمبر پر کوئی محفوظ کنڈلی نہیں';
+        select.appendChild(opt);
+        field.style.display = 'block';
+        return;
+      }
+      var placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = currentLang === 'en' ? '— choose —' : '— چنیں —';
+      select.appendChild(placeholder);
+      json.profiles.forEach(function(p){
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name + ' — ' + p.dob + (p.city_label ? ' (' + p.city_label + ')' : '');
+        select.appendChild(opt);
+      });
+      field.style.display = 'block';
+    } catch (err) {
+      showError((currentLang === 'en' ? 'Error: ' : 'خرابی: ') + err.message);
+    }
+  });
+
+  document.getElementById('saved-profiles-select').addEventListener('change', function(){
+    var id = this.value;
+    if (!id) return;
+    loadedProfileId = id;
+    runGenerate();
   });
 
   // status badge: check backend health + credentials on load
@@ -1093,6 +1180,10 @@
     if (!h.credentialsConfigured) {
       badge.textContent = '⚠ Prokerala کریڈینشلز .env میں سیٹ نہیں';
       badge.classList.remove('gold');
+    }
+    if (!h.dbConfigured) {
+      document.getElementById('load-saved-link').style.display = 'none';
+      document.getElementById('in-phone').closest('.field').style.display = 'none';
     }
   }).catch(function(){});
 </script>

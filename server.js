@@ -23,6 +23,7 @@ const express = require('express');
 const path = require('path');
 
 const prokerala = require('./lib/prokerala-client');
+const db = require('./lib/db');
 const { buildZaichaData, normalizePanchang } = require('./lib/astro-engine');
 const {
   generateNarrativeViaLLM,
@@ -41,22 +42,98 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// DB schema (agar DATABASE_URL .env mein di gayi ho) startup par ensure kar
+// lete hain — agar nahi di gayi to "save profile" feature khamoshi se
+// disabled reh jata hai, baaqi app bilkul pehle jaisa chalta hai.
+db.ensureSchema().catch((err) => {
+  console.error('DB schema ensure nahi ho saka (DATABASE_URL check karein):', err.message);
+});
+
+/**
+ * Promise.allSettled ke `reason` field mein Error object hoti hai, jo
+ * JSON.stringify hone par (jaise DB cache mein save karte waqt) apna
+ * `.message` kho deti hai (Error ki apni koi enumerable property nahi
+ * hoti). Isi liye cache mein save karne se pehle reason ko seedha ek
+ * string bana dete hain — is helper se dono shapes (Error object taaza
+ * fetch se, ya plain string cache se wapas aane par) sahi tareeqe se
+ * handle ho jaati hain.
+ */
+function reasonMessage(reason) {
+  if (!reason) return null;
+  return typeof reason === 'string' ? reason : (reason.message || String(reason));
+}
+
+/**
+ * fetchNatalBundle — un 5 Prokerala calls ko ek sath karta hai jo kisi bhi
+ * shakhs ke liye HAMESHA same result dete hain (sirf pedaishi tafseelat
+ * par mabni, waqt guzarne se nahi badalte): kundli/advanced, natal
+ * planet-position, kaal-sarp-dosha, pedaish ka panchang, aur ashtakavarga.
+ * Isi wajah se ye bundle ek dafa fetch ho kar profile ke sath DB mein
+ * cache ho sakta hai — agli baar wahi profile dobara generate karne par
+ * in 5 calls ko dobara Prokerala se mangwane ki zaroorat nahi rehti.
+ */
+async function fetchNatalBundle(person) {
+  const [kundliAdvanced, natalPlanetPosition, kaalSarp] = await Promise.all([
+    prokerala.getKundliAdvanced(person),
+    prokerala.getPlanetPosition(person),
+    prokerala.getKaalSarpDosha(person),
+  ]);
+  const [birthPanchangSettled, ashtakavargaSettled] = await Promise.allSettled([
+    prokerala.getPanchang(person),
+    prokerala.getSarvashtakavargaBestEffort(person),
+  ]);
+  return {
+    kundliAdvanced,
+    natalPlanetPosition,
+    kaalSarp,
+    birthPanchangResult: birthPanchangSettled.status === 'fulfilled'
+      ? { status: 'fulfilled', value: birthPanchangSettled.value }
+      : { status: 'rejected', reason: reasonMessage(birthPanchangSettled.reason) },
+    ashtakavargaResult: ashtakavargaSettled.status === 'fulfilled'
+      ? { status: 'fulfilled', value: ashtakavargaSettled.value }
+      : { status: 'rejected', reason: reasonMessage(ashtakavargaSettled.reason) },
+  };
+}
+
 /**
  * POST /api/kundli
- * Body: { name, dob (YYYY-MM-DD), time (HH:MM), lat, lon, ayanamsa, utcOffset }
+ * Body: { name, dob (YYYY-MM-DD), time (HH:MM), lat, lon, ayanamsa,
+ *         utcOffset, phone (optional — profile save karne ke liye),
+ *         profileId (optional — pehle se saved profile dobara generate
+ *         karne ke liye, is soorat mein natal_cache istemal hoga agar
+ *         mojood ho) }
  */
 app.post('/api/kundli', async (req, res) => {
   try {
-    const { name, dob, time, lat, lon, ayanamsa, utcOffset } = req.body;
+    const { name, dob, time, lat, lon, ayanamsa, utcOffset, phone, profileId, cityLabel } = req.body;
 
-    if (!dob || !time || !lat || !lon) {
+    let effective = { name, dob, time, lat, lon, ayanamsa, utcOffset };
+    let profileRow = null;
+
+    if (profileId) {
+      profileRow = await db.getProfileById(profileId);
+      if (!profileRow) {
+        return res.status(404).json({ error: 'ye saved profile nahi mili — ho sakta hai delete ho gayi ho.' });
+      }
+      effective = {
+        name: profileRow.name,
+        dob: profileRow.dob,
+        time: profileRow.time,
+        lat: profileRow.lat,
+        lon: profileRow.lon,
+        ayanamsa: profileRow.ayanamsa,
+        utcOffset: profileRow.utc_offset,
+      };
+    }
+
+    if (!effective.dob || !effective.time || !effective.lat || !effective.lon) {
       return res.status(400).json({ error: 'dob, time, lat, lon zaroori hain.' });
     }
 
-    const offset = utcOffset || '+05:00'; // Pakistan default
-    const birthDatetime = `${dob}T${time}:00${offset}`;
-    const coordinates = `${lat},${lon}`;
-    const ayanamsaVal = ayanamsa || 1; // 1 = Lahiri
+    const offset = effective.utcOffset || '+05:00'; // Pakistan default
+    const birthDatetime = `${effective.dob}T${effective.time}:00${offset}`;
+    const coordinates = `${effective.lat},${effective.lon}`;
+    const ayanamsaVal = effective.ayanamsa || 1; // 1 = Lahiri
 
     const person = { datetime: birthDatetime, coordinates, ayanamsa: ayanamsaVal };
 
@@ -64,16 +141,49 @@ app.post('/api/kundli', async (req, res) => {
     const nowDatetime = now.toISOString().replace('Z', offset);
     const gocharPerson = { datetime: nowDatetime, coordinates, ayanamsa: ayanamsaVal };
 
-    const [kundliAdvanced, natalPlanetPosition, gocharPlanetPosition, sadeSati, kaalSarp] = await Promise.all([
-      prokerala.getKundliAdvanced(person),
-      prokerala.getPlanetPosition(person),
+    // ---- Natal bundle: cache se (agar saved profile hai) ya taaza fetch ----
+    let natalBundle;
+    let usedCache = false;
+    if (profileRow && profileRow.natal_cache) {
+      natalBundle = profileRow.natal_cache;
+      usedCache = true;
+    } else {
+      natalBundle = await fetchNatalBundle(person);
+    }
+    const { kundliAdvanced, natalPlanetPosition, kaalSarp, birthPanchangResult, ashtakavargaResult } = natalBundle;
+
+    // ---- Agar naya profile save karna ho (phone di gayi hai aur abhi tak
+    // koi profileId nahi), to yahan save kar ke, saath hi natal bundle
+    // cache kar dete hain — is se agli baar isi profile ke liye ye 5 calls
+    // dobara nahi karni parengi.
+    let savedProfileId = profileId || null;
+    if (!profileId && phone && db.isDbConfigured()) {
+      try {
+        const saved = await db.saveProfile({
+          phone, name: effective.name || 'صارف', dob: effective.dob, time: effective.time,
+          lat: effective.lat, lon: effective.lon, cityLabel, utcOffset: offset, ayanamsa: ayanamsaVal,
+        });
+        savedProfileId = saved.id;
+        await db.cacheNatalData(saved.id, natalBundle);
+      } catch (saveErr) {
+        console.error('Profile save nahi ho saki (app phir bhi chalta rahega):', saveErr.message);
+      }
+    }
+
+    // ---- Ye teeno HAMESHA taaza fetch hote hain — waqt/tareekh ke sath
+    // badalte hain, is liye cache nahi ho sakte: aaj ki gochar (current
+    // transit) positions, Sade Sati ka current status, aur aaj ka panchang.
+    const [gocharPlanetPosition, sadeSati, todayPanchangSettled] = await Promise.all([
       prokerala.getPlanetPosition(gocharPerson),
       prokerala.getSadeSati(person),
-      prokerala.getKaalSarpDosha(person),
+      prokerala.getPanchang(gocharPerson).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (reason) => ({ status: 'rejected', reason: reasonMessage(reason) })
+      ),
     ]);
 
     const data = buildZaichaData({
-      personName: name || 'صارف',
+      personName: effective.name || 'صارف',
       kundliAdvanced,
       natalPlanetPosition,
       gocharPlanetPosition,
@@ -83,26 +193,15 @@ app.post('/api/kundli', async (req, res) => {
       ayanamsa: ayanamsaVal,
     });
 
-    // Panchang aur Ashtakavarga alag se, non-fatal tareeqe se fetch kiye ja
-    // rahe hain — agar in mein se koi fail ho (khaaskar Ashtakavarga, jiska
-    // asal endpoint abhi tak public docs se confirm nahi ho saka), to poori
-    // /api/kundli request crash nahi hogi, sirf wo ek tab "abhi dastyab
-    // nahi" dikha dega.
-    const [birthPanchangResult, todayPanchangResult, ashtakavargaResult] = await Promise.allSettled([
-      prokerala.getPanchang(person),
-      prokerala.getPanchang(gocharPerson),
-      prokerala.getSarvashtakavargaBestEffort(person),
-    ]);
-
     const panchang = {
       birth: birthPanchangResult.status === 'fulfilled' ? normalizePanchang(birthPanchangResult.value) : null,
-      today: todayPanchangResult.status === 'fulfilled' ? normalizePanchang(todayPanchangResult.value) : null,
-      error: birthPanchangResult.status === 'rejected' ? birthPanchangResult.reason.message : null,
+      today: todayPanchangSettled.status === 'fulfilled' ? normalizePanchang(todayPanchangSettled.value) : null,
+      error: birthPanchangResult.status === 'rejected' ? birthPanchangResult.reason : null,
     };
 
     const ashtakavarga = ashtakavargaResult.status === 'fulfilled'
       ? { available: true, path: ashtakavargaResult.value.path, raw: ashtakavargaResult.value.data }
-      : { available: false, error: ashtakavargaResult.reason && ashtakavargaResult.reason.message };
+      : { available: false, error: ashtakavargaResult.reason };
 
     if (ashtakavargaResult.status === 'rejected') {
       console.error('Ashtakavarga abhi tak wire nahi ho saka:', ashtakavargaResult.reason);
@@ -140,16 +239,41 @@ app.post('/api/kundli', async (req, res) => {
       narrative,
       currentTransits,
       transitAspects,
+      transitCombined,
       monthlyOutlook,
       yearlyOutlook,
+      dailyRoutine,
       remedies,
       panchang,
       ashtakavarga,
       asOfDate: now.toISOString().slice(0, 10),
+      profileId: savedProfileId,
+      usedNatalCache: usedCache,
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Kuch ghalat ho gaya.' });
+  }
+});
+
+/**
+ * GET /api/profiles?phone=03001234567
+ * User ka phone number le kar uski pehle se saved kundliyan (naam, DOB,
+ * shehar) ki list deta hai — natal_cache is list mein shamil nahi karte
+ * (bھاری hoti hai, aur frontend ko list dikhane ke liye zaroorat bhi nahi).
+ */
+app.get('/api/profiles', async (req, res) => {
+  try {
+    if (!db.isDbConfigured()) {
+      return res.json({ available: false, profiles: [] });
+    }
+    const phone = (req.query.phone || '').trim();
+    if (!phone) return res.json({ available: true, profiles: [] });
+    const profiles = await db.listProfilesByPhone(phone);
+    res.json({ available: true, profiles });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Saved kundliyan load nahi ho sakin.' });
   }
 });
 
@@ -260,6 +384,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
     credentialsConfigured: !!(process.env.PROKERALA_CLIENT_ID && process.env.PROKERALA_CLIENT_SECRET),
+    dbConfigured: db.isDbConfigured(),
   });
 });
 

@@ -43,6 +43,47 @@ frontend جو حقیقی پیدائشی تفصیلات لے کر اصل کنڈل
 
 ---
 
+## "Saved kundliyan" (har user ki tafseelat save karna) — Supabase setup
+
+Ye feature optional hai — agar `.env` mein `DATABASE_URL` nahi di jaye to
+app pehle jaisa hi chalta hai, bas koi profile save nahi hoti. Feature on
+karne ke liye:
+
+1. [supabase.com](https://supabase.com) par mufat account banayein (credit
+   card ki zaroorat nahi).
+2. Naya project banayein (koi bhi naam, koi bhi region — Singapore/Mumbai
+   Pakistan se sab se qareeb hai).
+3. Project ke andar **Project Settings → Database → Connection string →
+   URI** mein ja kar poori connection string copy karein.
+4. Apni `.env` file mein `DATABASE_URL=` ke aage ye poori string paste kar
+   dein (jahan `[YOUR-PASSWORD]` likha ho wahan apna project ka database
+   password khud daalein — ye password aap ne project banate waqt khud
+   chuna tha).
+5. Server dobara chalayein (`npm start`) — pehli dafa chalte hi zaroori
+   table (`profiles`) khud-ba-khud ban jayegi.
+6. Render par deploy karte waqt, Render dashboard ke **Environment**
+   section mein bhi yahi `DATABASE_URL` variable add karna hoga (bilkul
+   `PROKERALA_CLIENT_ID`/`SECRET` ki tarah).
+
+**Ye kya karta hai:** jab form mein phone number bhi diya jaye, to user ki
+tafseelat (naam, DOB, waqt, shehar) save ho jati hain, aur wahi phone
+number dobara dala jaye to pehle se saved kundliyan ki list mil jati hai —
+dobara sab kuch type nahi karna parta. Iske sath ek badi cost-saving bhi
+hai: kisi bhi shakhs ki pedaishi bunyaadi tafseelat (kundli/advanced,
+natal planet-position, kaal-sarp, ashtakavarga, pedaish ka panchang) EK
+DAFA fetch ho kar cache ho jati hain — agli baar wahi profile dobara
+generate karne par sirf aaj ki gardish (gochar), Sade Sati status, aur
+aaj ka panchang hi naye sirey se Prokerala se mangwaye jaate hain. Is se
+ek "confirm" ho chuki profile ka har baad wala generate ~440-740 credits
+ki bajaye taqreeban sirf ~70 credits leta hai.
+
+**Zaroori:** phone number jaisi tafseelat jama karna ek zimmedari bhi hai
+— agar app public/paid users ke liye launch karni hai to ek chhoti si
+privacy note (data kis liye use hoga) add karna aur data ko mehfooz rakhna
+zaroori hoga.
+
+---
+
 ## Is version mein kya asli/live hai, aur kya abhi baaki hai
 
 **Asli/Live (Prokerala se seedha):**
@@ -90,6 +131,7 @@ zaicha_app/
     prokerala-client.js  - Prokerala OAuth + API calls (.env se credentials)
     astro-engine.js      - House formula, dasha walker, dignity calculation
     narrative.js         - Urdu narrative generator (template-based)
+    db.js                - Saved kundliyan / natal-cache database layer (optional, Supabase)
   public/
     index.html           - Frontend (form + kundli chart + predictions)
   .env.example            - Copy kar ke .env banayein, apni credentials bharein
