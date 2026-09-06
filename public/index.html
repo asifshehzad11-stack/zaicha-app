@@ -5,21 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zaicha</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+  /* ---- Palette: pixel-sampled directly from the live AstroMatrix app
+     (astromatrix.app — Flutter/CanvasKit, so colors were read via
+     canvas.getImageData rather than guessed from screenshots). Turns out
+     AstroMatrix has NO orange/gold anywhere — it's a single violet-magenta
+     hue at two lightness levels (vivid ~rgb(183,0,255) for icons/glow,
+     pale ~rgb(254,162,255) for highlighted text) on a near-black
+     purple-tinted background, with neutral gray (not lavender-gray) for
+     secondary text. Variable NAMES below are kept as-is (saffron/gold/
+     rose) to avoid touching every usage site — only the hex VALUES
+     change to this measured palette. ---- */
   :root{
-    --ink:#1c1033;
-    --panel: rgba(255,255,255,.055);
-    --panel-2: rgba(255,255,255,.09);
-    --line: rgba(255,255,255,.14);
-    --line-soft: rgba(255,255,255,.09);
-    --text:#fbf3ff;
-    --text-muted:#b6a9d6;
-    --saffron:#ff8a3d;
-    --saffron-soft:#ffc15e;
-    --rose:#ff5fa2;
-    --gold:#ffc15e;
-    --gold-soft:#ffd685;
+    --ink:#0d0815;
+    --panel: rgba(255,255,255,.045);
+    --panel-2: rgba(255,255,255,.075);
+    --line: rgba(180,0,255,.16);
+    --line-soft: rgba(255,255,255,.07);
+    --text:#ffffff;
+    --text-muted:#95959c;
+    --saffron:#b400ff;
+    --saffron-soft:#d24bff;
+    --rose:#e07bff;
+    --gold:#fea2ff;
+    --gold-soft:#ffd0ff;
     --weak:#ff6b6b;
     --strong:#33e0a1;
     --error:#ff6b6b;
@@ -49,7 +59,7 @@
   }
 
   .ltr{ direction:ltr; unicode-bidi:isolate; font-family:"JetBrains Mono",ui-monospace,monospace; }
-  .latin{ direction:ltr; unicode-bidi:isolate; font-family:"Baloo Bhaijaan 2","Cinzel","Times New Roman",serif; }
+  .latin{ direction:ltr; unicode-bidi:isolate; font-family:"Playfair Display","Times New Roman",serif; }
 
   .page{ max-width:1180px; margin:0 auto; padding: clamp(1.1rem,2vw,2.4rem) clamp(1.1rem,3vw,2.8rem) 2.2rem; position:relative; isolation:isolate; }
   body::before{
@@ -61,24 +71,24 @@
       radial-gradient(1.5px 1.5px at 91% 22%, rgba(255,255,255,.5) 0, transparent 60%),
       radial-gradient(1.5px 1.5px at 22% 40%, rgba(255,255,255,.35) 0, transparent 60%),
       radial-gradient(1.5px 1.5px at 82% 55%, rgba(255,255,255,.3) 0, transparent 60%),
-      radial-gradient(900px 620px at 85% -8%, rgba(255,138,61,.30), transparent 60%),
-      radial-gradient(800px 560px at 8% 8%, rgba(255,95,162,.22), transparent 55%),
-      radial-gradient(1000px 700px at 50% 110%, rgba(122,90,220,.28), transparent 60%),
-      linear-gradient(160deg, #241636 0%, #1c1033 45%, #150c29 100%);
+      radial-gradient(900px 620px at 85% -8%, rgba(180,0,255,.16), transparent 60%),
+      radial-gradient(800px 560px at 8% 8%, rgba(180,0,255,.11), transparent 55%),
+      radial-gradient(1000px 700px at 50% 110%, rgba(180,0,255,.14), transparent 60%),
+      linear-gradient(160deg, #150c26 0%, #0d0815 45%, #09050f 100%);
     background-color:var(--ink);
   }
 
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:.9rem 1.1rem; margin-bottom:1.8rem; border-radius:18px; background:linear-gradient(120deg, rgba(255,138,61,.16), rgba(255,95,162,.10)); border:1px solid var(--line); backdrop-filter: blur(6px); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:.9rem 1.1rem; margin-bottom:1.8rem; border-radius:18px; background:rgba(180,0,255,.06); border:1px solid var(--line); backdrop-filter: blur(6px); }
   .brand{ display:flex; align-items:center; gap:.7rem; }
-  .brand svg{ width:38px; height:38px; flex:none; color:var(--saffron-soft); }
-  .brand-name{ font-family:"Baloo Bhaijaan 2","Cinzel",serif; font-size:1.5rem; font-weight:700; letter-spacing:.02em; color:var(--text); direction:ltr; }
+  .brand svg{ width:38px; height:38px; flex:none; color:var(--gold); }
+  .brand-name{ font-family:"Playfair Display","Times New Roman",serif; font-size:1.5rem; font-weight:700; letter-spacing:.02em; color:var(--text); direction:ltr; }
   .brand-sub{ font-size:var(--fs-small); color:var(--text-muted); margin-inline-start:.5rem; }
   .badge{ font-size:var(--fs-micro); letter-spacing:.04em; padding:.35rem .7rem; border-radius:999px; border:1px solid var(--line); color:var(--text-muted); white-space:nowrap; }
   .badge.gold{ border:1px solid transparent; background:linear-gradient(var(--ink),var(--ink)) padding-box, var(--grad-brand) border-box; color:var(--gold-soft); font-weight:600; }
 
-  .hero{ padding:1.6rem 1.1rem 2rem; position:relative; border-radius:24px; overflow:hidden; margin-bottom:1.6rem; background:linear-gradient(135deg, rgba(255,138,61,.16), rgba(122,90,220,.14)); border:1px solid var(--line); }
-  .hero::after{ content:"✦"; position:absolute; inset-inline-end:1.4rem; top:1rem; font-size:2.2rem; color:rgba(255,214,133,.35); }
-  .hero h1{ font-size:var(--fs-hero); line-height:1.55; margin:0 0 1rem; text-wrap:balance; font-weight:700; background:linear-gradient(90deg,#fff,var(--gold-soft)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero{ padding:1.6rem 1.1rem 2rem; position:relative; border-radius:24px; overflow:hidden; margin-bottom:1.6rem; background:rgba(180,0,255,.05); border:1px solid var(--line); }
+  .hero::after{ content:"✦"; position:absolute; inset-inline-end:1.4rem; top:1rem; font-size:2.2rem; color:rgba(254,162,255,.35); }
+  .hero h1{ font-family:"Playfair Display","Noto Nastaliq Urdu",serif; font-size:var(--fs-hero); line-height:1.55; margin:0 0 1rem; text-wrap:balance; font-weight:700; background:linear-gradient(90deg,#fff,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .hero p{ max-width:56ch; color:var(--text-muted); font-size:1.05rem; line-height:2; margin:0; }
 
   .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
@@ -119,7 +129,7 @@
     padding:.65rem .85rem; font-size:var(--fs-small); color:var(--text); font-family:inherit;
     transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus, .field select:focus{ outline:none; border-color:var(--saffron); box-shadow:0 0 0 3px rgba(255,138,61,.22); }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--saffron); box-shadow:0 0 0 3px rgba(180,0,255,.22); }
   .field input[dir="ltr"]{ font-family:"JetBrains Mono",monospace; text-align:left; }
   .field-row{ display:flex; gap:.6rem; }
   .field-row .field{ flex:1; }
@@ -135,8 +145,8 @@
   #city-suggestions .city-option:last-child{ border-bottom:none; }
   #city-suggestions .city-option:hover{ background:var(--panel-2); color:var(--gold-soft); }
 
-  #generate-btn{ width:100%; margin-top:.4rem; padding:.85rem; border-radius:14px; border:none; background:var(--grad-brand); color:#231108; font-family:inherit; font-size:.96rem; font-weight:700; cursor:pointer; box-shadow:0 14px 28px -12px rgba(255,95,162,.55); transition:transform .12s, box-shadow .12s; }
-  #generate-btn:hover{ transform:translateY(-1px); box-shadow:0 18px 32px -12px rgba(255,95,162,.65); }
+  #generate-btn{ width:100%; margin-top:.4rem; padding:.85rem; border-radius:14px; border:none; background:var(--grad-brand); color:#fff; font-family:inherit; font-size:.96rem; font-weight:700; cursor:pointer; box-shadow:0 14px 28px -12px rgba(180,0,255,.5); transition:transform .12s, box-shadow .12s; }
+  #generate-btn:hover{ transform:translateY(-1px); box-shadow:0 18px 32px -12px rgba(180,0,255,.6); }
   #generate-btn:disabled{ opacity:.65; cursor:wait; transform:none; }
   #engine-note{ margin-top:.6rem; font-size:.7rem; color:var(--text-muted); }
   #error-box{ display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.4); color:var(--weak); font-size:.78rem; }
@@ -150,7 +160,7 @@
   .hero-strip-value{ font-size:.88rem; font-weight:700; color:var(--gold-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
   .chart-wrap{ display:flex; justify-content:center; margin-bottom:.8rem; position:relative; }
-  .chart-wrap::before{ content:""; position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(255,138,61,.20), transparent 70%); filter:blur(6px); z-index:0; }
+  .chart-wrap::before{ content:""; position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(180,0,255,.18), transparent 70%); filter:blur(6px); z-index:0; }
   .chart-wrap svg{ width:100%; max-width:280px; height:auto; position:relative; z-index:1; }
   .legend{ display:flex; flex-wrap:wrap; gap:.4rem .5rem; justify-content:center; margin-bottom:1rem; }
   .legend-item{ display:flex; align-items:center; gap:.35rem; font-size:.72rem; color:var(--text); background:color-mix(in srgb, var(--_c, var(--gold)) 16%, transparent); border:1px solid color-mix(in srgb, var(--_c, var(--gold)) 45%, transparent); padding:.25rem .6rem; border-radius:999px; }
@@ -171,13 +181,11 @@
 
   .lang-btn{ background:transparent; color:var(--text-muted); }
   .lang-btn.active{ background:var(--grad-brand); color:#231108; font-weight:700; }
-  .tabs{ display:flex; gap:.4rem; margin-bottom:1rem; flex-wrap:nowrap; overflow-x:auto; padding-bottom:.3rem; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
-  .tabs::-webkit-scrollbar{ height:5px; }
-  .tabs::-webkit-scrollbar-thumb{ background:var(--line); border-radius:999px; }
-  .tab-btn{ flex:none; min-width:auto; white-space:nowrap; font-size:.8rem; padding:.55rem .95rem; text-align:center; border-radius:999px; border:1px solid var(--line); background:var(--panel-2); color:var(--text-muted); cursor:pointer; font-family:inherit; }
-  .tab-btn.active{ background:var(--grad-brand); border-color:transparent; color:#231108; font-weight:700; }
-  .tab-panel{ display:none; }
-  .tab-panel.active{ display:block; }
+  /* AstroMatrix-style continuous feed: each category is a labeled section in one scroll, not a clickable tab panel */
+  .feed-section{ margin-bottom:1.6rem; padding-top:1.1rem; border-top:1px solid var(--line-soft); }
+  .feed-section:first-child{ margin-top:0; padding-top:0; border-top:none; }
+  .feed-head{ display:flex; align-items:center; gap:.55rem; margin-bottom:.85rem; font-size:.98rem; font-weight:700; color:var(--text); }
+  .feed-head .ic{ font-size:1.15rem; line-height:1; filter:saturate(1.2); }
   .pred-card{ position:relative; background:var(--panel-2); border:1px solid var(--line); border-inline-start:3px solid var(--saffron); border-radius:14px; padding:1rem; margin-bottom: .8rem; }
   .pred-card .tag{ font-size:var(--fs-micro); color:var(--gold-soft); margin-bottom:.5rem; display:block; font-weight:700; }
   .pred-card p{ margin:0; font-size:.94rem; line-height:1.95; }
@@ -200,7 +208,7 @@
   .dasha-current-pill{ margin-inline-start:.3rem; flex:none; }
   .dasha-row-body{ display:none; padding:0 .7rem .65rem; }
   .dasha-row.open > .dasha-row-body{ display:block; }
-  .dasha-row.dasha-maha.current > .dasha-row-head, .dasha-row.dasha-antar.current > .dasha-row-head{ background:rgba(255,138,61,.14); }
+  .dasha-row.dasha-maha.current > .dasha-row-head, .dasha-row.dasha-antar.current > .dasha-row-head{ background:rgba(180,0,255,.14); }
 
   .placeholder{ text-align:center; color:var(--text-muted); font-size:.85rem; padding: 2rem 0; }
 
@@ -220,7 +228,7 @@
     padding:.35rem .2rem; border-radius:12px; cursor:pointer;
   }
   .bottom-nav button .ic{ font-size:1.15rem; line-height:1; }
-  .bottom-nav button.active{ color:var(--gold-soft); background:rgba(255,138,61,.14); }
+  .bottom-nav button.active{ color:var(--gold-soft); background:rgba(180,0,255,.14); }
   @media (min-width: 860px){
     .bottom-nav{ display:none; } /* desktop already shows all sections side-by-side */
     body{ padding-bottom:0; }
@@ -443,18 +451,14 @@
         <h3 data-i18n="predH3">پیشگوئی</h3>
         <p class="sub" id="pred-subhead" data-i18n="predSubheadDefault">موجودہ دشا اور گردش پر مبنی</p>
 
-        <div class="tabs" role="tablist">
-          <button class="tab-btn active" type="button" data-tab="daily">🌞 <span data-i18n="tabDaily">آج کا پیغام</span></button>
-          <button class="tab-btn" type="button" data-tab="transits">🪐 <span data-i18n="tabTransits">سیاروی گردش و نظر</span></button>
-          <button class="tab-btn" type="button" data-tab="monthly">🌙 <span data-i18n="tabMonthly">اس مہینے کا رجحان</span></button>
-          <button class="tab-btn" type="button" data-tab="yearly">📅 <span data-i18n="tabYearly">اس سال کا رجحان</span></button>
-          <button class="tab-btn" type="button" data-tab="dasha">⏳ <span data-i18n="tabDasha">دور و اثرات</span></button>
-          <button class="tab-btn" type="button" data-tab="remedies">🧿 <span data-i18n="tabRemedies">علاج و تدابیر</span></button>
-          <button class="tab-btn" type="button" data-tab="panchang">📜 <span data-i18n="tabPanchang">پنچانگ</span></button>
-          <button class="tab-btn" type="button" data-tab="ashtakavarga">📊 <span data-i18n="tabAshtakavarga">اشٹک ورگ</span></button>
-        </div>
+        <!-- AstroMatrix ki tarah: ye ab ek hi musalsal "feed" hai — koi
+             pill-tabs nahi jinhein click kar ke panel badalna paray,
+             balke har category apna labeled section hai, sab neeche
+             scroll karte hi nazar aa jate hain (Daily screen jaisa: "Moon
+             Report", "Short Term Forecast" waghera sab ek hi scroll mein). -->
 
-        <div class="tab-panel active" id="tab-daily">
+        <div class="feed-section" id="tab-daily">
+          <div class="feed-head"><span class="ic">🌞</span> <span data-i18n="tabDaily">آج کا پیغام</span></div>
           <div class="pred-card">
             <span class="tag" id="pred-daily-tag"></span>
             <p id="pred-daily-text">پہلے "زائچہ بنائیں" دبائیں۔</p>
@@ -462,7 +466,9 @@
           <p class="sub" id="daily-weekday-note" style="margin-top:.6rem;"></p>
           <div id="daily-routine-list"></div>
         </div>
-        <div class="tab-panel" id="tab-transits">
+
+        <div class="feed-section" id="tab-transits">
+          <div class="feed-head"><span class="ic">🪐</span> <span data-i18n="tabTransits">سیاروی گردش و نظر</span></div>
           <div class="chart-wrap" id="transit-chart-wrap">
             <svg viewBox="0 0 300 300" role="img" aria-label="سیاروی گردش کا چارٹ">
               <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
@@ -478,15 +484,9 @@
           <p class="sub" style="text-align:center;">یہ چارٹ اسی طرح کا شمالی ہندی نمونہ ہے جیسا اوپر کنڈلی میں ہے، فرق صرف یہ ہے کہ گھر وہی ہیں (پیدائشی طالع سے طے شدہ) مگر سیارے اس وقت کی اپنی موجودہ پوزیشن پر ہیں۔</p>
           <div id="transit-combined-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
-        <div class="tab-panel" id="tab-monthly">
-          <div id="monthly-note" class="note" style="display:none;"></div>
-          <div id="monthly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
-        <div class="tab-panel" id="tab-yearly">
-          <div id="yearly-note" class="note" style="display:none;"></div>
-          <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
-        <div class="tab-panel" id="tab-dasha">
+
+        <div class="feed-section" id="tab-dasha">
+          <div class="feed-head"><span class="ic">⏳</span> <span data-i18n="tabDasha">دور و اثرات</span></div>
           <h4 style="margin:0 0 .4rem;font-size:.85rem;color:var(--text-muted);">موجودہ ادوار (دشا)</h4>
           <div id="dasha-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
           <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
@@ -497,13 +497,31 @@
           <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">مدھم/کمزور سیارے (Combustion)</h4>
           <div id="combust-content"></div>
         </div>
-        <div class="tab-panel" id="tab-remedies">
+
+        <div class="feed-section" id="tab-monthly">
+          <div class="feed-head"><span class="ic">🌙</span> <span data-i18n="tabMonthly">اس مہینے کا رجحان</span></div>
+          <div id="monthly-note" class="note" style="display:none;"></div>
+          <div id="monthly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+
+        <div class="feed-section" id="tab-yearly">
+          <div class="feed-head"><span class="ic">📅</span> <span data-i18n="tabYearly">اس سال کا رجحان</span></div>
+          <div id="yearly-note" class="note" style="display:none;"></div>
+          <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        </div>
+
+        <div class="feed-section" id="tab-remedies">
+          <div class="feed-head"><span class="ic">🧿</span> <span data-i18n="tabRemedies">علاج و تدابیر</span></div>
           <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
-        <div class="tab-panel" id="tab-panchang">
+
+        <div class="feed-section" id="tab-panchang">
+          <div class="feed-head"><span class="ic">📜</span> <span data-i18n="tabPanchang">پنچانگ</span></div>
           <div id="panchang-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
-        <div class="tab-panel" id="tab-ashtakavarga">
+
+        <div class="feed-section" id="tab-ashtakavarga">
+          <div class="feed-head"><span class="ic">📊</span> <span data-i18n="tabAshtakavarga">اشٹک ورگ</span></div>
           <div id="ashtakavarga-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
 
@@ -682,15 +700,6 @@
     11: { signPos:{x:278,y:66},  slots:[{x:275,y:88}] },
     12: { signPos:{x:225,y:22},  slots:[{x:225,y:30}] }
   };
-
-  document.querySelectorAll('.tab-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
-      btn.classList.add('active');
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    });
-  });
 
   async function fetchChartData(person){
     var res = await fetch('/api/kundli', {
