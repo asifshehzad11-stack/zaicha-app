@@ -88,6 +88,22 @@
 
   .phones{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 320px)); justify-content:center; gap:1.6rem; margin-bottom: 2rem; align-items:start; }
   .phone{ position:relative; background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); border:1px solid var(--line); border-radius:24px; padding:1.15rem; box-shadow:0 30px 60px -30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.02) inset; backdrop-filter: blur(8px); scroll-margin-top:5.5rem; }
+
+  /* ---- Mobile: ek waqt mein sirf ek "screen" (AstroMatrix jaisa asal app
+     navigation — bottom-nav button dabane se poori screen badal jaye,
+     sirf usi hisse tak scroll na ho). Desktop par (neeche media query
+     dekhein) ye override ho kar sab sections dobara side-by-side dikhte
+     hain, kyunke wahan bottom-nav khud hi hidden hai. ---- */
+  @media (max-width: 859px){
+    .phones{ display:block; }
+    .phone{ display:none; margin-bottom:0; }
+    .phone.screen-active{ display:block; }
+    /* Jab koi bhi screen "Entry" ke ilawa khuli ho, marketing hero aur
+       "apni kundli banayein" heading chhupa dein — AstroMatrix ki tarah
+       har screen apne aap mein saaf/mukammal ho, upar bar bar wahi
+       tagline na dohrai jaye. */
+    body.screen-mode .hero, body.screen-mode .section-head, body.screen-mode footer{ display:none; }
+  }
   .phone::before{ content:""; position:absolute; inset-inline:1.15rem; top:0; height:3px; border-radius:0 0 6px 6px; background:var(--grad-brand); opacity:.85; }
   .phone h3{ margin:0 0 .2rem; font-size:1.08rem; display:flex; align-items:center; gap:.4rem; }
   .phone .sub{ margin:0 0 .9rem; font-size:var(--fs-micro); color:var(--text-muted); }
@@ -124,6 +140,14 @@
   #generate-btn:disabled{ opacity:.65; cursor:wait; transform:none; }
   #engine-note{ margin-top:.6rem; font-size:.7rem; color:var(--text-muted); }
   #error-box{ display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.4); color:var(--weak); font-size:.78rem; }
+
+  /* ---- Hero strip: Sun/Moon/Ascendant row, AstroMatrix ke Sun/Moon/Rising row jaisa ---- */
+  .hero-strip{ display:flex; justify-content:space-between; gap:.4rem; margin-bottom:1.1rem; padding:.75rem .4rem; border-radius:16px; background:var(--panel-2); border:1px solid var(--line); }
+  .hero-strip[hidden]{ display:none; }
+  .hero-strip-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:.15rem; text-align:center; min-width:0; }
+  .hero-strip-emoji{ font-size:1.25rem; line-height:1; }
+  .hero-strip-label{ font-size:.62rem; color:var(--text-muted); letter-spacing:.03em; }
+  .hero-strip-value{ font-size:.88rem; font-weight:700; color:var(--gold-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
   .chart-wrap{ display:flex; justify-content:center; margin-bottom:.8rem; position:relative; }
   .chart-wrap::before{ content:""; position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(255,138,61,.20), transparent 70%); filter:blur(6px); z-index:0; }
@@ -242,7 +266,7 @@
     <div class="phones">
 
       <!-- INPUT -->
-      <div class="phone" id="phone-entry">
+      <div class="phone screen-active" id="phone-entry">
         <div style="display:flex; justify-content:space-between; align-items:baseline;">
           <h3 data-i18n="entryH3">اندراج</h3>
           <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);" data-i18n="demoLink">نمونہ بھریں (Demo)</a>
@@ -380,6 +404,7 @@
       <div class="phone" id="phone-chart">
         <h3 data-i18n="chartH3">زائچہ — کنڈلی</h3>
         <p class="sub" id="chart-subhead" data-i18n="chartSubheadDefault">پہلے "زائچہ بنائیں" دبائیں</p>
+        <div class="hero-strip" id="hero-strip" hidden></div>
         <div class="chart-wrap">
           <svg viewBox="0 0 300 300" role="img" aria-label="شمالی ہندی طرز کا کنڈلی چارٹ">
             <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
@@ -1166,8 +1191,45 @@
     });
   }
 
+  // ---- Hero strip: Sun/Moon/Ascendant row (AstroMatrix ke Daily screen
+  // wale Sun/Moon/Rising row jaisa). Koi naya backend data nahi chahiye —
+  // Sun/Moon jis ghar mein baithe hain wahin se un ka burj (sign) mil
+  // jata hai (data.houses already yahi rakhta hai), aur Ascendant to
+  // data.person.ascendantSignName mein pehle se hai.
+  function findPlanetHouse(houses, abbr){
+    for (var i = 0; i < (houses || []).length; i++){
+      var match = (houses[i].planets || []).find(function(p){ return p.abbr === abbr; });
+      if (match) return houses[i];
+    }
+    return null;
+  }
+
+  function renderHeroStrip(data){
+    var box = document.getElementById('hero-strip');
+    if (!box) return;
+    var sunHouse = findPlanetHouse(data.houses, 'Su');
+    var moonHouse = findPlanetHouse(data.houses, 'Mo');
+    var items = [
+      { label: 'سورج', emoji: PLANET_EMOJI.Su, value: sunHouse ? sunHouse.sign : '—' },
+      { label: 'چاند', emoji: PLANET_EMOJI.Mo, value: moonHouse ? moonHouse.sign : '—' },
+      { label: 'طالع', emoji: PLANET_EMOJI.Lg, value: (data.person && data.person.ascendantSignName) || '—' },
+    ];
+    box.innerHTML = '';
+    items.forEach(function(it){
+      var cell = document.createElement('div');
+      cell.className = 'hero-strip-item';
+      cell.innerHTML =
+        '<span class="hero-strip-emoji">' + it.emoji + '</span>' +
+        '<span class="hero-strip-label">' + it.label + '</span>' +
+        '<span class="hero-strip-value">' + it.value + '</span>';
+      box.appendChild(cell);
+    });
+    box.hidden = false;
+  }
+
   function renderAll(data){
     renderChart(data);
+    renderHeroStrip(data);
     renderTransitChart(data);
     renderHouseList(data);
     renderPredictions(data);
@@ -1336,31 +1398,27 @@
     runGenerate();
   });
 
-  // ---- Bottom mobile nav: scroll-to-section (purely additive, no effect on data flow) ----
+  // ---- Bottom mobile nav: real "app screen" switching (AstroMatrix jaisa)
+  // — button dabate hi sirf ek .phone screen dikhti hai, baqi chhup jati
+  // hain (CSS media query se, sirf mobile width par). Desktop par ye
+  // .screen-active class ka koi visual asar nahi (wahan bottom-nav khud
+  // hi hidden hai aur sab .phone sections normally side-by-side dikhte
+  // hain) — is liye yehi ek click-handler dono jagah safe hai.
   (function(){
     var buttons = Array.prototype.slice.call(document.querySelectorAll('.bottom-nav button'));
-    buttons.forEach(function(btn){
+    var phones = buttons.map(function(b){ return document.getElementById(b.dataset.target); });
+    buttons.forEach(function(btn, i){
       btn.addEventListener('click', function(){
-        var target = document.getElementById(btn.dataset.target);
+        var target = phones[i];
         if (!target) return;
         buttons.forEach(function(b){ b.classList.remove('active'); });
+        phones.forEach(function(p){ if (p) p.classList.remove('screen-active'); });
         btn.classList.add('active');
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        target.classList.add('screen-active');
+        document.body.classList.toggle('screen-mode', target.id !== 'phone-entry');
+        window.scrollTo(0, 0);
       });
     });
-    var sections = buttons.map(function(b){ return document.getElementById(b.dataset.target); }).filter(Boolean);
-    if ('IntersectionObserver' in window && sections.length) {
-      var obs = new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){
-          if (!entry.isIntersecting) return;
-          var idx = sections.indexOf(entry.target);
-          if (idx === -1) return;
-          buttons.forEach(function(b){ b.classList.remove('active'); });
-          buttons[idx].classList.add('active');
-        });
-      }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
-      sections.forEach(function(s){ obs.observe(s); });
-    }
   })();
 
   // status badge: check backend health + credentials on load
