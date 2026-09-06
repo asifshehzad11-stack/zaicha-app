@@ -1,0 +1,12 @@
+{
+  "appId": "com.zaicha.app",
+  "appName": "Zaicha",
+  "webDir": "www",
+  "server": {
+    "url": "https://YOUR-RENDER-URL.onrender.com",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

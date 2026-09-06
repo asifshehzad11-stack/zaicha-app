@@ -1,0 +1,17 @@
+{
+  "name": "zaicha-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Capacitor wrapper that packages the live Zaicha web app as an Android (and later iOS) app",
+  "scripts": {
+    "sync": "npx cap sync",
+    "android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
