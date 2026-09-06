@@ -161,6 +161,23 @@
   .transit-row:last-child{ margin-bottom:0; }
   .note{ font-size:.78rem; color:var(--text-muted); background:var(--panel-2); border:1px dashed var(--line); border-radius:10px; padding:.6rem .8rem; margin-top: .8rem; }
 
+  /* ---- Dasha drill-down tree (Mahadasha → Antardasha → Pratyantardasha), AstroSage-style click-to-expand ---- */
+  .dasha-tree{ margin-top:.3rem; }
+  .dasha-row{ border:1px solid var(--line-soft); border-radius:12px; margin-bottom:.4rem; background:var(--panel-2); overflow:hidden; }
+  .dasha-row.dasha-antar{ margin-inline-start:.9rem; background:rgba(255,255,255,.03); }
+  .dasha-row.dasha-pratyantar{ margin-inline-start:.9rem; background:transparent; border-style:dashed; }
+  .dasha-row-head{ display:flex; align-items:center; flex-wrap:wrap; gap:.3rem .5rem; padding:.6rem .7rem; cursor:pointer; font-size:.85rem; }
+  .dasha-row.leaf .dasha-row-head{ cursor:default; }
+  .dasha-row-toggle{ display:inline-block; transition:transform .15s; color:var(--gold-soft); font-size:.7rem; flex:none; }
+  .dasha-row.leaf .dasha-row-toggle{ visibility:hidden; }
+  .dasha-row.open > .dasha-row-head > .dasha-row-toggle{ transform:rotate(90deg); }
+  .dasha-row-label{ font-weight:600; }
+  .dasha-row-range{ flex:1 1 100%; order:3; font-size:.72rem; color:var(--text-muted); direction:ltr; text-align:start; }
+  .dasha-current-pill{ margin-inline-start:.3rem; flex:none; }
+  .dasha-row-body{ display:none; padding:0 .7rem .65rem; }
+  .dasha-row.open > .dasha-row-body{ display:block; }
+  .dasha-row.dasha-maha.current > .dasha-row-head, .dasha-row.dasha-antar.current > .dasha-row-head{ background:rgba(255,138,61,.14); }
+
   .placeholder{ text-align:center; color:var(--text-muted); font-size:.85rem; padding: 2rem 0; }
 
   footer{ margin-top:1.5rem; padding-top:1.6rem; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:var(--fs-small); color:var(--text-muted); }
@@ -447,6 +464,9 @@
         <div class="tab-panel" id="tab-dasha">
           <h4 style="margin:0 0 .4rem;font-size:.85rem;color:var(--text-muted);">موجودہ ادوار (دشا)</h4>
           <div id="dasha-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
+          <p class="sub" style="margin:0 0 .5rem;" data-i18n="dashaTreeSub">کسی بھی مہادشا پر کلک کریں تو اس کی انتردشائیں کھلیں گی، پھر کسی انتردشا پر کلک کریں تو اس کی پرتیانتردشائیں نظر آئیں گی۔</p>
+          <div id="dasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
           <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">ساڑھ ساتی (Sade Sati)</h4>
           <div id="sadesati-content"></div>
           <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">مدھم/کمزور سیارے (Combustion)</h4>
@@ -539,6 +559,8 @@
       footerNote1: 'یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔',
       footerNote2: 'Kundli Matching اور مکمل انگریزی ترجمہ (پیشگوئی کے متن کا) اگلے ورژن میں شامل ہوگا۔',
       navEntry: 'اندراج', navChart: 'کنڈلی', navHouses: 'خانے', navPred: 'پیشگوئی',
+      dashaTreeH4: 'مکمل دشا شیڈول — کلک کر کے کھولیں',
+      dashaTreeSub: 'کسی بھی مہادشا پر کلک کریں تو اس کی انتردشائیں کھلیں گی، پھر کسی انتردشا پر کلک کریں تو اس کی پرتیانتردشائیں نظر آئیں گی۔',
     },
     en: {
       brandSub: 'Zaicha',
@@ -589,6 +611,8 @@
       footerNote1: 'This chart is built from your real birth details and live astronomical calculation.',
       footerNote2: 'Kundli matching and a full English translation of the prediction text are coming in a future version.',
       navEntry: 'Entry', navChart: 'Chart', navHouses: 'Houses', navPred: 'Predictions',
+      dashaTreeH4: 'Full dasha schedule — tap to expand',
+      dashaTreeSub: 'Tap any Mahadasha to reveal its Antardashas, then tap an Antardasha to reveal its Pratyantardashas.',
     },
   };
   var currentLang = 'ur';
@@ -1063,6 +1087,85 @@
     combustBox.appendChild(cCard);
   }
 
+  // ---- Dasha drill-down tree (AstroSage-style: Mahadasha row per tap →
+  // uski Antardashas dikhein, Antardasha row per tap → uski
+  // Pratyantardashas dikhein). Har row lazily apne children banati hai
+  // (pehli baar khulte waqt) taake poora Vimshottari cycle (9 mahadasha ×
+  // 9 antardasha × 9 pratyantardasha tak) DOM mein ek sath na ghusna
+  // pare. Jo period "abhi chal raha hai" (isCurrent) usay khud khol kar
+  // dikhaya jata hai, sath ek "ابھی جاری" badge ke.
+  function dashaRangeText(period){
+    return (fmtDate(period.start) && fmtDate(period.end))
+      ? (fmtDate(period.start) + ' → ' + fmtDate(period.end))
+      : 'تاریخیں دستیاب نہیں';
+  }
+
+  function buildDashaTreeRow(period, levelClass, onExpand){
+    var row = document.createElement('div');
+    row.className = 'dasha-row ' + levelClass + (period.isCurrent ? ' current' : '') + (onExpand ? '' : ' leaf');
+
+    var head = document.createElement('div');
+    head.className = 'dasha-row-head';
+    head.innerHTML =
+      '<span class="dasha-row-toggle">▸</span>' +
+      '<span class="dasha-row-label">' + (PLANET_EMOJI[period.lord] || '') + ' ' + (PLANET_NAME_UR_MAP[period.lord] || period.lord) + '</span>' +
+      (period.isCurrent ? '<span class="status-pill strong dasha-current-pill">ابھی جاری</span>' : '') +
+      '<span class="dasha-row-range">' + dashaRangeText(period) + '</span>';
+    row.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'dasha-row-body';
+    row.appendChild(body);
+
+    if (onExpand) {
+      head.addEventListener('click', function(){
+        var willOpen = !row.classList.contains('open');
+        row.classList.toggle('open', willOpen);
+        if (willOpen && !body.dataset.filled) {
+          body.dataset.filled = '1';
+          onExpand(body);
+        }
+      });
+      if (period.isCurrent) head.click(); // current chain khud-ba-khud khuli rahe
+    }
+
+    return row;
+  }
+
+  function renderDashaTree(data){
+    var box = document.getElementById('dasha-tree');
+    if (!box) return;
+    box.innerHTML = '';
+    var tree = (data.dasha && data.dasha.tree) || [];
+    if (!tree.length) {
+      box.innerHTML = '<div class="placeholder">مکمل دشا شیڈول ابھی دستیاب نہیں</div>';
+      return;
+    }
+    tree.forEach(function(maha){
+      var mahaRow = buildDashaTreeRow(maha, 'dasha-maha', function(body){
+        var antarList = maha.antardasha || [];
+        if (!antarList.length) {
+          body.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">تفصیل دستیاب نہیں</div>';
+          return;
+        }
+        antarList.forEach(function(antar){
+          var antarRow = buildDashaTreeRow(antar, 'dasha-antar', function(abody){
+            var pratyantarList = antar.pratyantardasha || [];
+            if (!pratyantarList.length) {
+              abody.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">تفصیل دستیاب نہیں</div>';
+              return;
+            }
+            pratyantarList.forEach(function(pratyantar){
+              abody.appendChild(buildDashaTreeRow(pratyantar, 'dasha-pratyantar', null));
+            });
+          });
+          body.appendChild(antarRow);
+        });
+      });
+      box.appendChild(mahaRow);
+    });
+  }
+
   function renderAll(data){
     renderChart(data);
     renderTransitChart(data);
@@ -1072,6 +1175,7 @@
     renderPanchang(data);
     renderAshtakavarga(data);
     renderDashaPanel(data);
+    renderDashaTree(data);
   }
 
   function showError(msg){
