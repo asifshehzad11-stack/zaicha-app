@@ -5,31 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zaicha</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-  /* ---- Palette: pixel-sampled directly from the live AstroMatrix app
-     (astromatrix.app — Flutter/CanvasKit, so colors were read via
-     canvas.getImageData rather than guessed from screenshots). Turns out
-     AstroMatrix has NO orange/gold anywhere — it's a single violet-magenta
-     hue at two lightness levels (vivid ~rgb(183,0,255) for icons/glow,
-     pale ~rgb(254,162,255) for highlighted text) on a near-black
-     purple-tinted background, with neutral gray (not lavender-gray) for
-     secondary text. Variable NAMES below are kept as-is (saffron/gold/
-     rose) to avoid touching every usage site — only the hex VALUES
-     change to this measured palette. ---- */
+  /* ---- Palette: Pakistan ke jhanday jaisa — gehra sabz (dark green) aur
+     safed (white). Pehle ye AstroMatrix se pixel-sample ki gayi violet-
+     magenta palette thi; user ki khwahish par ab isi jagah gehra sabz +
+     safed theme lagaya gaya hai. Variable NAMES wesay hi rakhe gaye hain
+     (saffron/gold/rose) taake har usage site chhairni na paray — sirf hex
+     VALUES badli gayi hain is nayi palette se. ---- */
   :root{
-    --ink:#0d0815;
+    --ink:#04170d;
     --panel: rgba(255,255,255,.045);
     --panel-2: rgba(255,255,255,.075);
-    --line: rgba(180,0,255,.16);
+    --line: rgba(34,197,94,.22);
     --line-soft: rgba(255,255,255,.07);
     --text:#ffffff;
-    --text-muted:#95959c;
-    --saffron:#b400ff;
-    --saffron-soft:#d24bff;
-    --rose:#e07bff;
-    --gold:#fea2ff;
-    --gold-soft:#ffd0ff;
+    --text-muted:#a9c9b6;
+    --saffron:#22c55e;
+    --saffron-soft:#4ade80;
+    --rose:#ffffff;
+    --gold:#eafcf1;
+    --gold-soft:#8ff0b6;
     --weak:#ff6b6b;
     --strong:#33e0a1;
     --error:#ff6b6b;
@@ -59,6 +55,9 @@
   }
 
   .ltr{ direction:ltr; unicode-bidi:isolate; font-family:"JetBrains Mono",ui-monospace,monospace; }
+  /* Hindi (Devanagari) ka apna font — "Noto Nastaliq Urdu" sirf Arabic
+     script ke liye hai, Devanagari nahi dikhata. */
+  body.lang-hi{ font-family:"Noto Serif Devanagari","Noto Sans Devanagari",serif; }
   .latin{ direction:ltr; unicode-bidi:isolate; font-family:"Playfair Display","Times New Roman",serif; }
 
   .page{ max-width:1180px; margin:0 auto; padding: clamp(1.1rem,2vw,2.4rem) clamp(1.1rem,3vw,2.8rem) 2.2rem; position:relative; isolation:isolate; }
@@ -71,14 +70,14 @@
       radial-gradient(1.5px 1.5px at 91% 22%, rgba(255,255,255,.5) 0, transparent 60%),
       radial-gradient(1.5px 1.5px at 22% 40%, rgba(255,255,255,.35) 0, transparent 60%),
       radial-gradient(1.5px 1.5px at 82% 55%, rgba(255,255,255,.3) 0, transparent 60%),
-      radial-gradient(900px 620px at 85% -8%, rgba(180,0,255,.16), transparent 60%),
-      radial-gradient(800px 560px at 8% 8%, rgba(180,0,255,.11), transparent 55%),
-      radial-gradient(1000px 700px at 50% 110%, rgba(180,0,255,.14), transparent 60%),
+      radial-gradient(900px 620px at 85% -8%, rgba(34,197,94,.16), transparent 60%),
+      radial-gradient(800px 560px at 8% 8%, rgba(34,197,94,.11), transparent 55%),
+      radial-gradient(1000px 700px at 50% 110%, rgba(34,197,94,.14), transparent 60%),
       linear-gradient(160deg, #150c26 0%, #0d0815 45%, #09050f 100%);
     background-color:var(--ink);
   }
 
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:.9rem 1.1rem; margin-bottom:1.8rem; border-radius:18px; background:rgba(180,0,255,.06); border:1px solid var(--line); backdrop-filter: blur(6px); }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:.9rem 1.1rem; margin-bottom:1.8rem; border-radius:18px; background:rgba(34,197,94,.06); border:1px solid var(--line); backdrop-filter: blur(6px); }
   .brand{ display:flex; align-items:center; gap:.7rem; }
   .brand svg{ width:38px; height:38px; flex:none; color:var(--gold); }
   .brand-name{ font-family:"Playfair Display","Times New Roman",serif; font-size:1.5rem; font-weight:700; letter-spacing:.02em; color:var(--text); direction:ltr; }
@@ -86,7 +85,7 @@
   .badge{ font-size:var(--fs-micro); letter-spacing:.04em; padding:.35rem .7rem; border-radius:999px; border:1px solid var(--line); color:var(--text-muted); white-space:nowrap; }
   .badge.gold{ border:1px solid transparent; background:linear-gradient(var(--ink),var(--ink)) padding-box, var(--grad-brand) border-box; color:var(--gold-soft); font-weight:600; }
 
-  .hero{ padding:1.6rem 1.1rem 2rem; position:relative; border-radius:24px; overflow:hidden; margin-bottom:1.6rem; background:rgba(180,0,255,.05); border:1px solid var(--line); }
+  .hero{ padding:1.6rem 1.1rem 2rem; position:relative; border-radius:24px; overflow:hidden; margin-bottom:1.6rem; background:rgba(34,197,94,.05); border:1px solid var(--line); }
   .hero::after{ content:"✦"; position:absolute; inset-inline-end:1.4rem; top:1rem; font-size:2.2rem; color:rgba(254,162,255,.35); }
   .hero h1{ font-family:"Playfair Display","Noto Nastaliq Urdu",serif; font-size:var(--fs-hero); line-height:1.55; margin:0 0 1rem; text-wrap:balance; font-weight:700; background:linear-gradient(90deg,#fff,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .hero p{ max-width:56ch; color:var(--text-muted); font-size:1.05rem; line-height:2; margin:0; }
@@ -108,11 +107,12 @@
     .phones{ display:block; }
     .phone{ display:none; margin-bottom:0; }
     .phone.screen-active{ display:block; }
-    /* Jab koi bhi screen "Entry" ke ilawa khuli ho, marketing hero aur
-       "apni kundli banayein" heading chhupa dein — AstroMatrix ki tarah
-       har screen apne aap mein saaf/mukammal ho, upar bar bar wahi
-       tagline na dohrai jaye. */
-    body.screen-mode .hero, body.screen-mode .section-head, body.screen-mode footer{ display:none; }
+    /* Mobile par marketing hero aur "apni kundli banayein" heading kabhi
+       na dikhayein — Welcome screen (screen-welcome) khud hi wo taaruf
+       (intro) provide karti hai, aur baqi har screen AstroMatrix ki tarah
+       apne aap mein saaf/mukammal honi chahiye, upar bar bar wahi tagline
+       na dohrai jaye. */
+    .hero, .section-head, body footer{ display:none; }
   }
   .phone::before{ content:""; position:absolute; inset-inline:1.15rem; top:0; height:3px; border-radius:0 0 6px 6px; background:var(--grad-brand); opacity:.85; }
   .phone h3{ margin:0 0 .2rem; font-size:1.08rem; display:flex; align-items:center; gap:.4rem; }
@@ -129,7 +129,7 @@
     padding:.65rem .85rem; font-size:var(--fs-small); color:var(--text); font-family:inherit;
     transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus, .field select:focus{ outline:none; border-color:var(--saffron); box-shadow:0 0 0 3px rgba(180,0,255,.22); }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--saffron); box-shadow:0 0 0 3px rgba(34,197,94,.22); }
   .field input[dir="ltr"]{ font-family:"JetBrains Mono",monospace; text-align:left; }
   .field-row{ display:flex; gap:.6rem; }
   .field-row .field{ flex:1; }
@@ -145,8 +145,6 @@
   #city-suggestions .city-option:last-child{ border-bottom:none; }
   #city-suggestions .city-option:hover{ background:var(--panel-2); color:var(--gold-soft); }
 
-  #generate-btn{ width:100%; margin-top:.4rem; padding:.85rem; border-radius:14px; border:none; background:var(--grad-brand); color:#fff; font-family:inherit; font-size:.96rem; font-weight:700; cursor:pointer; box-shadow:0 14px 28px -12px rgba(180,0,255,.5); transition:transform .12s, box-shadow .12s; }
-  #generate-btn:hover{ transform:translateY(-1px); box-shadow:0 18px 32px -12px rgba(180,0,255,.6); }
   #generate-btn:disabled{ opacity:.65; cursor:wait; transform:none; }
   #engine-note{ margin-top:.6rem; font-size:.7rem; color:var(--text-muted); }
   #error-box{ display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.4); color:var(--weak); font-size:.78rem; }
@@ -160,7 +158,7 @@
   .hero-strip-value{ font-size:.88rem; font-weight:700; color:var(--gold-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
 
   .chart-wrap{ display:flex; justify-content:center; margin-bottom:.8rem; position:relative; }
-  .chart-wrap::before{ content:""; position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(180,0,255,.18), transparent 70%); filter:blur(6px); z-index:0; }
+  .chart-wrap::before{ content:""; position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(34,197,94,.18), transparent 70%); filter:blur(6px); z-index:0; }
   .chart-wrap svg{ width:100%; max-width:280px; height:auto; position:relative; z-index:1; }
   .legend{ display:flex; flex-wrap:wrap; gap:.4rem .5rem; justify-content:center; margin-bottom:1rem; }
   .legend-item{ display:flex; align-items:center; gap:.35rem; font-size:.72rem; color:var(--text); background:color-mix(in srgb, var(--_c, var(--gold)) 16%, transparent); border:1px solid color-mix(in srgb, var(--_c, var(--gold)) 45%, transparent); padding:.25rem .6rem; border-radius:999px; }
@@ -181,6 +179,8 @@
 
   .lang-btn{ background:transparent; color:var(--text-muted); }
   .lang-btn.active{ background:var(--grad-brand); color:#231108; font-weight:700; }
+  .currency-btn{ background:transparent; color:var(--text-muted); }
+  .currency-btn.selected{ background:var(--grad-brand); color:#231108; font-weight:700; }
   /* AstroMatrix-style continuous feed: each category is a labeled section in one scroll, not a clickable tab panel */
   .feed-section{ margin-bottom:1.6rem; padding-top:1.1rem; border-top:1px solid var(--line-soft); }
   .feed-section:first-child{ margin-top:0; padding-top:0; border-top:none; }
@@ -192,6 +192,46 @@
   .transit-row{ padding:.6rem .8rem; margin-bottom:.4rem; border-radius:12px; background:var(--panel-2); border:1px solid var(--line-soft); font-size:.85rem; }
   .transit-row:last-child{ margin-bottom:0; }
   .note{ font-size:.78rem; color:var(--text-muted); background:var(--panel-2); border:1px dashed var(--line); border-radius:10px; padding:.6rem .8rem; margin-top: .8rem; }
+
+  /* ---- Predictions/Daily hub ke shortcut icons (AstroMatrix ke Birth
+       Report/Weekly/Monthly/... icons jaisay) — har ek click par apni
+       ALAG screen kholta hai (showScreen se), continuous feed ka hissa
+       nahi banta. ---- */
+  .shortcut-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:.55rem; margin-bottom:1.4rem; }
+  .shortcut-item{ display:flex; flex-direction:column; align-items:center; gap:.4rem; background:var(--panel-2); border:1px solid var(--line-soft); border-radius:14px; padding:.75rem .3rem; font-family:inherit; color:var(--text); cursor:pointer; }
+  .shortcut-item .ic{ font-size:1.35rem; line-height:1; }
+  .shortcut-item span:last-child{ font-size:.68rem; line-height:1.3; text-align:center; }
+  .shortcut-item:hover{ border-color:var(--line); background:rgba(255,255,255,.1); }
+
+  /* ---- Dedicated sub-screens (Dasha/Monthly/Yearly/Panchang/...) jo
+       shortcut icon dabane se khulti hain — upar ek chhota "واپس" button
+       taake Predictions/Daily hub par wapas ja saken. ---- */
+  .subscreen-head{ margin-bottom:1rem; }
+  .lock-card{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:.6rem; padding:2.2rem 1rem; border:1px dashed var(--line); border-radius:16px; background:var(--panel-2); }
+  .lock-card .lock-ic{ font-size:2rem; }
+  .lock-card .lock-title{ margin:0; font-size:.85rem; color:var(--text-muted); line-height:1.7; max-width:22rem; }
+  .plan-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin:1rem 0 1.3rem; }
+  .plan-card{ display:flex; flex-direction:column; gap:.3rem; border:1px solid var(--line-soft); border-radius:14px; padding:1rem .7rem; text-align:center; background:var(--panel-2); cursor:pointer; font-family:inherit; color:var(--text); }
+  .plan-card.selected{ border-color:var(--saffron); box-shadow:0 0 0 1px var(--saffron) inset; }
+  .plan-card .plan-name{ font-size:.8rem; color:var(--text-muted); margin:0; }
+  .plan-card .plan-price{ font-size:1.1rem; font-weight:700; margin:0; }
+  .premium-badge{ display:inline-flex; align-items:center; gap:.3rem; font-size:.7rem; padding:.25rem .6rem; border-radius:999px; background:rgba(34,197,94,.16); color:var(--gold-soft); border:1px solid var(--line); margin-inline-start:.4rem; }
+  /* ---- Paywall teaser: asal content dhundla (blurred) nazar aata hai,
+     upar "اپگریڈ کریں" overlay — taake dekh kar upgrade karne ka dil chahe. */
+  .paywall-teaser{ position:relative; min-height:6rem; border-radius:14px; overflow:hidden; }
+  .teaser-blurred-inner{ filter:blur(5px); pointer-events:none; user-select:none; }
+  .teaser-cta{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; text-align:center; padding:1rem; background:rgba(4,23,13,.62); }
+  .teaser-cta .lock-ic{ font-size:1.6rem; }
+  .teaser-cta p{ margin:0; font-size:.78rem; color:#fff; max-width:20rem; line-height:1.7; }
+  /* ---- Upgrade modal popup — jab user pehli baar koi paid screen khole. */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:500; padding:1.2rem; }
+  .modal-overlay[hidden]{ display:none; }
+  .modal-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:16px; padding:1.7rem 1.3rem; max-width:20rem; width:100%; display:flex; flex-direction:column; align-items:center; gap:.6rem; text-align:center; }
+  .modal-card .lock-ic{ font-size:1.9rem; }
+  .modal-card p{ margin:0; font-size:.85rem; color:var(--text-muted); line-height:1.7; }
+  .modal-dismiss-btn{ background:transparent; border:none; color:var(--text-muted); font-family:inherit; font-size:.76rem; cursor:pointer; padding:.4rem; text-decoration:underline; }
+  .back-btn{ display:inline-flex; align-items:center; gap:.35rem; background:transparent; border:1px solid var(--line); color:var(--text-muted); font-family:inherit; font-size:.78rem; padding:.4rem .8rem; border-radius:999px; cursor:pointer; }
+  .back-btn:hover{ color:var(--gold-soft); border-color:var(--gold-soft); }
 
   /* ---- Dasha drill-down tree (Mahadasha → Antardasha → Pratyantardasha), AstroSage-style click-to-expand ---- */
   .dasha-tree{ margin-top:.3rem; }
@@ -208,29 +248,53 @@
   .dasha-current-pill{ margin-inline-start:.3rem; flex:none; }
   .dasha-row-body{ display:none; padding:0 .7rem .65rem; }
   .dasha-row.open > .dasha-row-body{ display:block; }
-  .dasha-row.dasha-maha.current > .dasha-row-head, .dasha-row.dasha-antar.current > .dasha-row-head{ background:rgba(180,0,255,.14); }
+  .dasha-row.dasha-maha.current > .dasha-row-head, .dasha-row.dasha-antar.current > .dasha-row-head{ background:rgba(34,197,94,.14); }
 
   .placeholder{ text-align:center; color:var(--text-muted); font-size:.85rem; padding: 2rem 0; }
 
   footer{ margin-top:1.5rem; padding-top:1.6rem; border-top:1px solid var(--line-soft); display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:var(--fs-small); color:var(--text-muted); }
 
-  /* ---- Fixed bottom mobile app nav ---- */
+  /* ---- Welcome/onboarding screen: features + Sign In/Register, AstroMatrix
+     ki onboarding jaisi (planet-icon badge, feature grid, phir auth form).
+     Filhaal ye sirf UI/flow hai — asal account/password backend baad mein
+     (phase 2) jurega, abhi "جاری رکھیں" seedha birth-details form khol deta
+     hai. ---- */
+  .welcome-logo{ width:64px; height:64px; margin:0 auto 1rem; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(34,197,94,.12); border:1px solid var(--line); box-shadow:0 0 26px rgba(34,197,94,.4); }
+  .welcome-logo svg{ width:32px; height:32px; color:var(--gold); }
+  #screen-welcome h3{ justify-content:center; text-align:center; font-size:1.25rem; }
+  #screen-welcome .sub{ text-align:center; margin-bottom:1.2rem; }
+  .feature-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:1.3rem; }
+  .feature-card{ background:var(--panel-2); border:1px solid var(--line-soft); border-radius:14px; padding:.75rem .5rem; text-align:center; }
+  .feature-card .fi{ font-size:1.3rem; display:block; margin-bottom:.35rem; }
+  .feature-card .ft{ font-size:.72rem; color:var(--text); line-height:1.4; }
+  .auth-tabs{ display:flex; border:1px solid var(--line); border-radius:999px; padding:.2rem; margin-bottom:1.1rem; }
+  .auth-tabs button{ flex:1; border:none; background:transparent; color:var(--text-muted); font-family:inherit; font-size:.82rem; padding:.55rem 0; border-radius:999px; cursor:pointer; }
+  .auth-tabs button.active{ background:var(--grad-brand); color:#fff; font-weight:700; }
+  .auth-form{ display:none; }
+  .auth-form.active{ display:block; }
+  .cta-btn{ width:100%; margin-top:.4rem; padding:.85rem; border-radius:14px; border:none; background:var(--grad-brand); color:#fff; font-family:inherit; font-size:.96rem; font-weight:700; cursor:pointer; box-shadow:0 14px 28px -12px rgba(34,197,94,.5); transition:transform .12s, box-shadow .12s; }
+  .cta-btn:hover{ transform:translateY(-1px); box-shadow:0 18px 32px -12px rgba(34,197,94,.6); }
+
+  /* ---- Fixed bottom mobile app nav — sirf "app mode" mein nazar aata hai
+     (login/register aur birth-details step ke doran chhupa rehta hai,
+     AstroMatrix ki onboarding ki tarah) ---- */
   .bottom-nav{
     position:fixed; left:0; right:0; bottom:0; z-index:50;
-    display:flex; justify-content:space-around; align-items:center;
+    display:none; justify-content:space-around; align-items:center;
     padding:.5rem .4rem calc(.5rem + env(safe-area-inset-bottom));
     background:rgba(28,16,51,.88); backdrop-filter:blur(14px);
     border-top:1px solid var(--line);
   }
+  body.app-mode .bottom-nav{ display:flex; }
   .bottom-nav button{
     flex:1; max-width:110px; display:flex; flex-direction:column; align-items:center; gap:.15rem;
     background:transparent; border:none; color:var(--text-muted); font-family:inherit; font-size:.66rem;
     padding:.35rem .2rem; border-radius:12px; cursor:pointer;
   }
   .bottom-nav button .ic{ font-size:1.15rem; line-height:1; }
-  .bottom-nav button.active{ color:var(--gold-soft); background:rgba(180,0,255,.14); }
+  .bottom-nav button.active{ color:var(--gold-soft); background:rgba(34,197,94,.14); }
   @media (min-width: 860px){
-    .bottom-nav{ display:none; } /* desktop already shows all sections side-by-side */
+    .bottom-nav{ display:none !important; } /* desktop already shows all sections side-by-side */
     body{ padding-bottom:0; }
   }
 </style>
@@ -255,6 +319,7 @@
       <div id="lang-toggle" style="display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:.72rem;">
         <button type="button" data-lang="ur" class="lang-btn active" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
         <button type="button" data-lang="en" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">EN</button>
+        <button type="button" data-lang="hi" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">हिं</button>
       </div>
       <span class="badge gold" id="status-badge" data-i18n="statusBadge">لائیو انجن سے جڑا ہوا</span>
     </div>
@@ -273,8 +338,69 @@
 
     <div class="phones">
 
+      <!-- WELCOME / LOGIN & REGISTER (AstroMatrix ki onboarding jaisa
+           andaz — planet-icon badge, phir features, phir Sign In/Register.
+           Asal account/password backend abhi nahi hai (وہ اگلا مرحلہ ہے),
+           "جاری رکھیں" filhaal seedha birth-details form khol deta hai.) -->
+      <div class="phone screen-active" id="screen-welcome">
+        <div class="welcome-logo">
+          <svg viewBox="0 0 48 48" role="img" aria-label="زائچہ کا لوگو">
+            <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <line x1="24" y1="7" x2="24" y2="41" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+            <line x1="7" y1="24" x2="41" y2="24" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+            <line x1="12.5" y1="12.5" x2="35.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+            <line x1="35.5" y1="12.5" x2="12.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+            <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3 data-i18n="welcomeH3">زائچہ میں خوش آمدید</h3>
+        <p class="sub" data-i18n="welcomeSub">ویدک اصولوں پر مبنی آپ کا ذاتی زائچہ اور روزانہ پیشگوئی</p>
+
+        <div class="feature-grid">
+          <div class="feature-card"><span class="fi">🔮</span><span class="ft" data-i18n="featChart">مکمل ویدک کنڈلی</span></div>
+          <div class="feature-card"><span class="fi">⏳</span><span class="ft" data-i18n="featDasha">دشا/انتردشا کی گہرائی</span></div>
+          <div class="feature-card"><span class="fi">⭐</span><span class="ft" data-i18n="featDaily">روزانہ پیشگوئی</span></div>
+          <div class="feature-card"><span class="fi">🌐</span><span class="ft" data-i18n="featLang">اردو اور انگریزی</span></div>
+        </div>
+
+        <div class="auth-tabs" role="tablist">
+          <button type="button" class="active" data-auth="signin" data-i18n="authSignIn">سائن اِن</button>
+          <button type="button" data-auth="register" data-i18n="authRegister">رجسٹر</button>
+        </div>
+
+        <div class="auth-form active" id="auth-signin">
+          <div class="field">
+            <label data-i18n="labelEmail">ای میل</label>
+            <input type="email" id="auth-email-signin" dir="ltr" placeholder="you@example.com" autocomplete="username">
+          </div>
+          <div class="field">
+            <label data-i18n="labelPassword">پاس ورڈ</label>
+            <input type="password" id="auth-pass-signin" dir="ltr" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="note" id="auth-signin-error" style="display:none; color:var(--weak); border-color:rgba(255,107,107,.4);"></div>
+          <button type="button" class="cta-btn" id="auth-signin-btn" data-i18n="authContinue">جاری رکھیں</button>
+        </div>
+
+        <div class="auth-form" id="auth-register">
+          <div class="field">
+            <label data-i18n="labelEmail">ای میل</label>
+            <input type="email" id="auth-email-register" dir="ltr" placeholder="you@example.com" autocomplete="username">
+          </div>
+          <div class="field">
+            <label data-i18n="labelPassword">پاس ورڈ بنائیں</label>
+            <input type="password" id="auth-pass-register" dir="ltr" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label data-i18n="labelPasswordConfirm">پاس ورڈ کی تصدیق</label>
+            <input type="password" id="auth-pass-register-confirm" dir="ltr" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <div class="note" id="auth-register-error" style="display:none; color:var(--weak); border-color:rgba(255,107,107,.4);"></div>
+          <button type="button" class="cta-btn" id="auth-register-btn" data-i18n="authContinue">جاری رکھیں</button>
+        </div>
+      </div>
+
       <!-- INPUT -->
-      <div class="phone screen-active" id="phone-entry">
+      <div class="phone" id="phone-entry">
         <div style="display:flex; justify-content:space-between; align-items:baseline;">
           <h3 data-i18n="entryH3">اندراج</h3>
           <a href="#" id="fill-demo-link" style="font-size:.72rem; color:var(--gold-soft);" data-i18n="demoLink">نمونہ بھریں (Demo)</a>
@@ -403,7 +529,7 @@
           <p class="sub" id="ayanamsa-note" style="display:none;" data-i18n="ayanamsaNote">نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔</p>
         </div>
 
-        <button id="generate-btn" type="button" data-i18n="generateBtn">زائچہ بنائیں</button>
+        <button id="generate-btn" class="cta-btn" type="button" data-i18n="generateBtn">زائچہ بنائیں</button>
         <div id="engine-note" data-i18n="engineNote">یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔</div>
         <div id="error-box"></div>
       </div>
@@ -451,11 +577,26 @@
         <h3 data-i18n="predH3">پیشگوئی</h3>
         <p class="sub" id="pred-subhead" data-i18n="predSubheadDefault">موجودہ دشا اور گردش پر مبنی</p>
 
-        <!-- AstroMatrix ki tarah: ye ab ek hi musalsal "feed" hai — koi
-             pill-tabs nahi jinhein click kar ke panel badalna paray,
-             balke har category apna labeled section hai, sab neeche
-             scroll karte hi nazar aa jate hain (Daily screen jaisa: "Moon
-             Report", "Short Term Forecast" waghera sab ek hi scroll mein). -->
+        <div class="hero-strip" id="pred-hero-strip" hidden></div>
+
+        <!-- AstroMatrix ke Daily screen jaisay shortcut icons — Birth
+             Report/Weekly/Monthly/... ki tarah, har button apni ALAG
+             screen kholta hai (continuous feed ka hissa nahi). -->
+        <div class="shortcut-grid">
+          <button type="button" class="shortcut-item" data-target="phone-chart"><span class="ic">🔮</span><span data-i18n="navChart">کنڈلی</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-weekly"><span class="ic">🗓️</span><span data-i18n="tabWeekly">ہفتہ وار کیلنڈر</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-dasha"><span class="ic">⏳</span><span data-i18n="tabDasha">دور و اثرات</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-monthly"><span class="ic">🌙</span><span data-i18n="tabMonthly">اس مہینے کا رجحان</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-yearly"><span class="ic">📅</span><span data-i18n="tabYearly">اس سال کا رجحان</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-panchang"><span class="ic">📜</span><span data-i18n="tabPanchang">پنچانگ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-ashtakavarga"><span class="ic">📊</span><span data-i18n="tabAshtakavarga">اشٹک ورگ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-remedies"><span class="ic">🧿</span><span data-i18n="tabRemedies">علاج و تدابیر</span></button>
+        </div>
+
+        <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
+             transit chart) — baaqi sab (Dasha/Monthly/Yearly/Panchang/
+             Ashtakavarga/Remedies) upar shortcut icons se apni ALAG
+             screen par khulta hai. -->
 
         <div class="feed-section" id="tab-daily">
           <div class="feed-head"><span class="ic">🌞</span> <span data-i18n="tabDaily">آج کا پیغام</span></div>
@@ -485,47 +626,109 @@
           <div id="transit-combined-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         </div>
 
-        <div class="feed-section" id="tab-dasha">
-          <div class="feed-head"><span class="ic">⏳</span> <span data-i18n="tabDasha">دور و اثرات</span></div>
-          <h4 style="margin:0 0 .4rem;font-size:.85rem;color:var(--text-muted);">موجودہ ادوار (دشا)</h4>
-          <div id="dasha-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
-          <p class="sub" style="margin:0 0 .5rem;" data-i18n="dashaTreeSub">کسی بھی مہادشا پر کلک کریں تو اس کی انتردشائیں کھلیں گی، پھر کسی انتردشا پر کلک کریں تو اس کی پرتیانتردشائیں نظر آئیں گی۔</p>
-          <div id="dasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">ساڑھ ساتی (Sade Sati)</h4>
-          <div id="sadesati-content"></div>
-          <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">مدھم/کمزور سیارے (Combustion)</h4>
-          <div id="combust-content"></div>
-        </div>
+      </div>
 
-        <div class="feed-section" id="tab-monthly">
-          <div class="feed-head"><span class="ic">🌙</span> <span data-i18n="tabMonthly">اس مہینے کا رجحان</span></div>
-          <div id="monthly-note" class="note" style="display:none;"></div>
-          <div id="monthly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
+      <!-- ---- Neechay diye gaye 6 screens Predictions/Daily hub ke
+           shortcut icons se khulti hain (AstroMatrix ke Birth Report/
+           Weekly/Monthly/... ki tarah — apni ALAG screen, continuous
+           feed ka hissa nahi). Har screen par ek "واپس" button hub
+           (پیشگوئی) par wapas le jata hai. ---- */-->
 
-        <div class="feed-section" id="tab-yearly">
-          <div class="feed-head"><span class="ic">📅</span> <span data-i18n="tabYearly">اس سال کا رجحان</span></div>
-          <div id="yearly-note" class="note" style="display:none;"></div>
-          <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
+      <div class="phone" id="phone-dasha">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">⏳</span> <span data-i18n="tabDasha">دور و اثرات</span></div>
+        <h4 style="margin:0 0 .4rem;font-size:.85rem;color:var(--text-muted);">موجودہ ادوار (دشا)</h4>
+        <div id="dasha-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
+        <p class="sub" style="margin:0 0 .5rem;" data-i18n="dashaTreeSub">کسی بھی مہادشا پر کلک کریں تو اس کی انتردشائیں کھلیں گی، پھر کسی انتردشا پر کلک کریں تو اس کی پرتیانتردشائیں نظر آئیں گی۔</p>
+        <div id="dasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">ساڑھ ساتی (Sade Sati)</h4>
+        <div id="sadesati-content"></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);">مدھم/کمزور سیارے (Combustion)</h4>
+        <div id="combust-content"></div>
+      </div>
 
-        <div class="feed-section" id="tab-remedies">
-          <div class="feed-head"><span class="ic">🧿</span> <span data-i18n="tabRemedies">علاج و تدابیر</span></div>
-          <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
+      <div class="phone" id="phone-monthly">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🌙</span> <span data-i18n="tabMonthly">اس مہینے کا رجحان</span></div>
+        <div id="monthly-note" class="note" style="display:none;"></div>
+        <div id="monthly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
 
-        <div class="feed-section" id="tab-panchang">
-          <div class="feed-head"><span class="ic">📜</span> <span data-i18n="tabPanchang">پنچانگ</span></div>
-          <div id="panchang-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
+      <div class="phone" id="phone-yearly">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">📅</span> <span data-i18n="tabYearly">اس سال کا رجحان</span></div>
+        <div id="yearly-note" class="note" style="display:none;"></div>
+        <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
 
-        <div class="feed-section" id="tab-ashtakavarga">
-          <div class="feed-head"><span class="ic">📊</span> <span data-i18n="tabAshtakavarga">اشٹک ورگ</span></div>
-          <div id="ashtakavarga-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
-        </div>
+      <div class="phone" id="phone-remedies">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🧿</span> <span data-i18n="tabRemedies">علاج و تدابیر</span></div>
+        <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
 
+      <div class="phone" id="phone-weekly">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🗓️</span> <span data-i18n="tabWeekly">ہفتہ وار کیلنڈر</span></div>
+        <p class="sub" data-i18n="weeklySub">اگلے 7 دن — روز چاند کس گھر اور نچھتر میں ہے، اور کون سا سیارہ کب اپنی راشی بدلتا ہے</p>
+        <div id="weekly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-panchang">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">📜</span> <span data-i18n="tabPanchang">پنچانگ</span></div>
+        <div id="panchang-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-ashtakavarga">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">📊</span> <span data-i18n="tabAshtakavarga">اشٹک ورگ</span></div>
+        <div id="ashtakavarga-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         <div class="note" data-i18n="footerNote2">Kundli Matching اور مکمل انگریزی ترجمہ (پیشگوئی کے متن کا) اگلے ورژن میں شامل ہوگا۔</div>
+      </div>
+
+      <!-- Subscription/Upgrade — hafta-war calendar, monthly/yearly outlook
+           aur ashtakavarga jaisi paid cheezein yahan se subscribe ki ja
+           sakti hain. Safepay ke hosted checkout page par redirect karta
+           hai (card details hamare server ko kabhi nahi milti). -->
+      <div class="phone" id="phone-subscribe">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-profile">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">✨</span> <span data-i18n="subscribeH3">سبسکرپشن</span></div>
+        <p class="sub" data-i18n="subscribeSub">ہفتہ وار کیلنڈر، اس مہینے/سال کا رجحان اور اشٹک ورگ جیسی گہری پیشگوئیوں کے لیے اپگریڈ کریں۔</p>
+        <div id="subscribe-active-note" class="note" style="display:none;"></div>
+        <div id="subscribe-currency-toggle" style="display:none; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:.8rem;">
+          <div style="display:flex;">
+            <button type="button" class="currency-btn selected" data-currency="PKR" style="flex:1; padding:.5rem; border:none; cursor:pointer; font-family:inherit;">PKR</button>
+            <button type="button" class="currency-btn" data-currency="USD" style="flex:1; padding:.5rem; border:none; cursor:pointer; font-family:inherit;">USD ($)</button>
+          </div>
+        </div>
+        <div id="subscribe-plans" class="plan-grid"></div>
+        <div class="note" id="subscribe-error" style="display:none; color:var(--weak); border-color:rgba(255,107,107,.4);"></div>
+        <button type="button" class="cta-btn" id="subscribe-checkout-btn" data-i18n="subscribeUpgradeBtn">ابھی اپگریڈ کریں</button>
+      </div>
+
+      <!-- PROFILE (AstroMatrix ke Profile tab jaisa: بنیادی معلومات + زبان
+           + سیٹنگز؛ یہیں سے نئی پیدائشی تفصیلات درج کرنے کے لیے واپس entry
+           form پر جایا جا سکتا ہے) -->
+      <div class="phone" id="phone-profile">
+        <h3 data-i18n="profileH3">پروفائل</h3>
+        <p class="sub" data-i18n="profileSub">آپ کی بنیادی معلومات اور سیٹنگز</p>
+        <h4 id="profile-name" style="margin:0 0 .3rem; font-size:1.1rem;">—</h4>
+        <p class="sub" id="profile-account-line" style="display:none; margin:0 0 .8rem;"></p>
+        <p class="sub" id="profile-premium-line" style="display:none; margin:0 0 .8rem;"></p>
+        <div class="hero-strip" id="profile-hero-strip" hidden></div>
+        <div class="field">
+          <label data-i18n="profileLangLabel">زبان</label>
+          <div style="display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden;">
+            <button type="button" class="lang-btn active" data-lang="ur" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
+            <button type="button" class="lang-btn" data-lang="en" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">English</button>
+            <button type="button" class="lang-btn" data-lang="hi" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">हिंदी</button>
+          </div>
+        </div>
+        <button type="button" class="cta-btn" id="profile-subscribe-btn" data-i18n="subscribeManageBtn" style="margin-top:1rem; background:transparent; border:1px solid var(--line); box-shadow:none;">سبسکرپشن</button>
+        <button type="button" class="cta-btn" id="profile-edit-btn" data-i18n="profileEditBtn" style="margin-top:.6rem;">نئی پیدائشی تفصیلات درج کریں</button>
+        <button type="button" class="cta-btn" id="profile-logout-btn" data-i18n="authLogout" style="display:none; margin-top:.6rem; background:transparent; border:1px solid var(--line); box-shadow:none;">لاگ آؤٹ</button>
       </div>
 
     </div>
@@ -539,11 +742,22 @@
 </div>
 
 <nav class="bottom-nav" id="bottom-nav">
-  <button type="button" class="active" data-target="phone-entry"><span class="ic">📝</span><span data-i18n="navEntry">اندراج</span></button>
   <button type="button" data-target="phone-chart"><span class="ic">🔮</span><span data-i18n="navChart">کنڈلی</span></button>
   <button type="button" data-target="phone-houses"><span class="ic">🏛️</span><span data-i18n="navHouses">خانے</span></button>
-  <button type="button" data-target="phone-predictions"><span class="ic">⭐</span><span data-i18n="navPred">پیشگوئی</span></button>
+  <button type="button" class="active" data-target="phone-predictions"><span class="ic">⭐</span><span data-i18n="navPred">پیشگوئی</span></button>
+  <button type="button" data-target="phone-profile"><span class="ic">👤</span><span data-i18n="navProfile">پروفائل</span></button>
 </nav>
+
+<!-- Upgrade popup — jab non-premium user pehli baar koi paid screen
+     (hafta-war/monthly/yearly/ashtakavarga) khole to yahan se dikhta hai. -->
+<div class="modal-overlay" id="upgrade-modal" hidden>
+  <div class="modal-card">
+    <div class="lock-ic">🔒</div>
+    <p data-i18n="subscribeLockMsg">صرف subscription والے اکاؤنٹ کے لیے دستیاب ہے۔</p>
+    <button type="button" class="cta-btn" id="upgrade-modal-btn" data-i18n="subscribeUpgradeBtn" style="width:100%;">ابھی اپگریڈ کریں</button>
+    <button type="button" class="modal-dismiss-btn" id="upgrade-modal-dismiss" data-i18n="subscribeMaybeLater">بعد میں</button>
+  </div>
+</div>
 
 <script>
   // ---- Language toggle (UR/EN) ----
@@ -554,7 +768,7 @@
   // alag kaam hoga (har template string ka English version likhna).
   var I18N = {
     ur: {
-      brandSub: 'زائچہ',
+      brandSub: 'میرا زائچہ',
       statusBadge: 'لائیو انجن سے جڑا ہوا',
       heroTitle: 'ذاتی زائچہ اور پیشگوئیاں،<br>ہر صارف کی اپنی زبان میں',
       heroSub: 'پیدائشی تفصیلات درج کریں — کنڈلی، خانوں کے حاکموں کا جائزہ اور موجودہ دشا/گردش پر مبنی پیشگوئی حقیقی حساب سے تیار ہوگی۔',
@@ -594,6 +808,8 @@
       tabTransits: 'سیاروی گردش و نظر',
       tabMonthly: 'اس مہینے کا رجحان',
       tabYearly: 'اس سال کا رجحان',
+      tabWeekly: 'ہفتہ وار کیلنڈر',
+      weeklySub: 'اگلے 7 دن — روز چاند کس گھر اور نچھتر میں ہے، اور کون سا سیارہ کب اپنی راشی بدلتا ہے',
       tabDasha: 'دور و اثرات',
       tabRemedies: 'علاج و تدابیر',
       tabPanchang: 'پنچانگ',
@@ -601,12 +817,46 @@
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
       footerNote1: 'یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔',
       footerNote2: 'Kundli Matching اور مکمل انگریزی ترجمہ (پیشگوئی کے متن کا) اگلے ورژن میں شامل ہوگا۔',
-      navEntry: 'اندراج', navChart: 'کنڈلی', navHouses: 'خانے', navPred: 'پیشگوئی',
+      navEntry: 'اندراج', navChart: 'کنڈلی', navHouses: 'خانے', navPred: 'پیشگوئی', navProfile: 'پروفائل',
       dashaTreeH4: 'مکمل دشا شیڈول — کلک کر کے کھولیں',
       dashaTreeSub: 'کسی بھی مہادشا پر کلک کریں تو اس کی انتردشائیں کھلیں گی، پھر کسی انتردشا پر کلک کریں تو اس کی پرتیانتردشائیں نظر آئیں گی۔',
+      welcomeH3: 'زائچہ میں خوش آمدید',
+      welcomeSub: 'ویدک اصولوں پر مبنی آپ کا ذاتی زائچہ اور روزانہ پیشگوئی',
+      featChart: 'مکمل ویدک کنڈلی',
+      featDasha: 'دشا/انتردشا کی گہرائی',
+      featDaily: 'روزانہ پیشگوئی',
+      featLang: 'اردو، انگریزی اور ہندی',
+      authSignIn: 'سائن اِن',
+      authRegister: 'رجسٹر',
+      labelEmail: 'ای میل',
+      labelPassword: 'پاس ورڈ',
+      labelPasswordConfirm: 'پاس ورڈ کی تصدیق',
+      authContinue: 'جاری رکھیں',
+      authContinueLoading: 'انتظار کریں...',
+      authPasswordMismatch: 'دونوں پاس ورڈ ایک جیسے نہیں ہیں۔',
+      authLoggedInAs: 'لاگ اِن: ',
+      authLogout: 'لاگ آؤٹ',
+      profileH3: 'پروفائل',
+      profileSub: 'آپ کی بنیادی معلومات اور سیٹنگز',
+      profileLangLabel: 'زبان',
+      profileEditBtn: 'نئی پیدائشی تفصیلات درج کریں',
+      backToHub: 'واپس',
+      subscribeManageBtn: 'سبسکرپشن',
+      subscribeH3: 'سبسکرپشن',
+      subscribeSub: 'ہفتہ وار کیلنڈر، اس مہینے/سال کا رجحان اور اشٹک ورگ جیسی گہری پیشگوئیوں کے لیے اپگریڈ کریں۔',
+      subscribeUpgradeBtn: 'ابھی اپگریڈ کریں',
+      subscribeMonthly: 'ماہانہ',
+      subscribeYearly: 'سالانہ',
+      subscribeLockMsg: 'صرف subscription والے اکاؤنٹ کے لیے دستیاب ہے۔',
+      subscribeActiveUntil: 'آپ کی subscription اس تاریخ تک فعال ہے: ',
+      subscribeSignInFirst: 'اپگریڈ کرنے کے لیے پہلے سائن اِن کریں۔',
+      subscribeNotConfigured: 'ادائیگی کا نظام ابھی سیٹ اپ ہو رہا ہے — جلد دستیاب ہوگا۔',
+      subscribeChoosePlan: 'ایک پلان چنیں۔',
+      subscribeRedirecting: 'ادائیگی کے صفحے پر لے جایا جا رہا ہے...',
+      subscribeMaybeLater: 'بعد میں',
     },
     en: {
-      brandSub: 'Zaicha',
+      brandSub: 'My Horoscope',
       statusBadge: 'Connected to live engine',
       heroTitle: 'Your personal birth chart and predictions,<br>in your own language',
       heroSub: 'Enter your birth details — a real, calculated kundli, house-lord analysis, and predictions based on your current dasha/transits.',
@@ -646,6 +896,8 @@
       tabTransits: 'Transits & aspects',
       tabMonthly: 'This month',
       tabYearly: 'This year',
+      tabWeekly: 'Weekly calendar',
+      weeklySub: 'Next 7 days — the Moon\'s daily house & nakshatra, and when any planet changes sign',
       tabDasha: 'Dasha & effects',
       tabRemedies: 'Remedies',
       tabPanchang: 'Panchang',
@@ -653,9 +905,131 @@
       dailyDefaultText: 'Click "Generate chart" first.',
       footerNote1: 'This chart is built from your real birth details and live astronomical calculation.',
       footerNote2: 'Kundli matching and a full English translation of the prediction text are coming in a future version.',
-      navEntry: 'Entry', navChart: 'Chart', navHouses: 'Houses', navPred: 'Predictions',
+      navEntry: 'Entry', navChart: 'Chart', navHouses: 'Houses', navPred: 'Predictions', navProfile: 'Profile',
       dashaTreeH4: 'Full dasha schedule — tap to expand',
       dashaTreeSub: 'Tap any Mahadasha to reveal its Antardashas, then tap an Antardasha to reveal its Pratyantardashas.',
+      welcomeH3: 'Welcome to Zaicha',
+      welcomeSub: 'Your personal Vedic birth chart and daily predictions',
+      featChart: 'Full Vedic kundli',
+      featDasha: 'Deep Dasha/Antardasha detail',
+      featDaily: 'Daily predictions',
+      featLang: 'Urdu, English & Hindi',
+      authSignIn: 'Sign In',
+      authRegister: 'Register',
+      labelEmail: 'Email',
+      labelPassword: 'Password',
+      labelPasswordConfirm: 'Confirm password',
+      authContinue: 'Continue',
+      authContinueLoading: 'Please wait...',
+      authPasswordMismatch: 'The two passwords don\'t match.',
+      authLoggedInAs: 'Signed in: ',
+      authLogout: 'Log out',
+      profileH3: 'Profile',
+      profileSub: 'Your basic info and settings',
+      profileLangLabel: 'Language',
+      profileEditBtn: 'Enter new birth details',
+      backToHub: 'Back',
+      subscribeManageBtn: 'Subscription',
+      subscribeH3: 'Subscription',
+      subscribeSub: 'Upgrade for the weekly calendar, monthly/yearly outlook and Ashtakavarga.',
+      subscribeUpgradeBtn: 'Upgrade now',
+      subscribeMonthly: 'Monthly',
+      subscribeYearly: 'Yearly',
+      subscribeLockMsg: 'Available only with an active subscription.',
+      subscribeActiveUntil: 'Your subscription is active until: ',
+      subscribeSignInFirst: 'Sign in first to upgrade.',
+      subscribeNotConfigured: 'Payments are still being set up — coming soon.',
+      subscribeChoosePlan: 'Choose a plan.',
+      subscribeRedirecting: 'Redirecting to the payment page...',
+      subscribeMaybeLater: 'Maybe later',
+    },
+    hi: {
+      brandSub: 'मेरी कुंडली',
+      statusBadge: 'लाइव इंजन से जुड़ा हुआ',
+      heroTitle: 'व्यक्तिगत कुंडली और भविष्यवाणियां,<br>हर उपयोगकर्ता की अपनी भाषा में',
+      heroSub: 'अपना जन्म विवरण दर्ज करें — असली कुंडली, भाव-स्वामियों का विश्लेषण, और मौजूदा दशा/गोचर पर आधारित भविष्यवाणी असली गणना से तैयार होगी।',
+      makeChartH2: 'अपनी कुंडली बनाएं',
+      systemLahiri: 'प्रणाली: लाहिड़ी (वैदिक)',
+      entryH3: 'जन्म विवरण',
+      demoLink: 'नमूना भरें (Demo)',
+      entrySub: 'अपना जन्म विवरण दर्ज करें',
+      labelName: 'नाम',
+      labelPhone: 'फ़ोन नंबर (वैकल्पिक — कुंडली सुरक्षित रखने के लिए)',
+      placeholderPhone: '03xxxxxxxxx',
+      phoneNote: 'अगर आप फ़ोन नंबर भरेंगे तो ये विवरण सुरक्षित हो जाएंगे और दोबारा लिखने की ज़रूरत नहीं रहेगी।',
+      loadSavedLink: 'सुरक्षित कुंडलियां देखें',
+      labelSavedProfiles: 'सुरक्षित कुंडलियां — चुनकर लोड करें',
+      placeholderName: 'अपना नाम लिखें',
+      labelDob: 'जन्म तिथि',
+      labelTime: 'जन्म समय',
+      labelCity: 'जन्म स्थान (शहर)',
+      placeholderCity: 'शहर का नाम लिखें…',
+      labelLat: 'अक्षांश (Latitude)',
+      labelLon: 'देशांतर (Longitude)',
+      placeholderPickCity: 'शहर चुनें',
+      labelOffset: 'देश और टाइम ज़ोन',
+      labelAyanamsa: 'गणना प्रणाली (अयनांश)',
+      ayanamsaNote: 'नोट: KP प्रणाली का संख्यात्मक कोड (5) Swiss Ephemeris के मानक कोड पर आधारित है, Prokerala से 100% पुष्ट नहीं — अगर परिणाम अप्रत्याशित लगें तो बताएं।',
+      generateBtn: 'कुंडली बनाएं',
+      generateBtnLoading: 'तैयार हो रहा है...',
+      engineNote: 'यह बटन आपके बैकएंड सर्वर से, जो असली Prokerala API को कॉल करता है, असली गणना लाएगा।',
+      chartH3: 'चार्ट — कुंडली',
+      chartSubheadDefault: 'पहले "कुंडली बनाएं" दबाएं',
+      houseH3: 'भाव व भाव-स्वामी',
+      houseSub: 'लाल = कमज़ोर &nbsp;·&nbsp; सफ़ेद = मज़बूत (अपने घर/उच्च में)',
+      waitingData: 'डेटा का इंतज़ार है',
+      predH3: 'भविष्यवाणी',
+      predSubheadDefault: 'मौजूदा दशा और गोचर पर आधारित',
+      tabDaily: 'आज का संदेश',
+      tabTransits: 'ग्रहों का गोचर व दृष्टि',
+      tabMonthly: 'इस महीने का रुझान',
+      tabYearly: 'इस साल का रुझान',
+      tabWeekly: 'साप्ताहिक कैलेंडर',
+      weeklySub: 'अगले 7 दिन — रोज़ चंद्रमा किस भाव और नक्षत्र में है, और कौन सा ग्रह कब राशि बदलता है',
+      tabDasha: 'दशा व प्रभाव',
+      tabRemedies: 'उपाय',
+      tabPanchang: 'पंचांग',
+      tabAshtakavarga: 'अष्टकवर्ग',
+      dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
+      footerNote1: 'यह कुंडली असली जन्म विवरण और लाइव खगोलीय गणना से तैयार होती है।',
+      footerNote2: 'कुंडली मिलान और भविष्यवाणी के पूरे अंग्रेज़ी अनुवाद की सुविधा अगले संस्करण में शामिल होगी।',
+      navEntry: 'विवरण', navChart: 'कुंडली', navHouses: 'भाव', navPred: 'भविष्यवाणी', navProfile: 'प्रोफ़ाइल',
+      dashaTreeH4: 'पूरा दशा शेड्यूल — खोलने के लिए क्लिक करें',
+      dashaTreeSub: 'किसी भी महादशा पर क्लिक करें तो उसकी अंतर्दशाएं खुलेंगी, फिर किसी अंतर्दशा पर क्लिक करें तो उसकी प्रत्यंतर्दशाएं दिखेंगी।',
+      welcomeH3: 'मेरी कुंडली में आपका स्वागत है',
+      welcomeSub: 'वैदिक सिद्धांतों पर आधारित आपकी व्यक्तिगत कुंडली और दैनिक भविष्यवाणी',
+      featChart: 'संपूर्ण वैदिक कुंडली',
+      featDasha: 'दशा/अंतर्दशा की गहराई',
+      featDaily: 'दैनिक भविष्यवाणी',
+      featLang: 'हिंदी, उर्दू और अंग्रेज़ी',
+      authSignIn: 'साइन इन',
+      authRegister: 'रजिस्टर',
+      labelEmail: 'ईमेल',
+      labelPassword: 'पासवर्ड',
+      labelPasswordConfirm: 'पासवर्ड की पुष्टि',
+      authContinue: 'जारी रखें',
+      authContinueLoading: 'प्रतीक्षा करें...',
+      authPasswordMismatch: 'दोनों पासवर्ड एक जैसे नहीं हैं।',
+      authLoggedInAs: 'लॉग इन: ',
+      authLogout: 'लॉग आउट',
+      profileH3: 'प्रोफ़ाइल',
+      profileSub: 'आपकी बुनियादी जानकारी और सेटिंग्स',
+      profileLangLabel: 'भाषा',
+      profileEditBtn: 'नया जन्म विवरण दर्ज करें',
+      backToHub: 'वापस',
+      subscribeManageBtn: 'सदस्यता',
+      subscribeH3: 'सदस्यता',
+      subscribeSub: 'साप्ताहिक कैलेंडर, मासिक/वार्षिक रुझान और अष्टकवर्ग जैसी गहरी भविष्यवाणियों के लिए अपग्रेड करें।',
+      subscribeUpgradeBtn: 'अभी अपग्रेड करें',
+      subscribeMonthly: 'मासिक',
+      subscribeYearly: 'वार्षिक',
+      subscribeLockMsg: 'केवल सक्रिय सदस्यता वाले खाते के लिए उपलब्ध है।',
+      subscribeActiveUntil: 'आपकी सदस्यता इस तारीख तक सक्रिय है: ',
+      subscribeSignInFirst: 'अपग्रेड करने के लिए पहले साइन इन करें।',
+      subscribeNotConfigured: 'भुगतान प्रणाली अभी सेट हो रही है — जल्द उपलब्ध होगी।',
+      subscribeChoosePlan: 'एक प्लान चुनें।',
+      subscribeRedirecting: 'भुगतान पृष्ठ पर ले जाया जा रहा है...',
+      subscribeMaybeLater: 'बाद में',
     },
   };
   var currentLang = 'ur';
@@ -663,6 +1037,7 @@
   function applyLanguage(lang){
     currentLang = lang;
     var dict = I18N[lang] || I18N.ur;
+    document.body.classList.toggle('lang-hi', lang === 'hi');
     document.querySelectorAll('[data-i18n]').forEach(function(el){
       var key = el.getAttribute('data-i18n');
       if (dict[key] !== undefined) el.innerHTML = dict[key];
@@ -679,6 +1054,13 @@
     var dailyText = document.getElementById('pred-daily-text');
     if (dailyText && !dailyText.dataset.hasRealData) {
       dailyText.textContent = dict.dailyDefaultText;
+    }
+    if (typeof updateProfileAccountUI === 'function') updateProfileAccountUI();
+    // ہفتہ وار کیلنڈر agar pehle se load ho chuka hai to usay bhi nayi
+    // language mein dobara render karein (warna wo purani language mein
+    // hi reh jata, kyunke wo sirf fetch ke waqt render hota hai).
+    if (typeof lastForwardCalendarDays !== 'undefined' && lastForwardCalendarDays && typeof renderForwardCalendar === 'function') {
+      renderForwardCalendar(lastForwardCalendarDays, lastForwardCalendarLocked);
     }
   }
 
@@ -705,6 +1087,7 @@
     var res = await fetch('/api/kundli', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify(person)
     });
     var json = await res.json();
@@ -912,10 +1295,53 @@
     }
   }
 
+  // ---- Paywall teaser — monthly/yearly/ashtakavarga (aur hafta-war
+  // calendar) ka ASAL content non-premium user ko bhi render hota hai,
+  // lekin dhundla (blurred) — upar "اپگریڈ کریں" overlay ke sath, taake
+  // dekh kar upgrade karne ka dil chahe (jaisa Asif ne manga, AstroMatrix/
+  // Nebula jaisi apps ka standard tareeqa). ----
+  function isLockedSection(section){
+    return !!(section && section.locked);
+  }
+  function buildTeaserOverlay(){
+    var overlay = document.createElement('div');
+    overlay.className = 'teaser-cta';
+    var icon = document.createElement('div');
+    icon.className = 'lock-ic';
+    icon.textContent = '🔒';
+    var p = document.createElement('p');
+    p.textContent = I18N[currentLang].subscribeLockMsg;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cta-btn';
+    btn.textContent = I18N[currentLang].subscribeUpgradeBtn;
+    btn.addEventListener('click', function(){ showScreen('phone-subscribe'); renderSubscribeScreen(); });
+    overlay.appendChild(icon);
+    overlay.appendChild(p);
+    overlay.appendChild(btn);
+    return overlay;
+  }
+  /**
+   * applyTeaserLock — `container` ke ANDAR jo kuch bhi already render ho
+   * chuka hai usay ek "teaser-blurred-inner" wrapper mein le kar blur kar
+   * dete hain, aur upar overlay laga dete hain. Isay hamesha container ka
+   * ASAL content render karne ke BAAD call karein.
+   */
+  function applyTeaserLock(container){
+    var inner = document.createElement('div');
+    inner.className = 'teaser-blurred-inner';
+    while (container.firstChild) inner.appendChild(container.firstChild);
+    container.appendChild(inner);
+    container.appendChild(buildTeaserOverlay());
+    container.classList.add('paywall-teaser');
+  }
+
   function renderLinesWithNote(listId, noteId, outlook){
     var list = document.getElementById(listId);
     var noteBox = document.getElementById(noteId);
     list.innerHTML = '';
+    list.classList.remove('paywall-teaser');
+    noteBox.style.display = 'none';
     if (!outlook) { list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>'; return; }
 
     (outlook.extra || []).forEach(function(text){
@@ -937,6 +1363,8 @@
     } else {
       noteBox.style.display = 'none';
     }
+
+    if (isLockedSection(outlook)) applyTeaserLock(list);
   }
 
   function panchangCard(title, p){
@@ -982,6 +1410,7 @@
   function renderAshtakavarga(data){
     var box = document.getElementById('ashtakavarga-content');
     box.innerHTML = '';
+    box.classList.remove('paywall-teaser');
     var ak = data.ashtakavarga || {};
     if (!ak.available) {
       box.innerHTML = '<div class="placeholder">اشٹک ورگ ابھی دستیاب نہیں — اس کا API حصہ ابھی حتمی نہیں ہوا، جلد شامل ہوگا۔</div>';
@@ -998,6 +1427,8 @@
     pre.style.textAlign = 'left';
     pre.textContent = JSON.stringify(ak.raw, null, 2);
     box.appendChild(pre);
+
+    if (isLockedSection(ak)) applyTeaserLock(box);
   }
 
   function fmtDate(iso){
@@ -1214,8 +1645,6 @@
   }
 
   function renderHeroStrip(data){
-    var box = document.getElementById('hero-strip');
-    if (!box) return;
     var sunHouse = findPlanetHouse(data.houses, 'Su');
     var moonHouse = findPlanetHouse(data.houses, 'Mo');
     var items = [
@@ -1223,20 +1652,35 @@
       { label: 'چاند', emoji: PLANET_EMOJI.Mo, value: moonHouse ? moonHouse.sign : '—' },
       { label: 'طالع', emoji: PLANET_EMOJI.Lg, value: (data.person && data.person.ascendantSignName) || '—' },
     ];
-    box.innerHTML = '';
-    items.forEach(function(it){
-      var cell = document.createElement('div');
-      cell.className = 'hero-strip-item';
-      cell.innerHTML =
-        '<span class="hero-strip-emoji">' + it.emoji + '</span>' +
-        '<span class="hero-strip-label">' + it.label + '</span>' +
-        '<span class="hero-strip-value">' + it.value + '</span>';
-      box.appendChild(cell);
+    // Ye strip teen jagah dikhti hai — Chart screen ke upar, Profile
+    // screen mein, aur ab Predictions/Daily hub ke sab se upar (bilkul
+    // AstroMatrix ke Daily screen ki Sun/Moon/Rising row ki tarah) — sab
+    // ko ek hi data se bhar dete hain.
+    ['hero-strip', 'profile-hero-strip', 'pred-hero-strip'].forEach(function(boxId){
+      var box = document.getElementById(boxId);
+      if (!box) return;
+      box.innerHTML = '';
+      items.forEach(function(it){
+        var cell = document.createElement('div');
+        cell.className = 'hero-strip-item';
+        cell.innerHTML =
+          '<span class="hero-strip-emoji">' + it.emoji + '</span>' +
+          '<span class="hero-strip-label">' + it.label + '</span>' +
+          '<span class="hero-strip-value">' + it.value + '</span>';
+        box.appendChild(cell);
+      });
+      box.hidden = false;
     });
-    box.hidden = false;
+    var nameEl = document.getElementById('profile-name');
+    if (nameEl) nameEl.textContent = (data.person && data.person.name) || '—';
   }
 
+  // Roz-ba-roz calendar (phone-weekly) ko baad mein (jab user shortcut
+  // dabaye) is data ka ascendantRasiId/ayanamsa chahiye hota hai — poori
+  // pedaishi tafseelat dobara maangne ke bajaye yahan yaad rakh lete hain.
+  var lastZaichaData = null;
   function renderAll(data){
+    lastZaichaData = data;
     renderChart(data);
     renderHeroStrip(data);
     renderTransitChart(data);
@@ -1350,8 +1794,13 @@
       var data = await fetchChartData(person);
       if (data.profileId) loadedProfileId = data.profileId;
       renderAll(data);
+      // AstroMatrix jaisa: birth-details submit hote hi seedha "Daily"
+      // ke muadil screen (yahan پیشگوئی) khul jaye, bottom-nav bhi ab
+      // nazar aaye (onboarding khatam, "app mode" shuru).
+      document.body.classList.add('app-mode');
+      showScreen('phone-predictions');
     } catch (err) {
-      showError((currentLang === 'en' ? 'Error: ' : 'خرابی: ') + err.message);
+      showError((currentLang === 'en' ? 'Error: ' : currentLang === 'hi' ? 'त्रुटि: ' : 'خرابی: ') + err.message);
     } finally {
       btn.disabled = false;
       btn.textContent = I18N[currentLang].generateBtn;
@@ -1362,16 +1811,20 @@
 
   document.getElementById('load-saved-link').addEventListener('click', async function(e){
     e.preventDefault();
+    // Agar user logged in hai to session hi se apni saved kundliyan mil
+    // jati hain — phone number ki zaroorat nahi (sirf bina-login purane
+    // tareeqe ke liye phone maangte hain).
     var phone = document.getElementById('in-phone').value.trim();
-    if (!phone) {
-      showError(currentLang === 'en' ? 'Enter a phone number first.' : 'پہلے فون نمبر لکھیں۔');
+    if (!currentUser && !phone) {
+      showError(currentLang === 'en' ? 'Enter a phone number first.' : currentLang === 'hi' ? 'पहले फ़ोन नंबर लिखें।' : 'پہلے فون نمبر لکھیں۔');
       return;
     }
     try {
-      var res = await fetch('/api/profiles?phone=' + encodeURIComponent(phone));
+      var url = currentUser ? '/api/profiles' : '/api/profiles?phone=' + encodeURIComponent(phone);
+      var res = await fetch(url, { credentials: 'same-origin' });
       var json = await res.json();
       if (!json.available) {
-        showError(currentLang === 'en' ? 'Saved kundlis are not set up on this server yet.' : 'یہ سہولت ابھی اس سرور پر فعال نہیں۔');
+        showError(currentLang === 'en' ? 'Saved kundlis are not set up on this server yet.' : currentLang === 'hi' ? 'यह सुविधा अभी इस सर्वर पर सक्रिय नहीं है।' : 'یہ سہولت ابھی اس سرور پر فعال نہیں۔');
         return;
       }
       var field = document.getElementById('saved-profiles-field');
@@ -1379,14 +1832,16 @@
       select.innerHTML = '';
       if (!json.profiles.length) {
         var opt = document.createElement('option');
-        opt.textContent = currentLang === 'en' ? 'No saved kundlis for this number' : 'اس نمبر پر کوئی محفوظ کنڈلی نہیں';
+        opt.textContent = currentUser
+          ? (currentLang === 'en' ? 'No saved kundlis in this account yet' : currentLang === 'hi' ? 'इस अकाउंट में अभी कोई सुरक्षित कुंडली नहीं' : 'اس اکاؤنٹ میں ابھی کوئی محفوظ کنڈلی نہیں')
+          : (currentLang === 'en' ? 'No saved kundlis for this number' : currentLang === 'hi' ? 'इस नंबर पर कोई सुरक्षित कुंडली नहीं' : 'اس نمبر پر کوئی محفوظ کنڈلی نہیں');
         select.appendChild(opt);
         field.style.display = 'block';
         return;
       }
       var placeholder = document.createElement('option');
       placeholder.value = '';
-      placeholder.textContent = currentLang === 'en' ? '— choose —' : '— چنیں —';
+      placeholder.textContent = currentLang === 'en' ? '— choose —' : currentLang === 'hi' ? '— चुनें —' : '— چنیں —';
       select.appendChild(placeholder);
       json.profiles.forEach(function(p){
         var opt = document.createElement('option');
@@ -1396,7 +1851,7 @@
       });
       field.style.display = 'block';
     } catch (err) {
-      showError((currentLang === 'en' ? 'Error: ' : 'خرابی: ') + err.message);
+      showError((currentLang === 'en' ? 'Error: ' : currentLang === 'hi' ? 'त्रुटि: ' : 'خرابی: ') + err.message);
     }
   });
 
@@ -1407,28 +1862,459 @@
     runGenerate();
   });
 
-  // ---- Bottom mobile nav: real "app screen" switching (AstroMatrix jaisa)
+  // ---- Screen switching (AstroMatrix jaisa real "app screen" navigation)
   // — button dabate hi sirf ek .phone screen dikhti hai, baqi chhup jati
   // hain (CSS media query se, sirf mobile width par). Desktop par ye
   // .screen-active class ka koi visual asar nahi (wahan bottom-nav khud
   // hi hidden hai aur sab .phone sections normally side-by-side dikhte
-  // hain) — is liye yehi ek click-handler dono jagah safe hai.
-  (function(){
-    var buttons = Array.prototype.slice.call(document.querySelectorAll('.bottom-nav button'));
-    var phones = buttons.map(function(b){ return document.getElementById(b.dataset.target); });
-    buttons.forEach(function(btn, i){
-      btn.addEventListener('click', function(){
-        var target = phones[i];
-        if (!target) return;
-        buttons.forEach(function(b){ b.classList.remove('active'); });
-        phones.forEach(function(p){ if (p) p.classList.remove('screen-active'); });
-        btn.classList.add('active');
-        target.classList.add('screen-active');
-        document.body.classList.toggle('screen-mode', target.id !== 'phone-entry');
-        window.scrollTo(0, 0);
-      });
+  // hain) — is liye yehi ek function dono jagah safe hai. showScreen ko
+  // bottom-nav ke ilawa welcome/auth "جاری رکھیں" aur profile ke "نئی
+  // تفصیلات" button se bhi bulaya jata hai.
+  var ALL_SCREEN_IDS = [
+    'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
+    // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
+    // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
+    // lock overlays ke "اپگریڈ کریں" button se bhi).
+    'phone-subscribe',
+  ];
+  // Ye sub-screens bottom-nav ka hissa nahi (koi apna button nahi rakhtin),
+  // is liye jab in mein se koi khule to bottom-nav mein sirf inka "parent"
+  // tab highlighted rahe. Default parent Predictions hub hai; phone-subscribe
+  // ka apna override hai kyunke wo Profile ka hissa hai.
+  var SUBSCREEN_PARENT_TAB = 'phone-predictions';
+  var SUBSCREEN_PARENT_TAB_OVERRIDES = { 'phone-subscribe': 'phone-profile' };
+  var BOTTOM_NAV_SCREEN_IDS = ['phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile'];
+  function showScreen(targetId){
+    ALL_SCREEN_IDS.forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.classList.toggle('screen-active', id === targetId);
     });
+    var navHighlightId = BOTTOM_NAV_SCREEN_IDS.indexOf(targetId) !== -1
+      ? targetId
+      : (SUBSCREEN_PARENT_TAB_OVERRIDES[targetId] || SUBSCREEN_PARENT_TAB);
+    document.querySelectorAll('.bottom-nav button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.target === navHighlightId);
+    });
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('.bottom-nav button').forEach(function(btn){
+    btn.addEventListener('click', function(){ showScreen(btn.dataset.target); });
+  });
+  // ---- Predictions/Daily hub ke shortcut icons (Dasha/Monthly/Yearly/
+  // Panchang/Ashtakavarga/Remedies + Chart) — har ek apni ALAG screen
+  // kholta hai, aur har us screen ke "واپس" button se wapas hub par. ----
+  // Paid screens (Asif ke sath tay shuda split) — inhein khud non-premium
+  // user bhi khol sakta hai (asal content blur ho kar dikhta hai), lekin
+  // sath hi upgrade popup bhi dikha dete hain taake wo miss na kare.
+  var PAID_SCREEN_IDS = ['phone-weekly', 'phone-monthly', 'phone-yearly', 'phone-ashtakavarga'];
+  document.querySelectorAll('.shortcut-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      showScreen(btn.dataset.target);
+      if (btn.dataset.target === 'phone-weekly') loadForwardCalendar();
+      if (PAID_SCREEN_IDS.indexOf(btn.dataset.target) !== -1 && !subscriptionStatus.isPremium) {
+        showUpgradeModal();
+      }
+    });
+  });
+
+  // ---- Upgrade popup (modal) ----
+  function showUpgradeModal(){
+    document.getElementById('upgrade-modal').hidden = false;
+  }
+  function hideUpgradeModal(){
+    document.getElementById('upgrade-modal').hidden = true;
+  }
+  var upgradeModalDismiss = document.getElementById('upgrade-modal-dismiss');
+  if (upgradeModalDismiss) upgradeModalDismiss.addEventListener('click', hideUpgradeModal);
+  var upgradeModalBtn = document.getElementById('upgrade-modal-btn');
+  if (upgradeModalBtn) upgradeModalBtn.addEventListener('click', function(){
+    hideUpgradeModal();
+    showScreen('phone-subscribe');
+    renderSubscribeScreen();
+  });
+  document.querySelectorAll('.back-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ showScreen(btn.dataset.back); });
+  });
+
+  // ---- ہفتہ وار کیلنڈر (roz-ba-roz forward calendar) — lazy-load: sirf
+  // us waqt fetch hota hai jab user pehli baar ye shortcut khole (taake
+  // ye extra API call un users ke liye bilkul na ho jo isay kabhi kholte
+  // hi nahi). ascendantRasiId/ayanamsa badalne par (naya profile generate
+  // hone par) dobara fetch hota hai, warna cache hi dikha diya jata hai. */
+  var weeklyCalendarCacheKey = null;
+  var lastForwardCalendarDays = null;
+  var lastForwardCalendarLocked = false;
+  var WEEKDAY_NAMES = {
+    ur: ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'],
+    en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    hi: ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'],
+  };
+  async function loadForwardCalendar(){
+    var list = document.getElementById('weekly-list');
+    if (!lastZaichaData || !lastZaichaData.natal) {
+      list.innerHTML = '<div class="placeholder">' +
+        (currentLang === 'en' ? 'Generate your chart first.' : currentLang === 'hi' ? 'पहले अपनी कुंडली बनाएं।' : 'پہلے زائچہ بنائیں۔') +
+        '</div>';
+      return;
+    }
+    var ascendantRasiId = lastZaichaData.natal.ascendantRasiId;
+    var ayanamsa = lastZaichaData.ayanamsa || 1;
+    var cacheKey = ascendantRasiId + '-' + ayanamsa;
+    if (weeklyCalendarCacheKey === cacheKey) return; // pehle se load ho chuka hai, dobara fetch nahi
+    list.innerHTML = '<div class="placeholder">' +
+      (currentLang === 'en' ? 'Loading...' : currentLang === 'hi' ? 'लोड हो रहा है...' : 'لوڈ ہو رہا ہے...') +
+      '</div>';
+    try {
+      var res = await fetch('/api/forward-calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ ascendantRasiId: ascendantRasiId, ayanamsa: ayanamsa }),
+      });
+      var json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Error');
+      weeklyCalendarCacheKey = cacheKey;
+      lastForwardCalendarDays = json.days;
+      lastForwardCalendarLocked = !!json.locked;
+      renderForwardCalendar(json.days, lastForwardCalendarLocked);
+    } catch (err) {
+      list.innerHTML = '<div class="placeholder">' +
+        (currentLang === 'en' ? 'Error: ' : currentLang === 'hi' ? 'त्रुटि: ' : 'خرابی: ') + err.message +
+        '</div>';
+    }
+  }
+  function renderForwardCalendar(days, locked){
+    var list = document.getElementById('weekly-list');
+    list.innerHTML = '';
+    list.classList.remove('paywall-teaser');
+    var weekdayNames = WEEKDAY_NAMES[currentLang] || WEEKDAY_NAMES.ur;
+    var moonLabel = currentLang === 'en' ? 'Moon: ' : currentLang === 'hi' ? 'चंद्रमा: ' : 'چاند: ';
+    var houseLabel = currentLang === 'en' ? 'house' : currentLang === 'hi' ? 'भाव' : 'گھر';
+    var padaLabel = currentLang === 'en' ? 'Pada' : currentLang === 'hi' ? 'पद' : 'پاد';
+    var noEventsLabel = currentLang === 'en' ? 'No major sign change today' : currentLang === 'hi' ? 'आज कोई बड़ी राशि-तब्दीली नहीं' : 'آج کوئی بڑی راشی تبدیلی نہیں';
+    days.forEach(function(day, idx){
+      var d = new Date(day.date + 'T00:00:00Z');
+      var weekdayName = weekdayNames[d.getUTCDay()];
+      var card = document.createElement('div');
+      card.className = 'pred-card';
+      var moonSignName = day.moon ? (currentLang === 'ur' ? day.moon.sign : day.moon.signLatin) : '—';
+      var nakshatraName = day.moon
+        ? (currentLang === 'ur' ? day.moon.nakshatra.nameUrdu : currentLang === 'hi' ? day.moon.nakshatra.nameHindi : day.moon.nakshatra.nameLatin)
+        : '—';
+      var moonLine = day.moon
+        ? (moonLabel + moonSignName + ' — ' + houseLabel + ' ' + day.moon.house + ' — ' + nakshatraName + ' (' + padaLabel + ' ' + day.moon.nakshatra.pada + ')')
+        : '—';
+      var eventsHtml;
+      if (day.events && day.events.length) {
+        eventsHtml = day.events.map(function(ev){
+          var planetLabel = currentLang === 'ur' ? ev.planetUrdu : ev.planet;
+          var signLabel = currentLang === 'ur' ? ev.toSign : ev.toSignLatin;
+          return '<div class="transit-row">' + planetLabel + ' → ' + signLabel + (ev.isRetrograde ? ' (R)' : '') + '</div>';
+        }).join('');
+      } else if (idx === 0) {
+        eventsHtml = ''; // pehlay din ke liye events maloom nahi (pichlay din ka data nahi hai)
+      } else {
+        eventsHtml = '<div class="sub" style="margin:0;">' + noEventsLabel + '</div>';
+      }
+      card.innerHTML = '<span class="tag">' + weekdayName + ' — ' + day.date + '</span><p style="margin-bottom:.5rem;">' + moonLine + '</p>' + eventsHtml;
+      list.appendChild(card);
+    });
+    if (locked) applyTeaserLock(list);
+  }
+
+  // ---- Welcome screen: Sign In / Register tab switch ----
+  document.querySelectorAll('.auth-tabs button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.auth-tabs button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var showSignin = btn.dataset.auth === 'signin';
+      document.getElementById('auth-signin').classList.toggle('active', showSignin);
+      document.getElementById('auth-register').classList.toggle('active', !showSignin);
+    });
+  });
+
+  // ---- Step 2: asal login/register (email/password), server ke
+  // /api/auth/* routes se — kamyaab hone par backend khud ek httpOnly
+  // cookie mein session set kar deta hai (JS is cookie ko chhoo nahi
+  // sakta), hum sirf currentUser ko memory mein rakhte hain UI dikhane ke
+  // liye. ----
+  var currentUser = null;
+  // ---- Subscription (paid features) state — /api/subscribe/status se
+  // page load par aur checkout se wapas aane par refresh hoti hai. ----
+  var subscriptionStatus = { isPremium: false, premiumUntil: null, plans: {}, safepayConfigured: false };
+  var selectedPlanCode = null;
+  var selectedCurrency = 'PKR';
+
+  function setAuthError(boxId, msg){
+    var box = document.getElementById(boxId);
+    if (!box) return;
+    if (!msg) { box.style.display = 'none'; box.textContent = ''; return; }
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+
+  function updateProfileAccountUI(){
+    var line = document.getElementById('profile-account-line');
+    var logoutBtn = document.getElementById('profile-logout-btn');
+    var premiumLine = document.getElementById('profile-premium-line');
+    if (!line || !logoutBtn) return;
+    if (currentUser) {
+      line.style.display = 'block';
+      line.textContent = I18N[currentLang].authLoggedInAs + currentUser.email;
+      logoutBtn.style.display = 'block';
+    } else {
+      line.style.display = 'none';
+      logoutBtn.style.display = 'none';
+    }
+    if (premiumLine) {
+      if (subscriptionStatus.isPremium && subscriptionStatus.premiumUntil) {
+        premiumLine.style.display = 'block';
+        premiumLine.innerHTML = '<span class="premium-badge">✨ Premium</span> ' +
+          I18N[currentLang].subscribeActiveUntil + fmtDate(subscriptionStatus.premiumUntil);
+      } else {
+        premiumLine.style.display = 'none';
+      }
+    }
+  }
+
+  async function doAuthRequest(url, body, errorBoxId, btnId){
+    var btn = document.getElementById(btnId);
+    setAuthError(errorBoxId, null);
+    btn.disabled = true;
+    btn.textContent = I18N[currentLang].authContinueLoading;
+    try {
+      var res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(body),
+      });
+      var out = await res.json().catch(function(){ return {}; });
+      if (!res.ok) {
+        setAuthError(errorBoxId, out.error || (currentLang === 'en' ? 'Something went wrong.' : currentLang === 'hi' ? 'कुछ गड़बड़ हो गई।' : 'کچھ خرابی ہوئی۔'));
+        return false;
+      }
+      currentUser = out.user;
+      updateProfileAccountUI();
+      refreshSubscriptionStatus();
+      showScreen('phone-entry');
+      return true;
+    } catch (err) {
+      setAuthError(errorBoxId, currentLang === 'en' ? 'Network error — is the server running?' : currentLang === 'hi' ? 'नेटवर्क में गड़बड़ी — क्या सर्वर चल रहा है?' : 'نیٹ ورک میں خرابی — کیا سرور چل رہا ہے؟');
+      return false;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = I18N[currentLang].authContinue;
+    }
+  }
+
+  document.getElementById('auth-signin-btn').addEventListener('click', function(){
+    var email = document.getElementById('auth-email-signin').value.trim();
+    var password = document.getElementById('auth-pass-signin').value;
+    doAuthRequest('/api/auth/login', { email: email, password: password }, 'auth-signin-error', 'auth-signin-btn');
+  });
+
+  document.getElementById('auth-register-btn').addEventListener('click', function(){
+    var email = document.getElementById('auth-email-register').value.trim();
+    var password = document.getElementById('auth-pass-register').value;
+    var confirmPassword = document.getElementById('auth-pass-register-confirm').value;
+    if (password !== confirmPassword) {
+      setAuthError('auth-register-error', I18N[currentLang].authPasswordMismatch);
+      return;
+    }
+    doAuthRequest('/api/auth/register', { email: email, password: password }, 'auth-register-error', 'auth-register-btn');
+  });
+
+  document.getElementById('profile-logout-btn').addEventListener('click', async function(){
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch (err) { /* cookie clear na bhi ho paye, currentUser to khali kar hi dete hain */ }
+    currentUser = null;
+    subscriptionStatus = { isPremium: false, premiumUntil: null, plans: {}, safepayConfigured: false };
+    updateProfileAccountUI();
+    document.body.classList.remove('app-mode');
+    showScreen('screen-welcome');
+  });
+
+  // ---- Subscription screen (phone-subscribe) ----
+  async function refreshSubscriptionStatus(){
+    try {
+      var res = await fetch('/api/subscribe/status', { credentials: 'same-origin' });
+      var out = await res.json();
+      subscriptionStatus = out || subscriptionStatus;
+      updateProfileAccountUI();
+      // Agar user is waqt bilkul isi calendar/monthly/yearly screen par khada
+      // hai, tazah data ke sath refresh na bhi ho to agli baar khulnay par
+      // theek dikhega — abhi ke liye sirf subscribe screen khud ko refresh
+      // karta hai (neeche renderSubscribeScreen).
+      if (document.getElementById('phone-subscribe').classList.contains('screen-active')) {
+        renderSubscribeScreen();
+      }
+    } catch (err) { /* backend na mile to purani/default state hi rahay */ }
+  }
+
+  var CURRENCY_SYMBOL = { PKR: 'PKR ', USD: '$' };
+
+  function renderSubscribeScreen(){
+    var activeNote = document.getElementById('subscribe-active-note');
+    var plansBox = document.getElementById('subscribe-plans');
+    var checkoutBtn = document.getElementById('subscribe-checkout-btn');
+    var currencyToggle = document.getElementById('subscribe-currency-toggle');
+    if (!plansBox) return;
+
+    if (subscriptionStatus.isPremium) {
+      activeNote.style.display = 'block';
+      activeNote.textContent = I18N[currentLang].subscribeActiveUntil + fmtDate(subscriptionStatus.premiumUntil);
+    } else {
+      activeNote.style.display = 'none';
+    }
+
+    plansBox.innerHTML = '';
+    var plans = subscriptionStatus.plans || {};
+    var planLabels = { monthly: I18N[currentLang].subscribeMonthly, yearly: I18N[currentLang].subscribeYearly };
+    var codes = Object.keys(plans);
+    if (!codes.length) {
+      plansBox.innerHTML = '<div class="placeholder">' + I18N[currentLang].subscribeNotConfigured + '</div>';
+      checkoutBtn.style.display = 'none';
+      currencyToggle.style.display = 'none';
+      return;
+    }
+    checkoutBtn.style.display = 'block';
+    if (!selectedPlanCode || codes.indexOf(selectedPlanCode) === -1) selectedPlanCode = codes[0];
+
+    // USD toggle sirf tab dikhta hai jab kam az kam ek plan ki USD qeemat
+    // bhi .env mein set ho — warna sirf PKR (jo hamesha set hai) dikhta hai.
+    var anyUsd = codes.some(function(code){ return plans[code].amounts && plans[code].amounts.USD; });
+    currencyToggle.style.display = anyUsd ? 'block' : 'none';
+    if (!anyUsd) selectedCurrency = 'PKR';
+    document.querySelectorAll('.currency-btn').forEach(function(b){
+      b.classList.toggle('selected', b.dataset.currency === selectedCurrency);
+    });
+
+    codes.forEach(function(code){
+      var plan = plans[code];
+      // Agar chuni hui currency is plan ke liye set nahi to jo bhi mojood
+      // ho wahi dikha dete hain (crash/khaali card na ho).
+      var amounts = plan.amounts || {};
+      var currency = amounts[selectedCurrency] ? selectedCurrency : Object.keys(amounts)[0];
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'plan-card' + (selectedPlanCode === code ? ' selected' : '');
+      var name = document.createElement('p');
+      name.className = 'plan-name';
+      name.textContent = planLabels[code] || code;
+      var price = document.createElement('p');
+      price.className = 'plan-price';
+      price.textContent = (CURRENCY_SYMBOL[currency] || '') + amounts[currency];
+      card.appendChild(name);
+      card.appendChild(price);
+      card.addEventListener('click', function(){
+        selectedPlanCode = code;
+        renderSubscribeScreen();
+      });
+      plansBox.appendChild(card);
+    });
+  }
+
+  document.querySelectorAll('.currency-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      selectedCurrency = btn.dataset.currency;
+      renderSubscribeScreen();
+    });
+  });
+
+  var subscribeCheckoutBtn = document.getElementById('subscribe-checkout-btn');
+  if (subscribeCheckoutBtn) subscribeCheckoutBtn.addEventListener('click', async function(){
+    setAuthError('subscribe-error', null);
+    if (!currentUser) {
+      setAuthError('subscribe-error', I18N[currentLang].subscribeSignInFirst);
+      return;
+    }
+    if (!selectedPlanCode) {
+      setAuthError('subscribe-error', I18N[currentLang].subscribeChoosePlan);
+      return;
+    }
+    // Jo currency plan-card par asal mein dikh rahi hai wahi bhejte hain
+    // (agar selectedCurrency is plan ke liye set na ho to render waqt
+    // fallback ho chuka hota hai — checkout usi fallback ko match kare).
+    var planAmounts = (subscriptionStatus.plans[selectedPlanCode] || {}).amounts || {};
+    var effectiveCurrency = planAmounts[selectedCurrency] ? selectedCurrency : Object.keys(planAmounts)[0];
+    subscribeCheckoutBtn.disabled = true;
+    subscribeCheckoutBtn.textContent = I18N[currentLang].subscribeRedirecting;
+    try {
+      var res = await fetch('/api/subscribe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ planCode: selectedPlanCode, currency: effectiveCurrency }),
+      });
+      var out = await res.json();
+      if (!res.ok) throw new Error(out.error || 'Error');
+      window.location.href = out.checkoutUrl; // Safepay ke hosted checkout page par
+    } catch (err) {
+      setAuthError('subscribe-error', err.message);
+      subscribeCheckoutBtn.disabled = false;
+      subscribeCheckoutBtn.textContent = I18N[currentLang].subscribeUpgradeBtn;
+    }
+  });
+
+  var profileSubscribeBtn = document.getElementById('profile-subscribe-btn');
+  if (profileSubscribeBtn) profileSubscribeBtn.addEventListener('click', function(){
+    showScreen('phone-subscribe');
+    renderSubscribeScreen();
+  });
+
+  // Page load par check karte hain ke koi valid session pehle se mojood
+  // hai ya nahi (AstroMatrix jaisa — agar mojood ho to Welcome/login
+  // screen dikhaye bagair seedha birth-details form khol dete hain).
+  (async function checkExistingSession(){
+    try {
+      var res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+      var out = await res.json();
+      if (out && out.user) {
+        currentUser = out.user;
+        await refreshSubscriptionStatus();
+        showScreen('phone-entry');
+      }
+    } catch (err) { /* backend na mile to khamoshi se Welcome screen par hi rahein */ }
+
+    // Safepay checkout se wapas redirect hone par (?subscribed=1 ya =0) —
+    // status dobara fetch kar ke URL saaf kar dete hain (taake refresh par
+    // dobara ye query string na dikhe).
+    var params = new URLSearchParams(window.location.search);
+    if (params.has('subscribed')) {
+      var cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+      if (params.get('subscribed') === '1' && currentUser) {
+        // Safepay ka webhook (jo asal mein premium_until set karta hai)
+        // server-to-server hota hai — is browser redirect se pehle ya baad
+        // mein, kisi bhi tarteeb mein aa sakta hai. Is liye chand dafa,
+        // thoray waqfe se, dobara check karte hain jab tak premium na dikhe.
+        for (var attempt = 0; attempt < 5 && !subscriptionStatus.isPremium; attempt++) {
+          await refreshSubscriptionStatus();
+          if (!subscriptionStatus.isPremium) await new Promise(function(r){ setTimeout(r, 1500); });
+        }
+        // Premium mil gaya ho to hafta-war calendar ka pehle se load kiya
+        // (locked) cache saaf kar dete hain, taake agli baar khulte hi
+        // taazah/unlocked data mangwaya jaye.
+        if (subscriptionStatus.isPremium) weeklyCalendarCacheKey = null;
+      }
+      if (currentUser) {
+        showScreen('phone-subscribe');
+        renderSubscribeScreen();
+      }
+    }
   })();
+
+  // ---- Profile screen: "نئی پیدائشی تفصیلات درج کریں" se wapas entry form
+  // par (bottom-nav filhaal chhup jata hai, jab tak dobara generate na ho). ----
+  var profileEditBtn = document.getElementById('profile-edit-btn');
+  if (profileEditBtn) profileEditBtn.addEventListener('click', function(){
+    document.body.classList.remove('app-mode');
+    showScreen('phone-entry');
+  });
 
   // status badge: check backend health + credentials on load
   fetch('/api/health').then(function(r){ return r.json(); }).then(function(h){
