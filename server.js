@@ -737,41 +737,39 @@ app.post('/api/forward-calendar', async (req, res) => {
  * uski latitude/longitude nikal deta hai, taake user ko khud lat/long
  * dhoondhna na pare (jaisa aap ne shuru se manga tha).
  *
- * Ye OpenStreetMap ki mufat "Nominatim" service use karta hai — koi API key
- * nahi chahiye, koi bhi shehar mil jata hai. NOTE: Nominatim ki apni usage
- * policy hai (halki traffic ke liye theek hai, bhaari commercial scale par
- * apna geocoding provider lagana chahiye — README mein note kar diya hai).
+ * PEHLE ye OpenStreetMap ki "Nominatim" service use karta tha, lekin Render
+ * (aur bohat se doosre cloud hosts) ki shared IPs ko Nominatim ne apni
+ * policy ke mutabiq block/rate-limit kar diya hai (har request par
+ * consistently 429 "Too Many Requests" — chahe kitna bhi debounce/delay
+ * kar lein, kam nahi hota, kyunke masla humari request-rate nahi, balke
+ * Render ki poori IP range par lagi hui block hai).
+ *
+ * Ab is ki jagah Open-Meteo ki mufat Geocoding API use ho rahi hai
+ * (https://open-meteo.com/en/docs/geocoding-api) — koi API key nahi
+ * chahiye, koi cloud-IP block nahi (live test kiya gaya), aur global
+ * coverage Nominatim jaisi hi achi hai.
  */
 app.get('/api/geocode-city', async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     if (q.length < 2) return res.json({ results: [] });
 
-    const url = new URL('https://nominatim.openstreetmap.org/search');
-    url.searchParams.set('q', q);
+    const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
+    url.searchParams.set('name', q);
+    url.searchParams.set('count', '8');
+    url.searchParams.set('language', 'en');
     url.searchParams.set('format', 'json');
-    url.searchParams.set('addressdetails', '1');
-    url.searchParams.set('limit', '8');
 
-    const r = await fetch(url.toString(), {
-      headers: {
-        // Nominatim ki policy ke mutabiq ek pehchan-e-laiq User-Agent zaroori hai.
-        'User-Agent': 'ZaichaApp/0.1 (astrology web app; contact: via app owner)',
-      },
-    });
+    const r = await fetch(url.toString());
     if (!r.ok) throw new Error(`Geocoding failed: ${r.status}`);
     const raw = await r.json();
 
-    const results = raw.map((item) => {
-      const addr = item.address || {};
-      const city = addr.city || addr.town || addr.village || addr.county || item.name;
-      const state = addr.state || addr.state_district || '';
-      const country = addr.country || '';
-      const label = [city, state, country].filter(Boolean).join(', ');
+    const results = (raw.results || []).map((item) => {
+      const label = [item.name, item.admin1, item.country].filter(Boolean).join(', ');
       return {
         label,
-        lat: item.lat,
-        lon: item.lon,
+        lat: item.latitude,
+        lon: item.longitude,
       };
     });
 
