@@ -212,6 +212,31 @@
   .shortcut-item span:last-child{ font-size:.68rem; line-height:1.3; text-align:center; }
   .shortcut-item:hover, .shortcut-item:active{ border-color:var(--line); background:rgba(255,255,255,.1); transform:translateY(-1px); }
 
+  /* ---- Stat tiles (Mahadasha / Nakshatra jaisi "at a glance" highlights,
+       AstroSage-style "Transit Moon / Lucky Number" tiles). ---- */
+  .stat-tile-row{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-bottom:1.2rem; }
+  .stat-tile{ background:var(--panel-2); border:1px solid var(--line-soft); border-radius:16px; padding:.9rem .9rem; box-shadow:0 10px 20px -14px rgba(0,0,0,.6); }
+  .stat-tile-label{ display:flex; align-items:center; gap:.35rem; font-size:.7rem; color:var(--text-muted); margin-bottom:.5rem; }
+  .stat-tile-label .ic{ font-size:.95rem; line-height:1; }
+  .stat-tile-value{ font-size:1.3rem; font-weight:700; color:var(--gold-soft); line-height:1.3; }
+  .stat-tile-sub{ font-size:.68rem; color:var(--text-muted); margin-top:.15rem; }
+
+  /* ---- Icon cards — pred-card ka refined variant: gol icon-badge (planet/
+       category ke color mein) + unwan (title) + mazmoon ek hi row mein,
+       AstroSage ki "Short Term Forecast"/"Current Retrogrades" cards jaisa. */
+  .icon-card{ display:flex; align-items:flex-start; gap:.7rem; }
+  .icon-card-badge{ flex:none; width:2.3rem; height:2.3rem; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.05rem; background:color-mix(in srgb, var(--_c, var(--gold)) 22%, transparent); border:1px solid color-mix(in srgb, var(--_c, var(--gold)) 50%, transparent); color:var(--_c, var(--gold)); }
+  .icon-card-body{ flex:1; min-width:0; }
+  .icon-card-body .tag{ margin-bottom:.3rem !important; }
+  .icon-card-body p{ margin:0; }
+
+  /* ---- Panchang jaisi "key: value" cards ab do-column grid mein — AstroSage
+       ki info-row style ke qareeb, sirf stacked text lines ki jagah. ---- */
+  .kv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem .8rem; margin-top:.2rem; }
+  .kv-item{ background:rgba(255,255,255,.03); border:1px solid var(--line-soft); border-radius:10px; padding:.5rem .6rem; }
+  .kv-item-label{ font-size:.64rem; color:var(--text-muted); margin-bottom:.15rem; }
+  .kv-item-value{ font-size:.86rem; font-weight:600; }
+
   /* ---- Dedicated sub-screens (Dasha/Monthly/Yearly/Panchang/...) jo
        shortcut icon dabane se khulti hain — upar ek chhota "واپس" button
        taake Predictions/Daily hub par wapas ja saken. ---- */
@@ -300,8 +325,10 @@
     background:transparent; border:none; color:var(--text-muted); font-family:inherit; font-size:.66rem;
     padding:.35rem .2rem; border-radius:12px; cursor:pointer;
   }
-  .bottom-nav button .ic{ font-size:1.15rem; line-height:1; }
+  .bottom-nav button .ic{ font-size:1.15rem; line-height:1; display:flex; align-items:center; justify-content:center; }
+  .bottom-nav button .ic svg{ width:1.35rem; height:1.35rem; }
   .bottom-nav button.active{ color:var(--gold-soft); background:rgba(34,197,94,.14); }
+  .bottom-nav button.active .ic svg circle[fill="currentColor"]{ filter:drop-shadow(0 0 4px var(--gold-soft)); }
   @media (min-width: 860px){
     .bottom-nav{ display:none !important; } /* desktop already shows all sections side-by-side */
     body{ padding-bottom:0; }
@@ -588,6 +615,23 @@
 
         <div class="hero-strip" id="pred-hero-strip" hidden></div>
 
+        <!-- "ایک نظر میں" stat tiles — reference app ke top stat-tiles
+             jaisa quick-glance summary (current Mahadasha + پیدائشی نچھتر),
+             taake user ko neeche scroll kiye bagair hi sab se important
+             cheez foran dikh jaye. -->
+        <div class="stat-tile-row" id="pred-stat-tiles" hidden>
+          <div class="stat-tile">
+            <span class="stat-tile-label" data-i18n="statMahadashaLabel">موجودہ مہادشا</span>
+            <span class="stat-tile-value" id="stat-mahadasha-value">—</span>
+            <span class="stat-tile-sub" id="stat-mahadasha-sub"></span>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-tile-label" data-i18n="statNakshatraLabel">پیدائشی نچھتر</span>
+            <span class="stat-tile-value" id="stat-nakshatra-value">—</span>
+            <span class="stat-tile-sub" id="stat-nakshatra-sub"></span>
+          </div>
+        </div>
+
         <!-- AstroMatrix ke Daily screen jaisay shortcut icons — Birth
              Report/Weekly/Monthly/... ki tarah, har button apni ALAG
              screen kholta hai (continuous feed ka hissa nahi). -->
@@ -751,10 +795,10 @@
 </div>
 
 <nav class="bottom-nav" id="bottom-nav">
-  <button type="button" data-target="phone-chart"><span class="ic">🔮</span><span data-i18n="navChart">کنڈلی</span></button>
-  <button type="button" data-target="phone-houses"><span class="ic">🏛️</span><span data-i18n="navHouses">خانے</span></button>
-  <button type="button" class="active" data-target="phone-predictions"><span class="ic">⭐</span><span data-i18n="navPred">پیشگوئی</span></button>
-  <button type="button" data-target="phone-profile"><span class="ic">👤</span><span data-i18n="navProfile">پروفائل</span></button>
+  <button type="button" data-target="phone-chart"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></span><span data-i18n="navChart">کنڈلی</span></button>
+  <button type="button" data-target="phone-houses"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 21h16.8"/><path d="M4.8 21V10.4L12 4.6l7.2 5.8V21"/><path d="M9.4 21v-5.6h5.2V21"/><path d="M7.6 9.4h.01M12 9.4h.01M16.4 9.4h.01"/></svg></span><span data-i18n="navHouses">خانے</span></button>
+  <button type="button" class="active" data-target="phone-predictions"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2l2.1 5.1 5.5.5-4.2 3.6 1.3 5.4L12 14.9l-4.7 2.9 1.3-5.4-4.2-3.6 5.5-.5z"/></svg></span><span data-i18n="navPred">پیشگوئی</span></button>
+  <button type="button" data-target="phone-profile"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.2" r="3.4"/><path d="M5 20c.9-3.6 3.7-5.6 7-5.6s6.1 2 7 5.6"/></svg></span><span data-i18n="navProfile">پروفائل</span></button>
 </nav>
 
 <!-- Upgrade popup — jab non-premium user pehli baar koi paid screen
@@ -1187,9 +1231,12 @@
     dailyTextEl.dataset.hasRealData = 'true';
     document.getElementById('pred-subhead').textContent = data.person.name + ' کے زائچے کی بنیاد پر';
 
+    renderPredStatTiles(data);
+
     // "سیاروی گردش و نظر" — ab har graha ka card uska gochar (transit) aur
     // uski khaas nazar (aspect) dono ek sath dikhata hai, do alag tabs ki
-    // jagah.
+    // jagah. Ab har card ke sath ek gol, us graha ke rang wala icon-badge
+    // bhi hai (AstroSage ki "Short Term Forecast" cards jaisa feel).
     var combinedList = document.getElementById('transit-combined-list');
     combinedList.innerHTML = '';
     var combined = data.transitCombined || [];
@@ -1198,22 +1245,31 @@
     } else {
       combined.forEach(function(c){
         var card = document.createElement('div');
-        card.className = 'pred-card';
+        card.className = 'pred-card icon-card';
+        var badge = document.createElement('span');
+        badge.className = 'icon-card-badge';
+        var cssVar = PLANET_CSS_VAR[c.planet];
+        if (cssVar) badge.style.setProperty('--_c', 'var(' + cssVar + ')');
+        badge.textContent = PLANET_EMOJI[c.planet] || '✦';
+        card.appendChild(badge);
+        var body = document.createElement('div');
+        body.className = 'icon-card-body';
         var tag = document.createElement('span');
         tag.className = 'tag';
         tag.textContent = c.planetLabel;
-        card.appendChild(tag);
+        body.appendChild(tag);
         var p = document.createElement('p');
         p.textContent = c.transitText;
-        card.appendChild(p);
+        body.appendChild(p);
         (c.aspects || []).forEach(function(a){
           var ap = document.createElement('p');
           ap.style.margin = '.3rem 0 0';
           ap.style.fontSize = '.82rem';
           ap.style.color = 'var(--text-muted)';
           ap.textContent = '↳ ' + a.text;
-          card.appendChild(ap);
+          body.appendChild(ap);
         });
+        card.appendChild(body);
         combinedList.appendChild(card);
       });
     }
@@ -1221,18 +1277,28 @@
     renderLinesWithNote('monthly-list', 'monthly-note', data.monthlyOutlook);
     renderLinesWithNote('yearly-list', 'yearly-note', data.yearlyOutlook);
 
+    // Remedies bhi icon-card style mein — sunehra "🧿" badge, taake ye
+    // baaqi cards se hat kar khaas/tawajju talab (attention-worthy) lagein.
     var remediesList = document.getElementById('remedies-list');
     remediesList.innerHTML = '';
     (data.remedies || []).forEach(function(r){
       var card = document.createElement('div');
-      card.className = 'pred-card';
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(--gold-soft)');
+      badge.textContent = '🧿';
+      card.appendChild(badge);
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
       var tag = document.createElement('span');
       tag.className = 'tag';
       tag.textContent = r.title;
+      body.appendChild(tag);
       var p = document.createElement('p');
       p.textContent = r.text;
-      card.appendChild(tag);
-      card.appendChild(p);
+      body.appendChild(p);
+      card.appendChild(body);
       remediesList.appendChild(card);
     });
   }
@@ -1248,6 +1314,49 @@
     Su:'☉', Mo:'☾', Ma:'♂', Me:'☿', Ju:'♃', Ve:'♀', Sa:'♄', Ra:'☊', Ke:'☋', Lg:'✦',
     Sun:'☉', Moon:'☾', Mars:'♂', Mercury:'☿', Jupiter:'♃', Venus:'♀', Saturn:'♄', Rahu:'☊', Ketu:'☋'
   };
+  // Icon-badge cards ka rang har graha ke apne CSS variable (:root mein
+  // pehle se maujood --su/--mo/... ) se lete hain, taake pooray app mein
+  // graha-rang consistent rahe (chart/legend jaisa hi).
+  var PLANET_CSS_VAR = {
+    Sun:'--su', Moon:'--mo', Mars:'--ma', Mercury:'--me', Jupiter:'--ju',
+    Venus:'--ve', Saturn:'--sa', Rahu:'--ra', Ketu:'--ke'
+  };
+
+  /**
+   * renderPredStatTiles — "ایک نظر میں" do sab se zaroori facts (moujoda
+   * Mahadasha + paidaishi Nachhatar) foran, upar hi dikha deta hai, taake
+   * neeche scroll kiye baghair bhi user ko sab se important cheez mil jaye
+   * (reference app ke top stat-tiles jaisa).
+   */
+  function renderPredStatTiles(data){
+    var row = document.getElementById('pred-stat-tiles');
+    if (!row) return;
+    var maha = data.dasha && data.dasha.mahadasha;
+    var birthPanchang = data.panchang && data.panchang.birth;
+    if (!maha && !birthPanchang) { row.hidden = true; return; }
+    row.hidden = false;
+
+    var mahaVal = document.getElementById('stat-mahadasha-value');
+    var mahaSub = document.getElementById('stat-mahadasha-sub');
+    if (maha && maha.lord) {
+      mahaVal.textContent = (PLANET_EMOJI[maha.lord] || '') + ' ' + (PLANET_NAME_UR_MAP[maha.lord] || maha.lord);
+      var s = fmtDate(maha.start), e = fmtDate(maha.end);
+      mahaSub.textContent = (s && e) ? (s + ' — ' + e) : '';
+    } else {
+      mahaVal.textContent = '—';
+      mahaSub.textContent = '';
+    }
+
+    var nakVal = document.getElementById('stat-nakshatra-value');
+    var nakSub = document.getElementById('stat-nakshatra-sub');
+    if (birthPanchang && birthPanchang.nakshatra) {
+      nakVal.textContent = birthPanchang.nakshatra;
+      nakSub.textContent = birthPanchang.tithi ? ('تِتھی: ' + birthPanchang.tithi) : '';
+    } else {
+      nakVal.textContent = '—';
+      nakSub.textContent = '';
+    }
+  }
 
   function renderDailyRoutine(data){
     var routine = data.dailyRoutine;
@@ -1262,17 +1371,31 @@
     box.innerHTML = '';
     (routine.categories || []).forEach(function(c){
       var card = document.createElement('div');
-      card.className = 'pred-card';
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.textContent = CATEGORY_EMOJI[c.key] || '✦';
+      card.appendChild(badge);
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
       var tag = document.createElement('span');
       tag.className = 'tag';
       tag.textContent = c.label;
+      body.appendChild(tag);
       var p = document.createElement('p');
       p.textContent = c.text;
-      card.appendChild(tag);
-      card.appendChild(p);
+      body.appendChild(p);
+      card.appendChild(body);
       box.appendChild(card);
     });
   }
+
+  // Daily-routine category icons — sirf visual, "career/wealth/health/
+  // relationships/family" (server.js/narrative.js ki CATEGORY_HOUSE_MAP se
+  // aane wali keys) ke sath mutabiq.
+  var CATEGORY_EMOJI = {
+    career:'💼', wealth:'💰', health:'🌿', relationships:'❤️', family:'🏠'
+  };
 
   function renderTransitChart(data){
     var signG = document.getElementById('transit-sign-numbers');
@@ -1362,7 +1485,10 @@
     (outlook.lines || []).forEach(function(t){
       var row = document.createElement('div');
       row.className = 'transit-row';
-      row.textContent = t.text;
+      // Har line ke aagay uss graha ka chhota emoji, taake feed ko sirf
+      // text ke bajaye thora scan-friendly (visual) banaya ja sake.
+      var prefix = (t.planet && PLANET_EMOJI[t.planet]) ? (PLANET_EMOJI[t.planet] + ' ') : '';
+      row.textContent = prefix + t.text;
       list.appendChild(row);
     });
 
@@ -1398,13 +1524,26 @@
       ['طلوعِ آفتاب', p.sunrise],
       ['غروبِ آفتاب', p.sunset],
     ];
+    // Pehle ye har cheez alag stacked line thi ("label: value") — ab
+    // AstroSage jaisi saaf 2-column grid mein, taake ek nazar mein poora
+    // panchang scan ho sake.
+    var grid = document.createElement('div');
+    grid.className = 'kv-grid';
     rows.forEach(function(r){
       if (!r[1]) return;
-      var line = document.createElement('p');
-      line.style.margin = '.2rem 0';
-      line.textContent = r[0] + ': ' + r[1];
-      card.appendChild(line);
+      var item = document.createElement('div');
+      item.className = 'kv-item';
+      var label = document.createElement('div');
+      label.className = 'kv-item-label';
+      label.textContent = r[0];
+      var value = document.createElement('div');
+      value.className = 'kv-item-value';
+      value.textContent = r[1];
+      item.appendChild(label);
+      item.appendChild(value);
+      grid.appendChild(item);
     });
+    card.appendChild(grid);
     return card;
   }
 
