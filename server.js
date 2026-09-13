@@ -49,6 +49,24 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 /**
+ * ---- TESTING_FREE_MODE ----
+ * Asif ne khud manga (testing phase ke doran): jab tak test version
+ * finalize nahi ho jata, tab tak koi bhi subscription/paywall lock na ho —
+ * SAB predictions (weekly/monthly/yearly/ashtakavarga sameet) har user ko
+ * poori tarah free milni chahiye, koi "اپگریڈ کریں" popup ya blur nahi.
+ *
+ * Neeche poora subscription system (Safepay, plans, DB premium status
+ * waghera) bilkul intact/mojood hai — sirf is EK flag se lock temporarily
+ * band kiya gaya hai. Jab test version finalize ho jaye aur subscription
+ * dobara chalu karni ho, to bas is line ko `false` kar dein (aur
+ * public/index.html mein bhi `TESTING_FREE_MODE` ko `false` kar dein) —
+ * baaqi sab kuch (qeematein, Safepay integration, premium-status DB
+ * calls) waisay hi kaam karna shuru kar dega, kuch bhi dobara likhna nahi
+ * paray ga.
+ */
+const TESTING_FREE_MODE = true;
+
+/**
  * ---- Subscription plans ----
  * Asif ne apni qeemat khud tay ki: Monthly PKR 500, Yearly PKR 11000 (ye
  * `.env.example` mein defaults ke taur par likhi hain, `.env` mein badal
@@ -95,7 +113,7 @@ function getPlanPrice(planCode, currency) {
  * hai, jaisa manga gaya tha.
  */
 function withLockFlag(section, isPremium) {
-  if (isPremium || !section) return section;
+  if (TESTING_FREE_MODE || isPremium || !section) return section;
   if (Array.isArray(section)) return section; // is app mein filhaal koi array-shape section lock nahi hoti
   return Object.assign({}, section, { locked: true });
 }
@@ -725,7 +743,7 @@ app.post('/api/forward-calendar', async (req, res) => {
     }
 
     const calendar = buildForwardCalendar(ascendantRasiId, dayEntries);
-    res.json({ days: calendar, locked: !premiumStatus.isPremium });
+    res.json({ days: calendar, locked: TESTING_FREE_MODE ? false : !premiumStatus.isPremium });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
