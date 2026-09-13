@@ -23,7 +23,13 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 
-const prokerala = require('./lib/prokerala-client');
+// ASTRO_PROVIDER=prokerala .env mein set karein to purana Prokerala client
+// wapas istemal hoga (rollback ke liye) — default ab VedAstro hai
+// (9 saal purana, MIT license, $1/month unlimited calls — Prokerala se
+// bohat sasta aur behtar, dekhein lib/vedastro-client.js ke comments).
+const prokerala = process.env.ASTRO_PROVIDER === 'prokerala'
+  ? require('./lib/prokerala-client')
+  : require('./lib/vedastro-client');
 const db = require('./lib/db');
 const auth = require('./lib/auth');
 const safepay = require('./lib/safepay-client');
