@@ -2061,7 +2061,7 @@
     btn.addEventListener('click', function(){
       showScreen(btn.dataset.target);
       if (btn.dataset.target === 'phone-weekly') loadForwardCalendar();
-      if (PAID_SCREEN_IDS.indexOf(btn.dataset.target) !== -1 && !subscriptionStatus.isPremium) {
+      if (!TESTING_FREE_MODE && PAID_SCREEN_IDS.indexOf(btn.dataset.target) !== -1 && !subscriptionStatus.isPremium) {
         showUpgradeModal();
       }
     });
@@ -2189,6 +2189,13 @@
   // sakta), hum sirf currentUser ko memory mein rakhte hain UI dikhane ke
   // liye. ----
   var currentUser = null;
+  // ---- TESTING_FREE_MODE: server.js mein bhi yehi flag hai (wahan asal
+  // content-lock control hota hai). Yahan sirf ek chhoti si cheez rok rahe
+  // hain: shortcut-icon dabate hi jo "اپگریڈ کریں" popup foran khul jata
+  // tha, wo. Jab subscription dobara chalu karni ho to sirf `false` kar
+  // dein — subscribe screen, checkout, Safepay, sab kuch waisay hi mojood
+  // hai, chhera nahi gaya.
+  var TESTING_FREE_MODE = true;
   // ---- Subscription (paid features) state — /api/subscribe/status se
   // page load par aur checkout se wapas aane par refresh hoti hai. ----
   var subscriptionStatus = { isPremium: false, premiumUntil: null, plans: {}, safepayConfigured: false };
