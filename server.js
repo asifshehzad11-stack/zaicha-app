@@ -189,8 +189,13 @@ async function fetchNatalBundle(person) {
  */
 app.post('/api/kundli', async (req, res) => {
   try {
-    const { name, dob, time, lat, lon, ayanamsa, utcOffset, phone, profileId, cityLabel } = req.body;
+    const { name, dob, time, lat, lon, ayanamsa, utcOffset, phone, profileId, cityLabel, lang } = req.body;
     const session = auth.readSession(req);
+    // ---- Multi-language foundation: frontend jo bhi language bhejay (en/ur/hi)
+    // usi mein saara narrative/prediction content generate hoga. Default English
+    // hai (app-wide default) — narrative.js ka normLang() bhi khud fallback
+    // karta hai, lekin yahan bhi explicit rakha hai taake saaf rahe.
+    const reqLang = ['en', 'ur', 'hi'].indexOf(lang) !== -1 ? lang : 'en';
 
     let effective = { name, dob, time, lat, lon, ayanamsa, utcOffset };
     let profileRow = null;
@@ -313,14 +318,14 @@ app.post('/api/kundli', async (req, res) => {
       sadeSatiPhase: data.sadeSati && data.sadeSati.transit_phase,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
-    });
+    }, reqLang);
 
-    const currentTransits = buildCurrentTransitLines(data.gochar.details);
-    const transitAspects = buildTransitAspectLines(data.gochar.details);
-    const transitCombined = buildCombinedTransitPredictions(data.gochar.details);
-    const monthlyOutlook = buildMonthlyOutlook(data.gochar.details);
-    const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati);
-    const dailyRoutine = buildDailyRoutine(data.houses, data.gochar.details.Moon, now);
+    const currentTransits = buildCurrentTransitLines(data.gochar.details, reqLang);
+    const transitAspects = buildTransitAspectLines(data.gochar.details, reqLang);
+    const transitCombined = buildCombinedTransitPredictions(data.gochar.details, reqLang);
+    const monthlyOutlook = buildMonthlyOutlook(data.gochar.details, reqLang);
+    const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati, reqLang);
+    const dailyRoutine = buildDailyRoutine(data.houses, data.gochar.details.Moon, now, reqLang);
     // ---- Yoga Detection — poori tarah FREE hai (koi extra API call
     // nahi lagti, sirf pehle se maujood natal data par classical rules
     // apply hoti hain). Feature-list mein sab se pehle add kiya gaya
@@ -346,7 +351,7 @@ app.post('/api/kundli', async (req, res) => {
       isInSadeSati: data.sadeSati && data.sadeSati.is_in_sade_sati,
       sadeSatiPhase: data.sadeSati && data.sadeSati.transit_phase,
       weakNatalPlanets: data.weakNatalPlanets,
-    });
+    }, reqLang);
 
     // ---- Paywall: Daily (narrative/transits/dailyRoutine/remedies/panchang)
     // hamesha free rehta hai. Monthly/Yearly outlook aur Ashtakavarga sirf
@@ -381,6 +386,7 @@ app.post('/api/kundli', async (req, res) => {
       // pedaishi tafseelat dobara bheجne ki zaroorat na pare.
       ayanamsa: ayanamsaVal,
       isPremium: premiumStatus.isPremium,
+      lang: reqLang,
     });
   } catch (err) {
     console.error(err);
