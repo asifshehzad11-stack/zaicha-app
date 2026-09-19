@@ -44,6 +44,8 @@ const {
   buildRemedies,
   buildDailyRoutine,
 } = require('./lib/narrative');
+const { buildYogas } = require('./lib/yoga-engine');
+const { buildNavamsaChart } = require('./lib/navamsa');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -317,6 +319,15 @@ app.post('/api/kundli', async (req, res) => {
     const monthlyOutlook = buildMonthlyOutlook(data.gochar.details);
     const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati);
     const dailyRoutine = buildDailyRoutine(data.houses, data.gochar.details.Moon, now);
+    // ---- Yoga Detection — poori tarah FREE hai (koi extra API call
+    // nahi lagti, sirf pehle se maujood natal data par classical rules
+    // apply hoti hain). Feature-list mein sab se pehle add kiya gaya
+    // (Asif ke "OMNIS 7 jaisa feature-rich banao" wale roadmap ka Phase 1).
+    const yogas = buildYogas(data);
+    // ---- Navamsa (D9) — bhi bilkul free hai, pehle se maujood natal
+    // degrees par sirf classical divisional-chart formula apply hoti hai.
+    // Roadmap Phase 1 ka doosra item.
+    const navamsa = buildNavamsaChart(data);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -344,6 +355,8 @@ app.post('/api/kundli', async (req, res) => {
       yearlyOutlook: withLockFlag(yearlyOutlook, premiumStatus.isPremium),
       dailyRoutine,
       remedies,
+      yogas,
+      navamsa,
       panchang,
       ashtakavarga: withLockFlag(ashtakavarga, premiumStatus.isPremium),
       asOfDate: now.toISOString().slice(0, 10),
