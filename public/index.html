@@ -644,6 +644,8 @@
           <button type="button" class="shortcut-item" data-target="phone-panchang"><span class="ic">📜</span><span data-i18n="tabPanchang">پنچانگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-ashtakavarga"><span class="ic">📊</span><span data-i18n="tabAshtakavarga">اشٹک ورگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-remedies"><span class="ic">🧿</span><span data-i18n="tabRemedies">علاج و تدابیر</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-yogas"><span class="ic">✨</span><span data-i18n="tabYogas">یوگ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
         </div>
 
         <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
@@ -719,6 +721,44 @@
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">🧿</span> <span data-i18n="tabRemedies">علاج و تدابیر</span></div>
         <div id="remedies-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-yogas">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">✨</span> <span data-i18n="tabYogas">یوگ</span></div>
+        <p class="sub" data-i18n="yogasSub">آپ کی کنڈلی میں پائے جانے والے کلاسیکی گرہ-امتزاج (یوگ)</p>
+        <div id="yogas-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-navamsa">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">💠</span> <span data-i18n="tabNavamsa">نومانش (D9)</span></div>
+        <p class="sub" id="navamsa-subhead" data-i18n="navamsaSub">شادی، دھرم اور گرہوں کی اصل (گہری) طاقت کے لیے D1 کے بعد سب سے اہم چارٹ</p>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 300 300" role="img" aria-label="نومانش (D9) چارٹ">
+            <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
+              <rect x="0" y="0" width="300" height="300"/>
+              <polygon points="150,0 300,150 150,300 0,150"/>
+              <line x1="0" y1="0" x2="300" y2="300"/>
+              <line x1="300" y1="0" x2="0" y2="300"/>
+            </g>
+            <g id="navamsa-sign-numbers" font-family="JetBrains Mono, monospace" font-size="11" style="fill:var(--text-muted)" text-anchor="middle"></g>
+            <g id="navamsa-planet-chips" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" text-anchor="middle"></g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item" style="--_c:var(--gold)">✦ Lg طالع</span>
+          <span class="legend-item" style="--_c:var(--su)">☉ Su سورج</span>
+          <span class="legend-item" style="--_c:var(--mo)">☾ Mo چاند</span>
+          <span class="legend-item" style="--_c:var(--ma)">♂ Ma مریخ</span>
+          <span class="legend-item" style="--_c:var(--me)">☿ Me عطارد</span>
+          <span class="legend-item" style="--_c:var(--ju)">♃ Ju مشتری</span>
+          <span class="legend-item" style="--_c:var(--ve)">♀ Ve زہرہ</span>
+          <span class="legend-item" style="--_c:var(--sa)">♄ Sa زحل</span>
+          <span class="legend-item" style="--_c:var(--ra)">☊ Ra راہو</span>
+          <span class="legend-item" style="--_c:var(--ke)">☋ Ke کیتو</span>
+        </div>
+        <p class="sub" id="navamsa-vargottama" style="margin-top:.8rem;"></p>
       </div>
 
       <div class="phone" id="phone-weekly">
@@ -865,6 +905,10 @@
       weeklySub: 'اگلے 7 دن — روز چاند کس گھر اور نچھتر میں ہے، اور کون سا سیارہ کب اپنی راشی بدلتا ہے',
       tabDasha: 'دور و اثرات',
       tabRemedies: 'علاج و تدابیر',
+      tabYogas: 'یوگ',
+      yogasSub: 'آپ کی کنڈلی میں پائے جانے والے کلاسیکی گرہ-امتزاج (یوگ)',
+      tabNavamsa: 'نومانش (D9)',
+      navamsaSub: 'شادی، دھرم اور گرہوں کی اصل (گہری) طاقت کے لیے D1 کے بعد سب سے اہم چارٹ',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
@@ -953,6 +997,10 @@
       weeklySub: 'Next 7 days — the Moon\'s daily house & nakshatra, and when any planet changes sign',
       tabDasha: 'Dasha & effects',
       tabRemedies: 'Remedies',
+      tabYogas: 'Yogas',
+      yogasSub: 'Classical planetary combinations (yogas) found in your chart',
+      tabNavamsa: 'Navamsa (D9)',
+      navamsaSub: 'The most important chart after D1 — for marriage, dharma, and the true (deeper) strength of planets',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
       dailyDefaultText: 'Click "Generate chart" first.',
@@ -1041,6 +1089,10 @@
       weeklySub: 'अगले 7 दिन — रोज़ चंद्रमा किस भाव और नक्षत्र में है, और कौन सा ग्रह कब राशि बदलता है',
       tabDasha: 'दशा व प्रभाव',
       tabRemedies: 'उपाय',
+      tabYogas: 'योग',
+      yogasSub: 'आपकी कुंडली में पाए जाने वाले शास्त्रीय ग्रह-संयोग (योग)',
+      tabNavamsa: 'नवांश (D9)',
+      navamsaSub: 'विवाह, धर्म और ग्रहों की असली (गहरी) शक्ति के लिए D1 के बाद सबसे अहम चार्ट',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -1178,6 +1230,55 @@
 
     document.getElementById('chart-subhead').textContent =
       'طالع: ' + data.person.ascendantSignName + '   ·   نظام: ' + data.person.system;
+  }
+
+  // Navamsa (D9) — bilkul wahi diamond-chart rendering jo main D1 chart
+  // (renderChart) mein hai, bas data.navamsa.houses se (backend pehle se
+  // isi shape mein bana kar deta hai — n/signId/planets[abbr,color]).
+  var PLANET_NAME_UR_SHORT = { Sun:'سورج', Moon:'چاند', Mars:'مریخ', Mercury:'عطارد', Jupiter:'مشتری', Venus:'زہرہ', Saturn:'زحل', Rahu:'راہو', Ketu:'کیتو' };
+  function renderNavamsaChart(data){
+    var nav = data.navamsa;
+    var signG = document.getElementById('navamsa-sign-numbers');
+    var planetG = document.getElementById('navamsa-planet-chips');
+    if (!signG || !planetG) return;
+    signG.innerHTML = '';
+    planetG.innerHTML = '';
+    if (!nav || !nav.houses) return;
+
+    for (var h = 1; h <= 12; h++){
+      var geo = HOUSE_GEOMETRY[h];
+      var house = nav.houses[h - 1];
+      if (!house) continue;
+
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', geo.signPos.x); t.setAttribute('y', geo.signPos.y);
+      t.textContent = house.signId + 1;
+      signG.appendChild(t);
+
+      house.planets.forEach(function(p, i){
+        var slot = geo.slots[Math.min(i, geo.slots.length - 1)];
+        var pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        pt.setAttribute('x', slot.x);
+        pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
+        pt.style.fill = p.color;
+        pt.textContent = p.abbr;
+        planetG.appendChild(pt);
+      });
+    }
+
+    var headEl = document.getElementById('navamsa-subhead');
+    if (headEl) headEl.textContent = 'نومانش طالع: ' + nav.ascendantSignName;
+
+    var vEl = document.getElementById('navamsa-vargottama');
+    if (vEl) {
+      var vp = nav.vargottamaPlanets || [];
+      if (vp.length) {
+        var names = vp.map(function(n){ return PLANET_NAME_UR_SHORT[n] || n; }).join('، ');
+        vEl.textContent = '✦ ورگوتم (D1 اور D9 دونوں میں ایک ہی راشی میں): ' + names + ' — کلاسیکی طور پر بہت مضبوط مانا جاتا ہے۔';
+      } else {
+        vEl.textContent = '';
+      }
+    }
   }
 
   function dignityPillClass(dignity){
@@ -1555,6 +1656,53 @@
     box.appendChild(panchangCard('آج کا پنچانگ', panchang.today));
   }
 
+  /**
+   * renderYogas — server.js/lib/yoga-engine.js se aane wali classical Yoga
+   * list ko icon-card style mein dikhata hai. Har card ka badge rang
+   * benefic/malefic ke hisab se hai (sunehra = shubh yoga, surkh = dosh),
+   * aur "cause" (wajah) chhote muted text mein neeche — Goravani Jyotish
+   * software ki "reading w/ cause" style se mutasir, lekin poori tarah
+   * independent/apna text.
+   */
+  function renderYogas(data){
+    var list = document.getElementById('yogas-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var yogas = data.yogas || [];
+    if (!yogas.length) {
+      list.innerHTML = '<div class="placeholder">اس کنڈلی میں فی الحال کوئی نمایاں کلاسیکی یوگ نہیں ملا۔</div>';
+      return;
+    }
+    yogas.forEach(function(y){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', y.benefic === false ? 'var(--ma)' : 'var(--gold-soft)');
+      badge.textContent = y.benefic === false ? '⚠️' : '✨';
+      card.appendChild(badge);
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = y.title;
+      body.appendChild(tag);
+      var p = document.createElement('p');
+      p.textContent = y.description;
+      body.appendChild(p);
+      if (y.cause) {
+        var cause = document.createElement('p');
+        cause.style.margin = '.3rem 0 0';
+        cause.style.fontSize = '.78rem';
+        cause.style.color = 'var(--text-muted)';
+        cause.textContent = 'وجہ: ' + y.cause;
+        body.appendChild(cause);
+      }
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
   function renderAshtakavarga(data){
     var box = document.getElementById('ashtakavarga-content');
     box.innerHTML = '';
@@ -1839,6 +1987,8 @@
     renderAshtakavarga(data);
     renderDashaPanel(data);
     renderDashaTree(data);
+    renderYogas(data);
+    renderNavamsaChart(data);
   }
 
   function showError(msg){
@@ -2022,7 +2172,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
