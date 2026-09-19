@@ -47,6 +47,7 @@ const {
 const { buildYogas } = require('./lib/yoga-engine');
 const { buildNavamsaChart } = require('./lib/navamsa');
 const { buildPlanetProfiles } = require('./lib/planet-profile');
+const { buildGrahaBala } = require('./lib/graha-bala');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -333,6 +334,12 @@ app.post('/api/kundli', async (req, res) => {
     // baad banaya isi liye taake har graha ki profile mein uski D9 rasi
     // aur vargottama status bhi shamil ho sake.
     const planetProfiles = buildPlanetProfiles({ ...data, navamsa });
+    // ---- Graha Bala (Phase 2 ka pehla item) — bilkul free, sirf pehle se
+    // maujood natal degrees par based hai. Poora "textbook Shad Bala" nahi
+    // hai (Cheshta Bala + fine Kala Bala data available nahi) — is baat
+    // ka disclaimer lib/graha-bala.js ke header comment aur UI dono mein
+    // saaf likha gaya hai.
+    const grahaBala = buildGrahaBala(data);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -363,6 +370,7 @@ app.post('/api/kundli', async (req, res) => {
       yogas,
       navamsa,
       planetProfiles,
+      grahaBala,
       panchang,
       ashtakavarga: withLockFlag(ashtakavarga, premiumStatus.isPremium),
       asOfDate: now.toISOString().slice(0, 10),
