@@ -46,6 +46,7 @@ const {
 } = require('./lib/narrative');
 const { buildYogas } = require('./lib/yoga-engine');
 const { buildNavamsaChart } = require('./lib/navamsa');
+const { buildPlanetProfiles } = require('./lib/planet-profile');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -328,6 +329,10 @@ app.post('/api/kundli', async (req, res) => {
     // degrees par sirf classical divisional-chart formula apply hoti hai.
     // Roadmap Phase 1 ka doosra item.
     const navamsa = buildNavamsaChart(data);
+    // ---- Per-planet deep profile — Phase 1 ka teesra item. Navamsa ke
+    // baad banaya isi liye taake har graha ki profile mein uski D9 rasi
+    // aur vargottama status bhi shamil ho sake.
+    const planetProfiles = buildPlanetProfiles({ ...data, navamsa });
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -357,6 +362,7 @@ app.post('/api/kundli', async (req, res) => {
       remedies,
       yogas,
       navamsa,
+      planetProfiles,
       panchang,
       ashtakavarga: withLockFlag(ashtakavarga, premiumStatus.isPremium),
       asOfDate: now.toISOString().slice(0, 10),
