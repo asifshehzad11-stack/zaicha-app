@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ur" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -353,8 +353,8 @@
     </div>
     <div style="display:flex; align-items:center; gap:.6rem;">
       <div id="lang-toggle" style="display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; font-size:.72rem;">
-        <button type="button" data-lang="ur" class="lang-btn active" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
-        <button type="button" data-lang="en" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">EN</button>
+        <button type="button" data-lang="ur" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
+        <button type="button" data-lang="en" class="lang-btn active" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">EN</button>
         <button type="button" data-lang="hi" class="lang-btn" style="padding:.3rem .6rem; border:none; cursor:pointer; font-family:inherit;">हिं</button>
       </div>
       <span class="badge gold" id="status-badge" data-i18n="statusBadge">لائیو انجن سے جڑا ہوا</span>
@@ -822,8 +822,8 @@
         <div class="field">
           <label data-i18n="profileLangLabel">زبان</label>
           <div style="display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden;">
-            <button type="button" class="lang-btn active" data-lang="ur" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
-            <button type="button" class="lang-btn" data-lang="en" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">English</button>
+            <button type="button" class="lang-btn" data-lang="ur" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">اردو</button>
+            <button type="button" class="lang-btn active" data-lang="en" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">English</button>
             <button type="button" class="lang-btn" data-lang="hi" style="flex:1; padding:.6rem; border:none; cursor:pointer; font-family:inherit;">हिंदी</button>
           </div>
         </div>
@@ -1151,11 +1151,20 @@
       subscribeMaybeLater: 'बाद में',
     },
   };
-  var currentLang = 'ur';
+  // Asif ki hidayat: abhi ke liye default language ENGLISH rahegi (Urdu/
+  // Hindi/Arabi baad mein wapas primary banaye jayenge). Long-term plan:
+  // visitor jis mulk se aa raha hai us hisab se local language khud
+  // detect ho — abhi ke liye sirf default badla hai, poora auto-detect
+  // baad ka kaam hai.
+  var currentLang = 'en';
 
   function applyLanguage(lang){
     currentLang = lang;
     var dict = I18N[lang] || I18N.ur;
+    // Urdu hi abhi RTL hai (Hindi/English dono LTR); Arabic add hone par
+    // isay bhi 'rtl' list mein shamil karna hoga.
+    document.documentElement.lang = lang;
+    document.documentElement.dir = (lang === 'ur') ? 'rtl' : 'ltr';
     document.body.classList.toggle('lang-hi', lang === 'hi');
     document.querySelectorAll('[data-i18n]').forEach(function(el){
       var key = el.getAttribute('data-i18n');
@@ -1186,6 +1195,7 @@
   document.querySelectorAll('.lang-btn').forEach(function(btn){
     btn.addEventListener('click', function(){ applyLanguage(btn.dataset.lang); });
   });
+  applyLanguage('en'); // default language — dekhein currentLang ke upar wala note
 
   var HOUSE_GEOMETRY = {
     1:  { signPos:{x:150,y:46},  slots:[{x:128,y:82},{x:172,y:82}] },
