@@ -2242,8 +2242,13 @@
     btn.disabled = true;
     btn.textContent = I18N[currentLang].generateBtnLoading;
     try {
+      // ---- Multi-language foundation: currentLang (jo top corner ke language
+      // switcher se set hota hai) yahan bhejte hain taake server narrative,
+      // transit predictions, monthly/yearly outlook, daily routine aur
+      // remedies — sab isi language mein generate kare (na ke hamesha Urdu
+      // mein — pehle yehi masla tha).
       var person = loadedProfileId
-        ? { profileId: loadedProfileId }
+        ? { profileId: loadedProfileId, lang: currentLang }
         : {
             name: document.getElementById('in-name').value,
             dob: document.getElementById('in-dob').value,
@@ -2252,7 +2257,8 @@
             lon: document.getElementById('in-lon').value,
             utcOffset: document.getElementById('in-offset').value,
             ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1,
-            phone: document.getElementById('in-phone').value.trim() || undefined
+            phone: document.getElementById('in-phone').value.trim() || undefined,
+            lang: currentLang
           };
       var data = await fetchChartData(person);
       if (data.profileId) loadedProfileId = data.profileId;
