@@ -646,6 +646,7 @@
           <button type="button" class="shortcut-item" data-target="phone-remedies"><span class="ic">🧿</span><span data-i18n="tabRemedies">علاج و تدابیر</span></button>
           <button type="button" class="shortcut-item" data-target="phone-yogas"><span class="ic">✨</span><span data-i18n="tabYogas">یوگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-planets"><span class="ic">🪐</span><span data-i18n="tabPlanets">گرہوں کی تفصیل</span></button>
         </div>
 
         <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
@@ -759,6 +760,13 @@
           <span class="legend-item" style="--_c:var(--ke)">☋ Ke کیتو</span>
         </div>
         <p class="sub" id="navamsa-vargottama" style="margin-top:.8rem;"></p>
+      </div>
+
+      <div class="phone" id="phone-planets">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🪐</span> <span data-i18n="tabPlanets">گرہوں کی تفصیل</span></div>
+        <p class="sub" data-i18n="planetsSub">ہر گرہ کا مکمل پروفائل — راشی، گھر، نچھتر، حاکمِ نچھتر اور حالت</p>
+        <div id="planets-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
       <div class="phone" id="phone-weekly">
@@ -909,6 +917,8 @@
       yogasSub: 'آپ کی کنڈلی میں پائے جانے والے کلاسیکی گرہ-امتزاج (یوگ)',
       tabNavamsa: 'نومانش (D9)',
       navamsaSub: 'شادی، دھرم اور گرہوں کی اصل (گہری) طاقت کے لیے D1 کے بعد سب سے اہم چارٹ',
+      tabPlanets: 'گرہوں کی تفصیل',
+      planetsSub: 'ہر گرہ کا مکمل پروفائل — راشی، گھر، نچھتر، حاکمِ نچھتر اور حالت',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
@@ -1001,6 +1011,8 @@
       yogasSub: 'Classical planetary combinations (yogas) found in your chart',
       tabNavamsa: 'Navamsa (D9)',
       navamsaSub: 'The most important chart after D1 — for marriage, dharma, and the true (deeper) strength of planets',
+      tabPlanets: 'Planet Profiles',
+      planetsSub: 'Full profile for each planet — sign, house, nakshatra, nakshatra lord and condition',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
       dailyDefaultText: 'Click "Generate chart" first.',
@@ -1093,6 +1105,8 @@
       yogasSub: 'आपकी कुंडली में पाए जाने वाले शास्त्रीय ग्रह-संयोग (योग)',
       tabNavamsa: 'नवांश (D9)',
       navamsaSub: 'विवाह, धर्म और ग्रहों की असली (गहरी) शक्ति के लिए D1 के बाद सबसे अहम चार्ट',
+      tabPlanets: 'ग्रहों का विवरण',
+      planetsSub: 'हर ग्रह की पूरी प्रोफाइल — राशि, घर, नक्षत्र, नक्षत्र स्वामी और स्थिति',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -1279,6 +1293,59 @@
         vEl.textContent = '';
       }
     }
+  }
+
+  // Per-planet deep profile — Phase 1 ka teesra item. Backend
+  // (lib/planet-profile.js) har graha ke liye sign/house/nakshatra/
+  // dignity/navamsa sab kuch pehle se ready kar ke bhejta hai, front-end
+  // ka kaam sirf ek icon-card banana hai (yogas/remedies jaisa hi pattern).
+  function renderPlanetProfiles(data){
+    var list = document.getElementById('planets-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var profiles = data.planetProfiles || [];
+    if (!profiles.length) {
+      list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
+      return;
+    }
+    profiles.forEach(function(p){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', p.color);
+      badge.textContent = PLANET_EMOJI[p.name] || '✦';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = p.nameUrdu + (p.isRetrograde ? ' (رجعت⟲)' : '') + (p.isCombust ? ' (مدھم/Combust)' : '');
+      body.appendChild(tag);
+
+      var line1 = document.createElement('p');
+      line1.textContent = 'راشی: ' + p.sign + ' (' + p.degree + ')   ·   گھر: ' + (p.house || '—');
+      body.appendChild(line1);
+
+      var line2 = document.createElement('p');
+      line2.style.margin = '.25rem 0 0';
+      line2.textContent = 'نچھتر: ' + p.nakshatra + ' پاد ' + p.pada + '   ·   حاکمِ نچھتر: ' + p.nakshatraLordUrdu;
+      body.appendChild(line2);
+
+      var line3 = document.createElement('p');
+      line3.style.margin = '.25rem 0 0';
+      line3.style.fontSize = '.78rem';
+      line3.style.color = 'var(--text-muted)';
+      var extra = 'حالت: ' + p.dignityLabel;
+      if (p.navamsaSign) extra += '   ·   نومانش: ' + p.navamsaSign;
+      if (p.isVargottama) extra += '   ·   ✦ ورگوتم';
+      line3.textContent = extra;
+      body.appendChild(line3);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
   }
 
   function dignityPillClass(dignity){
@@ -1989,6 +2056,7 @@
     renderDashaTree(data);
     renderYogas(data);
     renderNavamsaChart(data);
+    renderPlanetProfiles(data);
   }
 
   function showError(msg){
@@ -2172,7 +2240,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
