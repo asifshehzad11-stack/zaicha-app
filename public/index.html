@@ -2539,7 +2539,7 @@
       logoutBtn.style.display = 'none';
     }
     if (premiumLine) {
-      if (subscriptionStatus.isPremium && subscriptionStatus.premiumUntil) {
+      if (subscriptionStatus && subscriptionStatus.isPremium && subscriptionStatus.premiumUntil) {
         premiumLine.style.display = 'block';
         premiumLine.innerHTML = '<span class="premium-badge">✨ Premium</span> ' +
           I18N[currentLang].subscribeActiveUntil + fmtDate(subscriptionStatus.premiumUntil);
