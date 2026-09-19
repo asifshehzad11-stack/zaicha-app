@@ -229,6 +229,8 @@
   .icon-card-body{ flex:1; min-width:0; }
   .icon-card-body .tag{ margin-bottom:.3rem !important; }
   .icon-card-body p{ margin:0; }
+  .bala-bar-track{ background:rgba(255,255,255,.08); border-radius:999px; height:.5rem; overflow:hidden; margin:.35rem 0; }
+  .bala-bar-fill{ height:100%; border-radius:999px; background:var(--_c, var(--gold)); }
 
   /* ---- Panchang jaisi "key: value" cards ab do-column grid mein — AstroSage
        ki info-row style ke qareeb, sirf stacked text lines ki jagah. ---- */
@@ -647,6 +649,7 @@
           <button type="button" class="shortcut-item" data-target="phone-yogas"><span class="ic">✨</span><span data-i18n="tabYogas">یوگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
           <button type="button" class="shortcut-item" data-target="phone-planets"><span class="ic">🪐</span><span data-i18n="tabPlanets">گرہوں کی تفصیل</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-grahabala"><span class="ic">⚖️</span><span data-i18n="tabGrahaBala">قوتِ گرہ</span></button>
         </div>
 
         <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
@@ -767,6 +770,14 @@
         <div class="feed-head"><span class="ic">🪐</span> <span data-i18n="tabPlanets">گرہوں کی تفصیل</span></div>
         <p class="sub" data-i18n="planetsSub">ہر گرہ کا مکمل پروفائل — راشی، گھر، نچھتر، حاکمِ نچھتر اور حالت</p>
         <div id="planets-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-grahabala">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">⚖️</span> <span data-i18n="tabGrahaBala">قوتِ گرہ</span></div>
+        <p class="sub" data-i18n="grahaBalaSub">ہر گرہ کتنا مضبوط یا کمزور ہے — کلاسیکی اصولوں پر مبنی</p>
+        <p class="sub" data-i18n="grahaBalaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ کلاسیکی "شَڈ بَل" کے 5 قابلِ‌حساب اجزاء پر مبنی ایک آسان اسکور ہے (مکمل روایتی شَڈ بَل نہیں) — راہو/کیتو کلاسیکی طور پر اس میں شامل نہیں ہوتے۔</p>
+        <div id="grahabala-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
       <div class="phone" id="phone-weekly">
@@ -919,6 +930,9 @@
       navamsaSub: 'شادی، دھرم اور گرہوں کی اصل (گہری) طاقت کے لیے D1 کے بعد سب سے اہم چارٹ',
       tabPlanets: 'گرہوں کی تفصیل',
       planetsSub: 'ہر گرہ کا مکمل پروفائل — راشی، گھر، نچھتر، حاکمِ نچھتر اور حالت',
+      tabGrahaBala: 'قوتِ گرہ',
+      grahaBalaSub: 'ہر گرہ کتنا مضبوط یا کمزور ہے — کلاسیکی اصولوں پر مبنی',
+      grahaBalaNote: 'نوٹ: یہ کلاسیکی "شَڈ بَل" کے 5 قابلِ‌حساب اجزاء پر مبنی ایک آسان اسکور ہے (مکمل روایتی شَڈ بَل نہیں) — راہو/کیتو کلاسیکی طور پر اس میں شامل نہیں ہوتے۔',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
@@ -1013,6 +1027,9 @@
       navamsaSub: 'The most important chart after D1 — for marriage, dharma, and the true (deeper) strength of planets',
       tabPlanets: 'Planet Profiles',
       planetsSub: 'Full profile for each planet — sign, house, nakshatra, nakshatra lord and condition',
+      tabGrahaBala: 'Planet Strength',
+      grahaBalaSub: 'How strong or weak each planet is, based on classical rules',
+      grahaBalaNote: 'Note: this is a simplified score based on 5 computable components of classical "Shad Bala" (not the full traditional Shad Bala) — Rahu/Ketu are classically excluded from this.',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
       dailyDefaultText: 'Click "Generate chart" first.',
@@ -1107,6 +1124,9 @@
       navamsaSub: 'विवाह, धर्म और ग्रहों की असली (गहरी) शक्ति के लिए D1 के बाद सबसे अहम चार्ट',
       tabPlanets: 'ग्रहों का विवरण',
       planetsSub: 'हर ग्रह की पूरी प्रोफाइल — राशि, घर, नक्षत्र, नक्षत्र स्वामी और स्थिति',
+      tabGrahaBala: 'ग्रह बल',
+      grahaBalaSub: 'हर ग्रह कितना मजबूत या कमजोर है — शास्त्रीय नियमों पर आधारित',
+      grahaBalaNote: 'नोट: यह शास्त्रीय "षड्बल" के 5 गणना-योग्य हिस्सों पर आधारित एक आसान स्कोर है (पूरा पारंपरिक षड्बल नहीं) — राहु/केतु शास्त्रीय रूप से इसमें शामिल नहीं होते।',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -1352,6 +1372,72 @@
       if (p.isVargottama) extra += '   ·   ✦ ورگوتم';
       line3.textContent = extra;
       body.appendChild(line3);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  function grahaBalaPillClass(strength){
+    if (strength === 'strong') return 'strong';
+    if (strength === 'weak') return 'weak';
+    return 'neutral';
+  }
+
+  function renderGrahaBala(data){
+    var list = document.getElementById('grahabala-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = data.grahaBala || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
+      return;
+    }
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.planet] || '✦';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var head = document.createElement('div');
+      head.style.display = 'flex';
+      head.style.alignItems = 'center';
+      head.style.justifyContent = 'space-between';
+      head.style.gap = '.5rem';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = r.nameUrdu + (r.house ? '   ·   گھر ' + r.house : '');
+      head.appendChild(tag);
+      var pill = document.createElement('span');
+      pill.className = 'status-pill ' + grahaBalaPillClass(r.strength);
+      pill.textContent = r.strengthUrdu + ' (' + r.percent + '%)';
+      head.appendChild(pill);
+      body.appendChild(head);
+
+      var track = document.createElement('div');
+      track.className = 'bala-bar-track';
+      var fill = document.createElement('div');
+      fill.className = 'bala-bar-fill';
+      fill.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      fill.style.width = Math.max(0, Math.min(100, r.percent)) + '%';
+      track.appendChild(fill);
+      body.appendChild(track);
+
+      var line = document.createElement('p');
+      line.style.margin = '.25rem 0 0';
+      line.style.fontSize = '.72rem';
+      line.style.color = 'var(--text-muted)';
+      line.textContent = 'اُچّا: ' + r.components.uchchaBala + '   کیندری: ' + r.components.kendradiBala +
+        '   دِگ: ' + r.components.digBala + '   درِک: ' + r.components.drikBala +
+        '   پکش: ' + r.components.pakshaBala + '   ·   نیسرگک (فکس): ' + r.naisargikaBala;
+      body.appendChild(line);
 
       card.appendChild(body);
       list.appendChild(card);
@@ -2067,6 +2153,7 @@
     renderYogas(data);
     renderNavamsaChart(data);
     renderPlanetProfiles(data);
+    renderGrahaBala(data);
   }
 
   function showError(msg){
@@ -2250,7 +2337,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
