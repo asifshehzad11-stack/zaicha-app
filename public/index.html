@@ -941,8 +941,12 @@
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">🔑</span> <span data-i18n="tabKp">کے پی (KP)</span></div>
         <p class="sub" data-i18n="kpSub">ہر گرہ اور لگن کا "اسٹار لارڈ" اور "سب لارڈ" (کرشنامورتی پدھتی کے مطابق)</p>
-        <p class="sub" data-i18n="kpNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے) — اور ابھی صرف گرہوں/لگن کے سب لارڈ ہیں، مکمل KP کسپل سگنیفیکیٹر سسٹم شامل نہیں۔</p>
+        <p class="sub" data-i18n="kpNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے)۔</p>
         <div id="kp-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1.1rem 0 .3rem;font-size:.85rem;color:var(--text-muted);" data-i18n="kpCuspalH4">مکمل کسپل سگنیفیکیٹر سسٹم (Placidus)</h4>
+        <p class="sub" data-i18n="kpCuspalNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ 12 پلاسیدس گھر (Placidus house cusps) اسی ایپ میں خود حساب کیے گئے ہیں (کوئی اضافی API کال نہیں، صرف ریاضی) — کلاسیکی میئس اور منکاسی فارمولوں پر مبنی۔ انتہائی بلند عرض بلد (60° سے زیادہ) پر پلاسیدس نظام خود اپنی فطرت میں غیر مستحکم ہوتا ہے۔ سگنیفیکیٹرز کی ترتیب: اے (سب سے مضبوط) > بی > سی > ڈی (سب سے کمزور)۔</p>
+        <div id="kp-cuspal-warning" style="display:none; font-size:.75rem; color:var(--weak); margin-bottom:.5rem;"></div>
+        <div id="kp-cuspal-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
       <div class="phone" id="phone-yoginidasha">
@@ -1255,9 +1259,20 @@
       aspectsMutual: 'باہمی نظر (دونوں ایک دوسرے کو دیکھ رہے ہیں)',
       tabKp: 'کے پی (KP)',
       kpSub: 'ہر گرہ اور لگن کا "اسٹار لارڈ" اور "سب لارڈ" (کرشنامورتی پدھتی کے مطابق)',
-      kpNote: 'نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے) — اور ابھی صرف گرہوں/لگن کے سب لارڈ ہیں، مکمل KP کسپل سگنیفیکیٹر سسٹم شامل نہیں۔',
+      kpNote: 'نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے)۔',
       kpStarLord: 'اسٹار لارڈ',
       kpSubLord: 'سب لارڈ',
+      kpCuspalH4: 'مکمل کسپل سگنیفیکیٹر سسٹم (Placidus)',
+      kpCuspalNote: 'نوٹ: یہ 12 پلاسیدس گھر (Placidus house cusps) اسی ایپ میں خود حساب کیے گئے ہیں (کوئی اضافی API کال نہیں، صرف ریاضی) — کلاسیکی میئس اور منکاسی فارمولوں پر مبنی۔ انتہائی بلند عرض بلد (60° سے زیادہ) پر پلاسیدس نظام خود اپنی فطرت میں غیر مستحکم ہوتا ہے۔ سگنیفیکیٹرز کی ترتیب: اے (سب سے مضبوط) > بی > سی > ڈی (سب سے کمزور)۔',
+      kpHouseLabel: 'گھر',
+      kpOwner: 'مالکِ گھر',
+      kpOccupants: 'موجود گرہ',
+      kpNoOccupants: 'کوئی نہیں',
+      kpSigA: 'اے',
+      kpSigB: 'بی',
+      kpSigC: 'سی',
+      kpSigD: 'ڈی',
+      kpCrossCheckWarning: 'توجہ: اس کنڈلی کے لیے حساب میں معمول سے زیادہ فرق نظر آیا — نتیجہ احتیاط سے دیکھیں۔',
       tabWestern: 'ویسٹرن چارٹ',
       westernSub: 'وہی گرہ، ٹراپیکل (Tropical/Western) راشیوں کے مطابق',
       westernNote: 'نوٹ: یہ چارٹ اسی ایپ کے سائیڈیریل ڈیٹا میں ایک تخمینی ایانامسا جمع کر کے بنایا گیا ہے (± 1-2 آرک منٹ تک فرق ممکن ہے)، اور گھر "ہول سائن" طریقے سے ہیں (Placidus نہیں)۔',
@@ -1478,9 +1493,20 @@
       aspectsMutual: 'Mutual aspect (both looking at each other)',
       tabKp: 'KP',
       kpSub: 'Each planet\'s and the Ascendant\'s "Star Lord" and "Sub Lord" (per Krishnamurti Paddhati)',
-      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different) — and currently only covers planet/Ascendant sub-lords, not the full KP cuspal significator system.',
+      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different).',
       kpStarLord: 'Star Lord',
       kpSubLord: 'Sub Lord',
+      kpCuspalH4: 'Full Cuspal Significator System (Placidus)',
+      kpCuspalNote: 'Note: these 12 Placidus house cusps are self-calculated within this app (no extra API call, pure math) using classical Meeus and Munkasey formulas. The Placidus system is itself known to behave irregularly at very high latitudes (beyond 60°). Significator ranking: A (strongest) > B > C > D (weakest).',
+      kpHouseLabel: 'House',
+      kpOwner: 'House Owner',
+      kpOccupants: 'Occupants',
+      kpNoOccupants: 'None',
+      kpSigA: 'A',
+      kpSigB: 'B',
+      kpSigC: 'C',
+      kpSigD: 'D',
+      kpCrossCheckWarning: 'Note: this chart showed a larger-than-usual discrepancy in this calculation — please treat the result with caution.',
       tabWestern: 'Western Chart',
       westernSub: 'The same planets, by Tropical (Western) sign boundaries',
       westernNote: 'Note: this chart is built by adding an estimated ayanamsa to this app\'s existing sidereal data (±1-2 arcminutes possible) — and houses are whole-sign (not Placidus).',
@@ -1701,9 +1727,20 @@
       aspectsMutual: 'Mutual aspect (both looking at each other)',
       tabKp: 'KP',
       kpSub: 'Each planet\'s and the Ascendant\'s "Star Lord" and "Sub Lord" (per Krishnamurti Paddhati)',
-      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different) — and currently only covers planet/Ascendant sub-lords, not the full KP cuspal significator system.',
+      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different).',
       kpStarLord: 'Star Lord',
       kpSubLord: 'Sub Lord',
+      kpCuspalH4: 'Full Cuspal Significator System (Placidus)',
+      kpCuspalNote: 'Note: these 12 Placidus house cusps are self-calculated within this app (no extra API call, pure math) using classical Meeus and Munkasey formulas. The Placidus system is itself known to behave irregularly at very high latitudes (beyond 60°). Significator ranking: A (strongest) > B > C > D (weakest).',
+      kpHouseLabel: 'House',
+      kpOwner: 'House Owner',
+      kpOccupants: 'Occupants',
+      kpNoOccupants: 'None',
+      kpSigA: 'A',
+      kpSigB: 'B',
+      kpSigC: 'C',
+      kpSigD: 'D',
+      kpCrossCheckWarning: 'Note: this chart showed a larger-than-usual discrepancy in this calculation — please treat the result with caution.',
       tabWestern: 'Western Chart',
       westernSub: 'The same planets, by Tropical (Western) sign boundaries',
       westernNote: 'Note: this chart is built by adding an estimated ayanamsa to this app\'s existing sidereal data (±1-2 arcminutes possible) — and houses are whole-sign (not Placidus).',
@@ -2526,6 +2563,80 @@
       nakLine.style.color = 'var(--text-muted)';
       nakLine.textContent = (isUrKP ? r.nakshatra.nameUrdu : r.nakshatra.nameLatin) + ' — ' + (isUrKP ? 'پاد' : 'Pada') + ' ' + r.nakshatra.pada;
       body.appendChild(nakLine);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  function renderKpCuspal(data){
+    var list = document.getElementById('kp-cuspal-list');
+    var warnBox = document.getElementById('kp-cuspal-warning');
+    if (!list) return;
+    list.innerHTML = '';
+    var kc = data.kpCuspal;
+    var rows = (kc && kc.houses) || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      if (warnBox) warnBox.style.display = 'none';
+      return;
+    }
+    var isUrKC = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+    var planetName = function(p){ return isUrKC ? (PLANET_NAME_UR_MAP[p] || p) : p; };
+    var planetList = function(arr){
+      if (!arr || !arr.length) return t('kpNoOccupants');
+      return arr.map(planetName).join('، ');
+    };
+
+    if (warnBox) {
+      if (kc.crossCheckWarning) {
+        warnBox.style.display = '';
+        warnBox.textContent = '⚠ ' + t('kpCrossCheckWarning');
+      } else {
+        warnBox.style.display = 'none';
+      }
+    }
+
+    rows.forEach(function(h){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(--gold)');
+      badge.textContent = h.house;
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = t('kpHouseLabel') + ' ' + h.house + ' — ' + (isUrKC ? h.cuspSign : h.cuspSignLatin) + ' ' + h.cuspDegree + '°';
+      body.appendChild(tag);
+
+      var line1 = document.createElement('p');
+      line1.style.margin = '.3rem 0 0';
+      line1.style.fontSize = '.82rem';
+      line1.textContent = t('kpStarLord') + ': ' + planetName(h.starLord) + '   ·   ' + t('kpSubLord') + ': ' + planetName(h.subLord);
+      body.appendChild(line1);
+
+      var line2 = document.createElement('p');
+      line2.style.margin = '.15rem 0 0';
+      line2.style.fontSize = '.78rem';
+      line2.textContent = t('kpOwner') + ': ' + planetName(h.owner) + '   ·   ' + t('kpOccupants') + ': ' + planetList(h.occupants);
+      body.appendChild(line2);
+
+      var line3 = document.createElement('p');
+      line3.style.margin = '.15rem 0 0';
+      line3.style.fontSize = '.72rem';
+      line3.style.color = 'var(--text-muted)';
+      line3.textContent = t('kpSigA') + ': ' + planetList(h.significators.a) + '   ·   ' +
+        t('kpSigB') + ': ' + planetList(h.significators.b) + '   ·   ' +
+        t('kpSigC') + ': ' + planetList(h.significators.c) + '   ·   ' +
+        t('kpSigD') + ': ' + planetList(h.significators.d);
+      body.appendChild(line3);
 
       card.appendChild(body);
       list.appendChild(card);
@@ -4117,6 +4228,7 @@
     renderMoonPhases(data);
     renderNatalAspects(data);
     renderKpInfo(data);
+    renderKpCuspal(data);
     renderWesternChart(data);
     renderArabianParts(data);
     renderYoginiDasha(data);
