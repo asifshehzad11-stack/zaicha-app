@@ -34,6 +34,7 @@ const db = require('./lib/db');
 const auth = require('./lib/auth');
 const safepay = require('./lib/safepay-client');
 const { buildZaichaData, normalizePanchang, buildForwardCalendar } = require('./lib/astro-engine');
+const { buildPanchangCalendar } = require('./lib/panchang-calendar');
 const {
   generateNarrativeViaLLM,
   buildCurrentTransitLines,
@@ -51,6 +52,14 @@ const { buildGrahaBala } = require('./lib/graha-bala');
 const { buildYoginiDasha } = require('./lib/yogini-dasha');
 const { buildCharaKarakas } = require('./lib/jaimini-karaka');
 const { buildMuntha } = require('./lib/varshaphal');
+const { buildCharaDasha } = require('./lib/chara-dasha');
+const { buildBhavaBala } = require('./lib/bhava-bala');
+const { buildVimshopakBala } = require('./lib/vimshopak-bala');
+const { buildMoonPhases } = require('./lib/moon-phases');
+const { buildNatalAspects } = require('./lib/natal-aspects');
+const { buildKpInfo } = require('./lib/kp-system');
+const { buildWesternChart } = require('./lib/western-chart');
+const { buildArabianParts } = require('./lib/arabian-parts');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -363,6 +372,61 @@ app.post('/api/kundli', async (req, res) => {
     // teesra item) — lib/varshaphal.js ka header comment dekhein ke
     // poora Varshaphal (Varshesh/year-lord) abhi kyun shamil nahi.
     const muntha = buildMuntha(data, new Date(birthDatetime), now, reqLang);
+    // ---- Chara Dasha (Jaimini) — Phase 2 ka teesra dasha system. Do open
+    // classical sawal (starting-sign, antardasha order) genuinely disputed
+    // hain lineage ke hisab se — lib/chara-dasha.js ke header comment mein
+    // poori tafseel/disclosure hai. Base Mahadasha/Antardasha duration rules
+    // sab sources se confirmed hain.
+    const charaDasha = buildCharaDasha(data, new Date(birthDatetime), now, reqLang);
+    // ---- Bhava Bala (house strength) — OMNIS-7 feature-parity item
+    // (Phase 3). lib/bhava-bala.js dekhein — mojooda Graha Bala ko hi
+    // extend karta hai, koi nayi API call nahi chahiye.
+    const bhavaBala = buildBhavaBala(data);
+    // ---- Vimshopak Bala (20-point Shadvarga strength score) — OMNIS-7
+    // feature-parity item (Phase 3). lib/vimshopak-bala.js dekhein — 4 nayi
+    // divisional-chart (D2/D3/D12/D30) calculators (lib/vargas.js) + D9
+    // (lib/navamsa.js, pehle se maujood) ko combine karta hai. Dignity-to-
+    // points table ek disclosed simplification hai (poori tafseel us
+    // file ke header comment mein).
+    const vimshopakBala = buildVimshopakBala(data);
+    // ---- Moon Phases (agla New Moon/Amavasya, agla Full Moon/Purnima) —
+    // OMNIS-7 feature-parity item (Phase 3, task 41). lib/moon-phases.js
+    // dekhein — "aaj" ka Sun/Moon (data.gochar.details, already FREE
+    // maujood) se mean-synodic-rate projection, koi extra API call nahi.
+    // Eclipses wala hissa disclosed limitation ke sath BLOCKED hai (usi
+    // file ke header comment mein poori wajah).
+    const moonPhases = buildMoonPhases(
+      data.gochar.details.Sun && data.gochar.details.Sun.rasiId,
+      data.gochar.details.Sun && data.gochar.details.Sun.degree,
+      data.gochar.details.Moon && data.gochar.details.Moon.rasiId,
+      data.gochar.details.Moon && data.gochar.details.Moon.degree,
+      now.toISOString().slice(0, 10)
+    );
+    // ---- Planetary Aspects view (natal graha-drishti) — OMNIS-7
+    // feature-parity item (Phase 3, task 42). lib/natal-aspects.js dekhein
+    // — koi naya formula nahi, mojooda ASPECT_OFFSETS table (jo pehle se
+    // Transit Aspects/Bhava Drishti Bala mein istemal ho raha hai) ko
+    // seedha natal chart ke planet-to-planet drishti dikhane ke liye
+    // reuse karta hai. Koi extra API call nahi.
+    const natalAspects = buildNatalAspects(data);
+    // ---- KP (Krishnamurti Paddhati) info screen — OMNIS-7 feature-parity
+    // item (Phase 3, task 43). lib/kp-system.js dekhein — Star Lord +
+    // Sub Lord har planet/Ascendant ke liye, 2 disclosed limitations ke
+    // sath (app ka apna Lahiri ayanamsa, aur cuspal significators abhi
+    // nahi). Koi extra API call nahi.
+    const kpInfo = buildKpInfo(data);
+    // ---- Western (Tropical) chart view — OMNIS-7 feature-parity item
+    // (Phase 3, task 44). lib/western-chart.js dekhein — mojooda sidereal
+    // longitude data mein khud-derive-kiya-gaya ayanamsa-value jama kar ke
+    // tropical chart banata hai (koi extra API call nahi), disclosed
+    // linear-approximation + whole-sign-house limitations ke sath.
+    const westernChart = buildWesternChart(data, new Date(birthDatetime));
+    // ---- Arabian Parts (Lots) — OMNIS-7 feature-parity item (Phase 3,
+    // task 45). lib/arabian-parts.js dekhein — sirf Fortune + Spirit
+    // (sab se mustanad Lots), Hellenistic sect-based (din/raat) formula
+    // (2 independent sources se cross-verified), is app ki apni sidereal
+    // longitude data par (disclosed frame). Koi extra API call nahi.
+    const arabianParts = buildArabianParts(data);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -394,8 +458,16 @@ app.post('/api/kundli', async (req, res) => {
       navamsa,
       planetProfiles,
       grahaBala,
+      vimshopakBala,
+      moonPhases,
+      natalAspects,
+      kpInfo,
+      westernChart,
+      arabianParts,
       yoginiDasha,
+      charaDasha,
       charaKarakas,
+      bhavaBala,
       muntha,
       panchang,
       ashtakavarga: withLockFlag(ashtakavarga, premiumStatus.isPremium),
@@ -797,7 +869,11 @@ app.post('/api/forward-calendar', async (req, res) => {
     }
 
     const calendar = buildForwardCalendar(ascendantRasiId, dayEntries);
-    res.json({ days: calendar, locked: TESTING_FREE_MODE ? false : !premiumStatus.isPremium });
+    // Panchang Calendar (Tithi/Vaara/Yoga/Karana, roz ka) — bilkul isi
+    // shared dayEntries se, koi extra API call nahi (lib/panchang-calendar.js
+    // dekhein — 2 independent sources se cross-verified formulas).
+    const panchangCalendar = buildPanchangCalendar(dayEntries, ascendantRasiId);
+    res.json({ days: calendar, panchangCalendar, locked: TESTING_FREE_MODE ? false : !premiumStatus.isPremium });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
