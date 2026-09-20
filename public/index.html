@@ -4604,6 +4604,24 @@
     });
   });
 
+  // ---- TESTING_SKIP_AUTH: Asif ne khud manga (2026-09-20) — filhaal
+  // Sign In/Register ka jhanjhat hata do, guest ki tarah seedha birth
+  // details form khulay. Backend (/api/auth/login, /api/auth/register,
+  // DB accounts) bilkul intact/mojood hai, sirf welcome screen ka gate
+  // hata hai — jab dobara chalu karni ho to bas is line ko `false` kar
+  // dein (neechay wala #guest-continue-btn/#screen-welcome-hide khud-ba-
+  // khud chhup jayega aur #auth-tabs+forms wapas dikh jayenge, kuch aur
+  // badalne ki zaroorat nahi).
+  // BUG-FIX NOTE (2026-09-20, session 3 cont'd): ye declaration pehle
+  // NEECHAY (is se ~50 lines baad) thi, jabke isay istemal karne wala
+  // "if (TESTING_SKIP_AUTH)" block isse UPAR tha — `var` sirf hoist hoti
+  // hai, uski VALUE nahi, is liye us waqt TESTING_SKIP_AUTH hamesha
+  // `undefined` (falsy) milta tha aur poora block kabhi chalta hi nahi
+  // tha (welcome/login screen hamesha dikhti rehti, guest-button kaam
+  // nahi karta) — ye khud is session mein Playwright test se pakड़i gayi
+  // asal bug thi, ab yahan upar move kar ke fix ki gayi hai.
+  var TESTING_SKIP_AUTH = true;
+
   // ---- TESTING_SKIP_AUTH: guest continue button chalu, asal auth UI
   // chhupa dein (upar wale flag ka comment dekhein). ----
   if (TESTING_SKIP_AUTH) {
@@ -4620,6 +4638,23 @@
         showScreen('phone-entry');
       });
     }
+    // Asif ne khud manga (2026-09-20, session 3 cont'd): "jab registration
+    // ki zaroorat nahi to email wala tab bhi khatam karo jahan register ya
+    // login karte hain" — sirf auth-tabs/forms chhupana kaafi nahi (upar
+    // wala kaam pehle se ho raha tha), poora "خوش آمدید" welcome/login
+    // TAB hi user ko dikhna nahi chahiye. #screen-welcome ko seedha
+    // display:none kar dete hain (sirf mobile "screen-active" class kaafi
+    // nahi thi, kyunke desktop par saare .phone cards hamesha side-by-side
+    // dikhte hain, upar ".phones{ display:grid }" dekhein) — is card ko
+    // hide karna hi asal tareeqa hai taake wo desktop par bhi na dikhe.
+    // Phir seedha entry-form (phone-entry) khol dete hain taake mobile par
+    // bhi user ko koi click-through screen na milay. Backend/markup bilkul
+    // intact hai — TESTING_SKIP_AUTH = false karne par ye poora hissa
+    // khud-ba-khud wapas asal (login/register wapas dikhne wali) halat
+    // mein aa jata hai, kuch aur badalne ki zaroorat nahi.
+    var welcomeScreenEl = document.getElementById('screen-welcome');
+    if (welcomeScreenEl) welcomeScreenEl.style.display = 'none';
+    showScreen('phone-entry');
   }
 
   // ---- Step 2: asal login/register (email/password), server ke
@@ -4635,15 +4670,6 @@
   // dein — subscribe screen, checkout, Safepay, sab kuch waisay hi mojood
   // hai, chhera nahi gaya.
   var TESTING_FREE_MODE = true;
-  // ---- TESTING_SKIP_AUTH: Asif ne khud manga (2026-09-20) — filhaal
-  // Sign In/Register ka jhanjhat hata do, guest ki tarah seedha birth
-  // details form khulay. Backend (/api/auth/login, /api/auth/register,
-  // DB accounts) bilkul intact/mojood hai, sirf welcome screen ka gate
-  // hata hai — jab dobara chalu karni ho to bas is line ko `false` kar
-  // dein (upar wala #guest-continue-btn khud-ba-khud chhup jayega aur
-  // #auth-tabs+forms wapas dikh jayenge, kuch aur badalne ki zaroorat
-  // nahi).
-  var TESTING_SKIP_AUTH = true;
   // ---- Subscription (paid features) state — /api/subscribe/status se
   // page load par aur checkout se wapas aane par refresh hoti hai. ----
   var subscriptionStatus = { isPremium: false, premiumUntil: null, plans: {}, safepayConfigured: false };
