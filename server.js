@@ -33,7 +33,7 @@ const prokerala = process.env.ASTRO_PROVIDER === 'prokerala'
 const db = require('./lib/db');
 const auth = require('./lib/auth');
 const safepay = require('./lib/safepay-client');
-const { buildZaichaData, normalizePanchang, buildForwardCalendar } = require('./lib/astro-engine');
+const { buildZaichaData, normalizePanchang, buildForwardCalendar, indexPlanets } = require('./lib/astro-engine');
 const { buildPanchangCalendar } = require('./lib/panchang-calendar');
 const {
   generateNarrativeViaLLM,
@@ -60,6 +60,8 @@ const { buildNatalAspects } = require('./lib/natal-aspects');
 const { buildKpInfo } = require('./lib/kp-system');
 const { buildWesternChart } = require('./lib/western-chart');
 const { buildArabianParts } = require('./lib/arabian-parts');
+const { buildPrasnaJudgment, CATEGORY_HOUSES } = require('./lib/prasna');
+const { buildKundliMilan } = require('./lib/kundli-milan');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -876,6 +878,94 @@ app.post('/api/forward-calendar', async (req, res) => {
     res.json({ days: calendar, panchangCalendar, locked: TESTING_FREE_MODE ? false : !premiumStatus.isPremium });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/prasna
+ * Body: { lat, lon, utcOffset, category, ayanamsa }
+ * Task 46 (ROADMAP) — Prasna (horary/Sawal ka Zaicha). Classical Prashna
+ * usool: chart SAWAL POOCHNE KE LAMHE aur QUERENT ki us waqt ki location
+ * ke liye banta hai — koi bhi saved birth-profile/DOB yahan istemal nahi
+ * hoti (jaan-boojh kar, ye ek bilkul alag calculation hai — lib/prasna.js
+ * ke header comment mein poori AKSRA-verification detail hai).
+ * Sirf EK halka `getPlanetPosition` call — poora 5-call natal bundle
+ * (kundli-advanced/kaal-sarp/panchang/ashtakavarga) yahan zaroori nahi,
+ * is liye jaan-boojh kar sirf itni hi call rakhi gayi hai.
+ */
+app.post('/api/prasna', async (req, res) => {
+  try {
+    const { lat, lon, utcOffset, category, ayanamsa } = req.body;
+    if (!lat || !lon) {
+      return res.status(400).json({ error: 'sawal poochne ke waqt ki location (lat, lon) zaroori hai — pehle shehar chunein.' });
+    }
+    const offset = utcOffset || '+05:00';
+    const now = new Date();
+    const nowDatetime = now.toISOString().replace('Z', offset);
+    const coordinates = `${lat},${lon}`;
+    const ayanamsaVal = ayanamsa || 1; // 1 = Lahiri
+
+    const person = { datetime: nowDatetime, coordinates, ayanamsa: ayanamsaVal };
+    const planetPositionResult = await prokerala.getPlanetPosition(person);
+    const planetPositionList = planetPositionResult.data.planet_position;
+
+    const prasna = buildPrasnaJudgment(planetPositionList, category);
+    if (!prasna) {
+      return res.status(500).json({ error: 'Is waqt Prasna chart calculate nahi ho saka — planet data mojood nahi mila.' });
+    }
+
+    res.json({ prasna, queryMoment: nowDatetime, categories: Object.keys(CATEGORY_HOUSES) });
+  } catch (err) {
+    console.error('Prasna error:', err);
+    res.status(500).json({ error: 'Prasna calculate karte waqt masla hua: ' + (err.message || String(err)) });
+  }
+});
+
+/**
+ * POST /api/kundli-milan
+ * Body: { groom: {dob,time,lat,lon,utcOffset}, bride: {dob,time,lat,lon,utcOffset}, ayanamsa }
+ * Task 47 (ROADMAP) — Kundli Milan (Ashtakoot Guna Milan, shadi ki
+ * mutabiqat). Classical usool: sirf DONO logon ke MOON ki rashi+nakshatra
+ * chahiye hoti hai (poori birth chart nahi) — is liye yahan bhi (Prasna
+ * jaisa hi) sirf 2 halki `getPlanetPosition` calls (ek har shakhs ke
+ * liye), poora 5-call natal bundle zaroori nahi. Poori AKSRA-verification
+ * detail lib/kundli-milan.js ke header comment mein hai.
+ */
+app.post('/api/kundli-milan', async (req, res) => {
+  try {
+    const { groom, bride, ayanamsa } = req.body;
+    const missing = (p) => !p || !p.dob || !p.time || !p.lat || !p.lon;
+    if (missing(groom) || missing(bride)) {
+      return res.status(400).json({ error: 'dono logon ki paidaish ki tareekh, waqt, aur shehr (lat/lon) zaroori hain.' });
+    }
+    const ayanamsaVal = ayanamsa || 1; // 1 = Lahiri
+
+    function buildPerson(p) {
+      const offset = p.utcOffset || '+05:00';
+      return { datetime: `${p.dob}T${p.time}:00${offset}`, coordinates: `${p.lat},${p.lon}`, ayanamsa: ayanamsaVal };
+    }
+
+    const [groomResult, brideResult] = await Promise.all([
+      prokerala.getPlanetPosition(buildPerson(groom)),
+      prokerala.getPlanetPosition(buildPerson(bride)),
+    ]);
+    const groomMap = indexPlanets(groomResult.data.planet_position);
+    const brideMap = indexPlanets(brideResult.data.planet_position);
+    if (!groomMap.Moon || typeof groomMap.Moon.rasiId !== 'number' || !brideMap.Moon || typeof brideMap.Moon.rasiId !== 'number') {
+      return res.status(500).json({ error: 'Chaand (Moon) ki position nahi mil saki — dobara koshish karein.' });
+    }
+
+    const milan = buildKundliMilan(
+      { rasiId: groomMap.Moon.rasiId, degree: groomMap.Moon.degree },
+      { rasiId: brideMap.Moon.rasiId, degree: brideMap.Moon.degree }
+    );
+    if (!milan) {
+      return res.status(500).json({ error: 'Kundli Milan calculate nahi ho saka.' });
+    }
+    res.json({ milan });
+  } catch (err) {
+    console.error('Kundli Milan error:', err);
+    res.status(500).json({ error: 'Kundli Milan calculate karte waqt masla hua: ' + (err.message || String(err)) });
   }
 });
 
