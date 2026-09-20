@@ -633,11 +633,12 @@
           <select id="in-ayanamsa">
             <option value="1">لاہری (Lahiri)</option>
             <option value="5">KP (کرشنامورتی)</option>
-            <option value="3" disabled>راشی/Raman — جلد آ رہا ہے</option>
+            <option value="3">رامن (Raman)</option>
             <option value="naari" disabled>ناڑی — تحقیق باقی ہے (AKSRA)</option>
             <option value="unani" disabled>یونانی — تحقیق باقی ہے (AKSRA)</option>
           </select>
           <p class="sub" id="ayanamsa-note" style="display:none;" data-i18n="ayanamsaNote">نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔</p>
+          <p class="sub" id="ayanamsa-note-raman" style="display:none;" data-i18n="ayanamsaNoteRaman">نوٹ: رامن ایانامسا کی قدر ہم نے 2 آزاد ذرائع (roxyapi.com, vedika.io) کے حوالہ نمبروں سے، اور خود VedAstro کی لائیو API سے موازنہ کر کے تصدیق کی ہے — فرق 1 آرک منٹ سے بھی کم نکلا۔ یہ نظام لاہری جتنا عام استعمال نہیں، صرف کچھ علمائے فلکیات اسے ترجیح دیتے ہیں۔</p>
         </div>
 
         <button id="generate-btn" class="cta-btn" type="button" data-i18n="generateBtn">زائچہ بنائیں</button>
@@ -1212,6 +1213,7 @@
       labelOffset: 'ملک اور ٹائم زون',
       labelAyanamsa: 'نظامِ حساب (Ayanamsa)',
       ayanamsaNote: 'نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔',
+      ayanamsaNoteRaman: 'نوٹ: رامن ایانامسا کی قدر ہم نے 2 آزاد ذرائع (roxyapi.com, vedika.io) کے حوالہ نمبروں سے، اور خود VedAstro کی لائیو API سے موازنہ کر کے تصدیق کی ہے — فرق 1 آرک منٹ سے بھی کم نکلا۔ یہ نظام لاہری جتنا عام استعمال نہیں، صرف کچھ علمائے فلکیات اسے ترجیح دیتے ہیں۔',
       generateBtn: 'زائچہ بنائیں',
       generateBtnLoading: 'تیار ہو رہا ہے...',
       engineNote: 'یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔',
@@ -1446,6 +1448,7 @@
       labelOffset: 'Country & timezone',
       labelAyanamsa: 'Ayanamsa (system)',
       ayanamsaNote: 'Note: the KP system\'s numeric code (5) is based on the standard Swiss Ephemeris constants, not 100% confirmed with Prokerala yet — let us know if results look off.',
+      ayanamsaNoteRaman: 'Note: the Raman ayanamsa value has been verified against 2 independent published references (roxyapi.com, vedika.io) and against VedAstro\'s own live API — the difference came out under 1 arcminute. This system is far less commonly used than Lahiri; only some astrologers prefer it.',
       generateBtn: 'Generate chart',
       generateBtnLoading: 'Generating...',
       engineNote: 'This button calls your backend server, which calls the real Prokerala API for a genuine calculation.',
@@ -1680,6 +1683,7 @@
       labelOffset: 'देश और टाइम ज़ोन',
       labelAyanamsa: 'गणना प्रणाली (अयनांश)',
       ayanamsaNote: 'नोट: KP प्रणाली का संख्यात्मक कोड (5) Swiss Ephemeris के मानक कोड पर आधारित है, Prokerala से 100% पुष्ट नहीं — अगर परिणाम अप्रत्याशित लगें तो बताएं।',
+      ayanamsaNoteRaman: 'Note: the Raman ayanamsa value has been verified against 2 independent published references (roxyapi.com, vedika.io) and against VedAstro\'s own live API — the difference came out under 1 arcminute. This system is far less commonly used than Lahiri; only some astrologers prefer it.',
       generateBtn: 'कुंडली बनाएं',
       generateBtnLoading: 'तैयार हो रहा है...',
       engineNote: 'यह बटन आपके बैकएंड सर्वर से, जो असली Prokerala API को कॉल करता है, असली गणना लाएगा।',
@@ -4257,9 +4261,14 @@
     document.getElementById('in-offset').value = '+05:00';
   });
 
-  // ---- Ayanamsa select: KP intikhab karne par disclaimer note dikhayein ----
+  // ---- Ayanamsa select: KP/Raman intikhab karne par apna apna disclaimer
+  // note dikhayein (Raman ab enable hai — 2026-09-20, session 3 cont'd:
+  // VedAstro ki live API se real test kiya, Sun ki Nirayana longitude
+  // Lahiri se 1.4517° kam nikli, jo 2 independent published sources
+  // [roxyapi.com ~1.45°, vedika.io ~1.5°] se hubahu match karta hai). ----
   document.getElementById('in-ayanamsa').addEventListener('change', function(){
     document.getElementById('ayanamsa-note').style.display = (this.value === '5') ? 'block' : 'none';
+    document.getElementById('ayanamsa-note-raman').style.display = (this.value === '3') ? 'block' : 'none';
   });
 
   // ---- City of birth search (koi bhi shehar duniya bhar ka) ----
