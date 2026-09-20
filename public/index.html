@@ -335,6 +335,49 @@
     .bottom-nav{ display:none !important; } /* desktop already shows all sections side-by-side */
     body{ padding-bottom:0; }
   }
+
+  /* ---- PDF/print report (Phase 3 "Branded downloadable PDF" item) ----
+     #pdf-print-sheet screen par hamesha display:none rehta hai; JS ise
+     bhar kar body par .printing class laga deta hai, tab yeh dikhta hai
+     aur baaqi sab kuch @media print mein chhup jata hai. Printer-friendly
+     hone ke liye rang seedhe black-on-white rakhe gaye hain (app ke dark
+     theme se mukhtalif, jaan-boojh kar). */
+  #pdf-print-sheet{ display:none; }
+  body.printing #pdf-print-sheet{ display:block; background:#fff; color:#111; font-family:inherit; padding:0; }
+  /* Cloned DOM pieces (dasha-row, house-list, remedies-list, wagera) sab
+     dark-theme ke rangon mein hain (var(--text) waghera, jo dark
+     background par white/halka hota hai) — print par forcibly dark text
+     kar dete hain taake white kaghaz par sab kuch parhna aasan rahe.
+     Chart SVG ke planet-color-coding (fill inline style) ko chhoo nahi
+     dete, sirf background/border-rang wale text-elements ko target karte
+     hain. */
+  body.printing #pdf-print-sheet, body.printing #pdf-print-sheet *{ color:#111 !important; background:transparent !important; border-color:#ccc !important; box-shadow:none !important; }
+  body.printing #pdf-print-sheet .pdf-report-brand{ color:#1f7a3d !important; }
+  body.printing #pdf-print-sheet .pdf-report-section h4{ color:#1f7a3d !important; }
+  body.printing #pdf-print-sheet svg *{ color:inherit; }
+  .pdf-report-header{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #1f7a3d; padding-bottom:.6rem; margin-bottom:.8rem; }
+  .pdf-report-brand{ font-size:1.3rem; font-weight:700; color:#1f7a3d; }
+  .pdf-report-brand-contact{ font-size:.85rem; color:#444; }
+  .pdf-report-meta{ font-size:.8rem; color:#444; text-align:end; }
+  .pdf-report-section{ margin:1rem 0; page-break-inside:avoid; }
+  .pdf-report-section h4{ font-size:.95rem; border-bottom:1px solid #ccc; padding-bottom:.25rem; margin-bottom:.5rem; color:#1f7a3d; }
+  .pdf-report-footer{ margin-top:1.2rem; padding-top:.5rem; border-top:1px solid #ccc; font-size:.72rem; color:#666; display:flex; justify-content:space-between; }
+  #pdf-print-sheet .chart-wrap svg{ width:220px; height:220px; }
+  #pdf-print-sheet .chart-wrap{ color:#111; }
+  /* Chart ki border/diamond lines (fill="none" stroke="currentColor")
+     sirf color (jo stroke ke liye currentColor banta hai) force karte
+     hain — fill ko chhoo nahi sakte, warna fill="none" override ho kar
+     poora chart ek solid black box ban jata hai. Sign-number digits
+     (asal text) mein fill hi zaroori hai. */
+  #pdf-print-sheet svg > g[style*="var(--line)"]{ color:#111 !important; }
+  #pdf-print-sheet svg #sign-numbers, #pdf-print-sheet svg #sign-numbers *,
+  #pdf-print-sheet svg #navamsa-sign-numbers, #pdf-print-sheet svg #navamsa-sign-numbers *{ fill:#111 !important; }
+  @media print{
+    body.printing > *:not(#pdf-print-sheet){ display:none !important; }
+    body.printing::before, body.printing::after{ display:none !important; content:none !important; }
+    body.printing{ padding-bottom:0; background:#fff !important; }
+    @page{ margin: 1.2cm; }
+  }
 </style>
 </head>
 <body>
@@ -657,10 +700,19 @@
           <button type="button" class="shortcut-item" data-target="phone-ashtakavarga"><span class="ic">📊</span><span data-i18n="tabAshtakavarga">اشٹک ورگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-remedies"><span class="ic">🧿</span><span data-i18n="tabRemedies">علاج و تدابیر</span></button>
           <button type="button" class="shortcut-item" data-target="phone-yogas"><span class="ic">✨</span><span data-i18n="tabYogas">یوگ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-pdfreport"><span class="ic">🖨️</span><span data-i18n="tabPdfReport">پی ڈی ایف رپورٹ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
           <button type="button" class="shortcut-item" data-target="phone-planets"><span class="ic">🪐</span><span data-i18n="tabPlanets">گرہوں کی تفصیل</span></button>
           <button type="button" class="shortcut-item" data-target="phone-grahabala"><span class="ic">⚖️</span><span data-i18n="tabGrahaBala">قوتِ گرہ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-bhavabala"><span class="ic">🏛️</span><span data-i18n="tabBhavaBala">قوتِ خانہ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-vimshopak"><span class="ic">🔟</span><span data-i18n="tabVimshopak">وِنشوپک بل</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-moonphases"><span class="ic">🌗</span><span data-i18n="tabMoonPhases">چاند کے مراحل</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-aspects"><span class="ic">🔭</span><span data-i18n="tabAspects">نظرات (Aspects)</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-kp"><span class="ic">🔑</span><span data-i18n="tabKp">کے پی (KP)</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-western"><span class="ic">♈</span><span data-i18n="tabWestern">ویسٹرن چارٹ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-arabianparts"><span class="ic">🍀</span><span data-i18n="tabArabianParts">عربی حصص (Lots)</span></button>
           <button type="button" class="shortcut-item" data-target="phone-yoginidasha"><span class="ic">🌀</span><span data-i18n="tabYoginiDasha">یوگنی دشا</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-charadasha"><span class="ic">🧭</span><span data-i18n="tabCharaDasha">چر دشا</span></button>
           <button type="button" class="shortcut-item" data-target="phone-charakaraka"><span class="ic">🎯</span><span data-i18n="tabCharaKaraka">چر کارک</span></button>
         </div>
 
@@ -778,6 +830,45 @@
         <p class="sub" id="navamsa-vargottama" style="margin-top:.8rem;"></p>
       </div>
 
+      <div class="phone" id="phone-western">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">♈</span> <span data-i18n="tabWestern">ویسٹرن چارٹ</span></div>
+        <p class="sub" id="western-subhead" data-i18n="westernSub">وہی گرہ، ٹراپیکل (Tropical/Western) راشیوں کے مطابق</p>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 300 300" role="img" aria-label="Western Tropical چارٹ">
+            <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
+              <rect x="0" y="0" width="300" height="300"/>
+              <polygon points="150,0 300,150 150,300 0,150"/>
+              <line x1="0" y1="0" x2="300" y2="300"/>
+              <line x1="300" y1="0" x2="0" y2="300"/>
+            </g>
+            <g id="western-sign-numbers" font-family="JetBrains Mono, monospace" font-size="11" style="fill:var(--text-muted)" text-anchor="middle"></g>
+            <g id="western-planet-chips" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" text-anchor="middle"></g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item" style="--_c:var(--gold)">✦ Lg طالع</span>
+          <span class="legend-item" style="--_c:var(--su)">☉ Su سورج</span>
+          <span class="legend-item" style="--_c:var(--mo)">☾ Mo چاند</span>
+          <span class="legend-item" style="--_c:var(--ma)">♂ Ma مریخ</span>
+          <span class="legend-item" style="--_c:var(--me)">☿ Me عطارد</span>
+          <span class="legend-item" style="--_c:var(--ju)">♃ Ju مشتری</span>
+          <span class="legend-item" style="--_c:var(--ve)">♀ Ve زہرہ</span>
+          <span class="legend-item" style="--_c:var(--sa)">♄ Sa زحل</span>
+          <span class="legend-item" style="--_c:var(--ra)">☊ Ra راہو</span>
+          <span class="legend-item" style="--_c:var(--ke)">☋ Ke کیتو</span>
+        </div>
+        <p class="sub" data-i18n="westernNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ چارٹ اسی ایپ کے سائیڈیریل ڈیٹا میں ایک تخمینی ایانامسا جمع کر کے بنایا گیا ہے (± 1-2 آرک منٹ تک فرق ممکن ہے)، اور گھر "ہول سائن" طریقے سے ہیں (Placidus نہیں)۔</p>
+      </div>
+
+      <div class="phone" id="phone-arabianparts">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🍀</span> <span data-i18n="tabArabianParts">عربی حصص (Lots)</span></div>
+        <p class="sub" data-i18n="arabianPartsSub">لاٹ آف فورچون اور لاٹ آف اسپرٹ — قدیم ہیلینسٹک روایت کے دو سب سے مستند "عربی حصص"</p>
+        <p class="sub" data-i18n="arabianPartsNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ حصص اسی ایپ کے سائیڈیریل ڈیٹا سے نکالے گئے ہیں (اصل ہیلینسٹک روایت ٹراپیکل زائچے پر مبنی ہے) — اور دن/رات کے زائچے کے مطابق فارمولا بدلتا ہے (قدیم طریقہ، بعد کے دور کا "ہمیشہ ایک ہی فارمولا" استعمال نہیں کیا گیا)۔</p>
+        <div id="arabianparts-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
       <div class="phone" id="phone-planets">
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">🪐</span> <span data-i18n="tabPlanets">گرہوں کی تفصیل</span></div>
@@ -793,6 +884,45 @@
         <div id="grahabala-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
+      <div class="phone" id="phone-bhavabala">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🏛️</span> <span data-i18n="tabBhavaBala">قوتِ خانہ</span></div>
+        <p class="sub" data-i18n="bhavaBalaSub">ہر خانہ (گھر) کتنا مضبوط ہے — اس کے حاکم گرہ کی قوت، سمت اور دوسرے گرہوں کی نظر پر مبنی</p>
+        <p class="sub" data-i18n="bhavaBalaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ تین کلاسیکی اجزاء کا مجموعہ ہے (حاکمِ خانہ کی قوتِ گرہ + سمتی قوت + دوسرے گرہوں کی نظر) — مکمل روایتی شَڈ بَل کی بجائے اسی ایپ کی آسان قوتِ گرہ پر مبنی ہے۔</p>
+        <div id="bhavabala-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-vimshopak">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🔟</span> <span data-i18n="tabVimshopak">وِنشوپک بل</span></div>
+        <p class="sub" data-i18n="vimshopakSub">ہر گرہ کی قوت 6 مختلف چارٹس (D1,D2,D3,D9,D12,D30) میں اس کی حیثیت کو ملا کر — 20 پوائنٹس کے پیمانے پر</p>
+        <p class="sub" data-i18n="vimshopakNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ اسکور اس ایپ کی آسان "درجہ" کیٹیگریز (اعلیٰ/اپنا/غیر جانبدار/ادنیٰ) پر مبنی ہے — مکمل روایتی پنچدھا میتری (5 طرح کی دوستی) کا جدول نہیں، جو ابھی اس ایپ میں شامل نہیں۔</p>
+        <div id="vimshopak-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-moonphases">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🌗</span> <span data-i18n="tabMoonPhases">چاند کے مراحل</span></div>
+        <p class="sub" data-i18n="moonPhasesSub">اگلا اماوسیا (نیا چاند) اور اگلا پورنیما (پورا چاند) کب ہے</p>
+        <p class="sub" data-i18n="moonPhasesNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ تاریخیں اوسط چاند کی رفتار سے تخمینہ ہیں (± ایک دن تک فرق ممکن ہے) — گرہن (Eclipse) کی پیش گوئی ابھی شامل نہیں، کیونکہ اس کے لیے چاند کے عرض بلد (latitude) کا مکمل ڈیٹا درکار ہے جو ابھی دستیاب نہیں۔</p>
+        <div id="moonphases-content"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-aspects">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🔭</span> <span data-i18n="tabAspects">نظرات (Aspects)</span></div>
+        <p class="sub" data-i18n="aspectsSub">کنڈلی میں کون سا گرہ کس دوسرے گرہ کو (کلاسیکی پاراشری قاعدے کے مطابق) دیکھ رہا ہے</p>
+        <div id="aspects-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-kp">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🔑</span> <span data-i18n="tabKp">کے پی (KP)</span></div>
+        <p class="sub" data-i18n="kpSub">ہر گرہ اور لگن کا "اسٹار لارڈ" اور "سب لارڈ" (کرشنامورتی پدھتی کے مطابق)</p>
+        <p class="sub" data-i18n="kpNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے) — اور ابھی صرف گرہوں/لگن کے سب لارڈ ہیں، مکمل KP کسپل سگنیفیکیٹر سسٹم شامل نہیں۔</p>
+        <div id="kp-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
       <div class="phone" id="phone-yoginidasha">
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">🌀</span> <span data-i18n="tabYoginiDasha">یوگنی دشا</span></div>
@@ -801,6 +931,32 @@
         <div id="yoginidasha-current"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
         <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
         <div id="yoginidasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-charadasha">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🧭</span> <span data-i18n="tabCharaDasha">چر دشا</span></div>
+        <p class="sub" data-i18n="charaDashaSub">جیمنی نظام کی راشی بنیاد دشا — ہر دور ایک راشی کا ہوتا ہے، گرہ کا نہیں</p>
+        <p class="sub" data-i18n="charaDashaNote" style="font-size:.72rem; opacity:.75;">نوٹ: تاریخیں اوسط سال (365.25 دن) پر مبنی تخمینہ ہیں۔ اس دشا کے دو کلاسیکی نکات پر روایات میں اختلاف ہے (اینٹردشا کی ترتیب، اور شروع کی راشی کا متبادل طریقہ) — یہاں سب سے زیادہ مستند ذریعہ کو بنیاد بنایا گیا ہے، تفصیل کوڈ میں موجود ہے۔</p>
+        <div id="charadasha-current"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
+        <div id="charadasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-pdfreport">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🖨️</span> <span data-i18n="tabPdfReport">پی ڈی ایف رپورٹ</span></div>
+        <p class="sub" data-i18n="pdfReportSub">اپنا نام/رابطہ نمبر لکھیں تاکہ ہر صفحے پر آپ کا برانڈ نظر آئے، پھر رپورٹ محفوظ کریں</p>
+        <div class="field">
+          <label data-i18n="pdfAstrologerNameLabel">آپ کا نام / کاروبار کا نام (اختیاری)</label>
+          <input type="text" id="pdf-astrologer-name" placeholder="مثلاً: زائچہ اسٹرالوجی" data-i18n-placeholder="pdfAstrologerNamePlaceholder">
+        </div>
+        <div class="field">
+          <label data-i18n="pdfAstrologerContactLabel">رابطہ نمبر / واٹس ایپ (اختیاری)</label>
+          <input type="text" id="pdf-astrologer-contact" dir="ltr" placeholder="03xxxxxxxxx">
+        </div>
+        <button type="button" class="cta-btn" id="pdf-generate-btn" data-i18n="pdfGenerateBtn">رپورٹ تیار کریں (پرنٹ / پی ڈی ایف)</button>
+        <p class="sub" data-i18n="pdfReportNote" style="font-size:.72rem; opacity:.75; margin-top:.6rem;">نوٹ: بٹن دبانے کے بعد براؤزر کا پرنٹ ڈائیلاگ کھلے گا — "Save as PDF" منتخب کر کے فائل محفوظ کریں۔</p>
       </div>
 
       <div class="phone" id="phone-charakaraka">
@@ -884,7 +1040,17 @@
     <span class="ltr">Zaicha v0.1</span>
   </footer>
 
+
 </div>
+
+<!-- PDF/print-only report sheet — .page (upar) ke BAHAR, body ka seedha
+     child hona ZAROORI hai, kyunke print CSS `body.printing > *` (sirf
+     DIRECT children) ko hide karta hai — agar ye .page ke andar hota to
+     khud .page hide hote hi ye bhi ghayab ho jata. Screen par hamesha
+     hidden rehta hai (#pdf-print-sheet{display:none} upar CSS mein), sirf
+     jab user "رپورٹ تیار کریں" dabaye to JS ise bhar kar window.print()
+     call karta hai. -->
+<div id="pdf-print-sheet"></div>
 
 <nav class="bottom-nav" id="bottom-nav">
   <button type="button" data-target="phone-chart"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></span><span data-i18n="navChart">کنڈلی</span></button>
@@ -954,7 +1120,7 @@
       tabMonthly: 'اس مہینے کا رجحان',
       tabYearly: 'اس سال کا رجحان',
       tabWeekly: 'ہفتہ وار کیلنڈر',
-      weeklySub: 'اگلے 7 دن — روز چاند کس گھر اور نچھتر میں ہے، اور کون سا سیارہ کب اپنی راشی بدلتا ہے',
+      weeklySub: 'اگلے 7 دن — روز کی تیتھی، یوگ، کرن، چاند کس گھر اور نچھتر میں ہے، اور کون سا سیارہ کب اپنی راشی بدلتا ہے',
       tabDasha: 'دور و اثرات',
       tabRemedies: 'علاج و تدابیر',
       tabYogas: 'یوگ',
@@ -966,9 +1132,59 @@
       tabGrahaBala: 'قوتِ گرہ',
       grahaBalaSub: 'ہر گرہ کتنا مضبوط یا کمزور ہے — کلاسیکی اصولوں پر مبنی',
       grahaBalaNote: 'نوٹ: یہ کلاسیکی "شَڈ بَل" کے 5 قابلِ‌حساب اجزاء پر مبنی ایک آسان اسکور ہے (مکمل روایتی شَڈ بَل نہیں) — راہو/کیتو کلاسیکی طور پر اس میں شامل نہیں ہوتے۔',
+      tabBhavaBala: 'قوتِ خانہ',
+      bhavaBalaSub: 'ہر خانہ (گھر) کتنا مضبوط ہے — اس کے حاکم گرہ کی قوت، سمت اور دوسرے گرہوں کی نظر پر مبنی',
+      bhavaBalaNote: 'نوٹ: یہ تین کلاسیکی اجزاء کا مجموعہ ہے (حاکمِ خانہ کی قوتِ گرہ + سمتی قوت + دوسرے گرہوں کی نظر) — مکمل روایتی شَڈ بَل کی بجائے اسی ایپ کی آسان قوتِ گرہ پر مبنی ہے۔',
+      tabVimshopak: 'وِنشوپک بل',
+      vimshopakSub: 'ہر گرہ کی قوت 6 مختلف چارٹس (D1,D2,D3,D9,D12,D30) میں اس کی حیثیت کو ملا کر — 20 پوائنٹس کے پیمانے پر',
+      vimshopakNote: 'نوٹ: یہ اسکور اس ایپ کی آسان "درجہ" کیٹیگریز (اعلیٰ/اپنا/غیر جانبدار/ادنیٰ) پر مبنی ہے — مکمل روایتی پنچدھا میتری (5 طرح کی دوستی) کا جدول نہیں، جو ابھی اس ایپ میں شامل نہیں۔',
+      tabMoonPhases: 'چاند کے مراحل',
+      moonPhasesSub: 'اگلا اماوسیا (نیا چاند) اور اگلا پورنیما (پورا چاند) کب ہے',
+      moonPhasesNote: 'نوٹ: یہ تاریخیں اوسط چاند کی رفتار سے تخمینہ ہیں (± ایک دن تک فرق ممکن ہے) — گرہن (Eclipse) کی پیش گوئی ابھی شامل نہیں، کیونکہ اس کے لیے چاند کے عرض بلد (latitude) کا مکمل ڈیٹا درکار ہے جو ابھی دستیاب نہیں۔',
+      nextNewMoon: 'اگلا نیا چاند (اماوسیا)',
+      nextFullMoon: 'اگلا پورا چاند (پورنیما)',
+      daysAway: 'دن بعد',
+      tabAspects: 'نظرات (Aspects)',
+      aspectsSub: 'کنڈلی میں کون سا گرہ کس دوسرے گرہ کو (کلاسیکی پاراشری قاعدے کے مطابق) دیکھ رہا ہے',
+      aspectsNoAspect: 'فی الحال کسی گرہ پر نظر نہیں',
+      aspectsLooksAt: 'نظر ہے:',
+      aspectsSeenBy: 'ان کی نظر میں:',
+      aspectsMutual: 'باہمی نظر (دونوں ایک دوسرے کو دیکھ رہے ہیں)',
+      tabKp: 'کے پی (KP)',
+      kpSub: 'ہر گرہ اور لگن کا "اسٹار لارڈ" اور "سب لارڈ" (کرشنامورتی پدھتی کے مطابق)',
+      kpNote: 'نوٹ: یہ حساب اسی ایپ کے لاہری ایانامسا پر مبنی ہے (روایتی کرشنامورتی ایانامسا الگ اور تھوڑا مختلف ہوتا ہے) — اور ابھی صرف گرہوں/لگن کے سب لارڈ ہیں، مکمل KP کسپل سگنیفیکیٹر سسٹم شامل نہیں۔',
+      kpStarLord: 'اسٹار لارڈ',
+      kpSubLord: 'سب لارڈ',
+      tabWestern: 'ویسٹرن چارٹ',
+      westernSub: 'وہی گرہ، ٹراپیکل (Tropical/Western) راشیوں کے مطابق',
+      westernNote: 'نوٹ: یہ چارٹ اسی ایپ کے سائیڈیریل ڈیٹا میں ایک تخمینی ایانامسا جمع کر کے بنایا گیا ہے (± 1-2 آرک منٹ تک فرق ممکن ہے)، اور گھر "ہول سائن" طریقے سے ہیں (Placidus نہیں)۔',
+      tabArabianParts: 'عربی حصص (Lots)',
+      arabianPartsSub: 'لاٹ آف فورچون اور لاٹ آف اسپرٹ — قدیم ہیلینسٹک روایت کے دو سب سے مستند "عربی حصص"',
+      arabianPartsNote: 'نوٹ: یہ حصص اسی ایپ کے سائیڈیریل ڈیٹا سے نکالے گئے ہیں (اصل ہیلینسٹک روایت ٹراپیکل زائچے پر مبنی ہے) — اور دن/رات کے زائچے کے مطابق فارمولا بدلتا ہے (قدیم طریقہ، بعد کے دور کا "ہمیشہ ایک ہی فارمولا" استعمال نہیں کیا گیا)۔',
+      lotOfFortune: 'لاٹ آف فورچون',
+      lotOfSpirit: 'لاٹ آف اسپرٹ',
+      sectLabel: 'زائچے کی نوعیت:',
       tabYoginiDasha: 'یوگنی دشا',
       yoginiDashaSub: '36 سالہ کلاسیکی یوگنی دشا نظام — آٹھ یوگنیوں کا چکر',
       yoginiDashaNote: 'نوٹ: یہ تاریخیں اوسط سال (365.25 دن) پر مبنی تخمینہ ہیں، کیونکہ کوئی API یہ دشا فراہم نہیں کرتی — حساب اسی ایپ میں کلاسیکی فارمولے سے کیا گیا ہے۔',
+      tabCharaDasha: 'چر دشا',
+      charaDashaSub: 'جیمنی نظام کی راشی بنیاد دشا — ہر دور ایک راشی کا ہوتا ہے، گرہ کا نہیں',
+      charaDashaNote: 'نوٹ: تاریخیں اوسط سال (365.25 دن) پر مبنی تخمینہ ہیں۔ اس دشا کے دو کلاسیکی نکات پر روایات میں اختلاف ہے (اینٹردشا کی ترتیب، اور شروع کی راشی کا متبادل طریقہ) — یہاں سب سے زیادہ مستند ذریعہ کو بنیاد بنایا گیا ہے۔',
+      tabPdfReport: 'پی ڈی ایف رپورٹ',
+      pdfReportSub: 'اپنا نام/رابطہ نمبر لکھیں تاکہ ہر صفحے پر آپ کا برانڈ نظر آئے، پھر رپورٹ محفوظ کریں',
+      pdfAstrologerNameLabel: 'آپ کا نام / کاروبار کا نام (اختیاری)',
+      pdfAstrologerNamePlaceholder: 'مثلاً: زائچہ اسٹرالوجی',
+      pdfAstrologerContactLabel: 'رابطہ نمبر / واٹس ایپ (اختیاری)',
+      pdfGenerateBtn: 'رپورٹ تیار کریں (پرنٹ / پی ڈی ایف)',
+      pdfReportNote: 'نوٹ: بٹن دبانے کے بعد براؤزر کا پرنٹ ڈائیلاگ کھلے گا — "Save as PDF" منتخب کر کے فائل محفوظ کریں۔',
+      pdfReportTitle: 'پیدائشی زائچہ رپورٹ',
+      pdfSectionChart: 'کنڈلی چارٹ',
+      pdfSectionDasha: 'موجودہ دشا',
+      pdfSectionToday: 'آج کی پیشگوئی',
+      pdfSectionRemedies: 'علاج و تدابیر',
+      pdfSectionHouses: 'خانوں کی تفصیل',
+      pdfGeneratedOn: 'تیار کردہ',
+      pdfNoDataAlert: 'پہلے کنڈلی بنائیں، پھر رپورٹ تیار کریں۔',
       tabCharaKaraka: 'چر کارک',
       charaKarakaSub: 'جیمنی طریقہ — ہر گرہ کی اپنی راشی میں ڈگری کی بنیاد پر آٹھ کارک (اہم اشارے)',
       charaKarakaNote: 'نوٹ: یہ 8-کارک طریقہ ہے (راہو شامل، الٹی ترتیب میں) — 7-کارک طریقہ (راہو کے بغیر) بھی کلاسیکی طور پر رائج ہے، دونوں مستند ہیں۔',
@@ -1058,7 +1274,7 @@
       tabMonthly: 'This month',
       tabYearly: 'This year',
       tabWeekly: 'Weekly calendar',
-      weeklySub: 'Next 7 days — the Moon\'s daily house & nakshatra, and when any planet changes sign',
+      weeklySub: 'Next 7 days — daily Tithi, Yoga, Karana, the Moon\'s house & nakshatra, and when any planet changes sign',
       tabDasha: 'Dasha & effects',
       tabRemedies: 'Remedies',
       tabYogas: 'Yogas',
@@ -1070,9 +1286,59 @@
       tabGrahaBala: 'Planet Strength',
       grahaBalaSub: 'How strong or weak each planet is, based on classical rules',
       grahaBalaNote: 'Note: this is a simplified score based on 5 computable components of classical "Shad Bala" (not the full traditional Shad Bala) — Rahu/Ketu are classically excluded from this.',
+      tabBhavaBala: 'House Strength',
+      bhavaBalaSub: 'How strong each house is — based on its ruling planet\'s strength, directional strength, and aspects from other planets',
+      bhavaBalaNote: 'Note: this combines 3 classical components (house lord\'s Planet Strength + directional strength + aspects from other planets) — based on this app\'s simplified Planet Strength rather than a full traditional Shad Bala.',
+      tabVimshopak: 'Vimshopak Bala',
+      vimshopakSub: 'Each planet\'s strength combining its dignity across 6 different charts (D1, D2, D3, D9, D12, D30) — on a 20-point scale',
+      vimshopakNote: 'Note: this score uses this app\'s simplified dignity categories (exalted/own/neutral/debilitated) rather than the full classical Panchadha Maitri (5-fold friendship) table, which this app does not yet compute.',
+      tabMoonPhases: 'Moon Phases',
+      moonPhasesSub: 'When is the next New Moon (Amavasya) and next Full Moon (Purnima)',
+      moonPhasesNote: 'Note: these dates are estimated using the Moon\'s mean speed (±1 day possible) — eclipse prediction is not included yet, since that needs the Moon\'s ecliptic latitude data, which is not currently available.',
+      nextNewMoon: 'Next New Moon (Amavasya)',
+      nextFullMoon: 'Next Full Moon (Purnima)',
+      daysAway: 'days away',
+      tabAspects: 'Aspects',
+      aspectsSub: 'Which planet aspects which other planet in the chart (classical Parashari rule)',
+      aspectsNoAspect: 'Not currently aspecting any planet',
+      aspectsLooksAt: 'Aspects:',
+      aspectsSeenBy: 'Aspected by:',
+      aspectsMutual: 'Mutual aspect (both looking at each other)',
+      tabKp: 'KP',
+      kpSub: 'Each planet\'s and the Ascendant\'s "Star Lord" and "Sub Lord" (per Krishnamurti Paddhati)',
+      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different) — and currently only covers planet/Ascendant sub-lords, not the full KP cuspal significator system.',
+      kpStarLord: 'Star Lord',
+      kpSubLord: 'Sub Lord',
+      tabWestern: 'Western Chart',
+      westernSub: 'The same planets, by Tropical (Western) sign boundaries',
+      westernNote: 'Note: this chart is built by adding an estimated ayanamsa to this app\'s existing sidereal data (±1-2 arcminutes possible) — and houses are whole-sign (not Placidus).',
+      tabArabianParts: 'Arabian Parts (Lots)',
+      arabianPartsSub: 'Lot of Fortune and Lot of Spirit — the two most well-established "Arabic Parts" from ancient Hellenistic tradition',
+      arabianPartsNote: 'Note: these Lots are computed from this app\'s existing sidereal data (the original Hellenistic tradition is tropical-based) — and the formula changes by day/night chart (the ancient method; the later "always one formula" practice is not used here).',
+      lotOfFortune: 'Lot of Fortune',
+      lotOfSpirit: 'Lot of Spirit',
+      sectLabel: 'Chart sect:',
       tabYoginiDasha: 'Yogini Dasha',
       yoginiDashaSub: 'The classical 36-year Yogini Dasha system — a cycle of eight Yoginis',
       yoginiDashaNote: "Note: these dates are an estimate based on an average year (365.25 days), since no API provides this dasha — it is calculated in-app using the classical formula.",
+      tabCharaDasha: 'Chara Dasha',
+      charaDashaSub: "Jaimini's sign-based dasha — each period belongs to a zodiac sign, not a planet",
+      charaDashaNote: "Note: dates are an estimate based on an average year (365.25 days). Two classical points on this dasha are genuinely disputed across lineages (antardasha ordering, and an alternate starting-sign rule) — the most directly-sourced convention is used as the default here.",
+      tabPdfReport: 'PDF Report',
+      pdfReportSub: 'Add your name/contact so it appears on every page, then save the report',
+      pdfAstrologerNameLabel: 'Your name / business name (optional)',
+      pdfAstrologerNamePlaceholder: 'e.g. Zaicha Astrology',
+      pdfAstrologerContactLabel: 'Contact number / WhatsApp (optional)',
+      pdfGenerateBtn: 'Generate report (Print / PDF)',
+      pdfReportNote: 'Note: your browser\'s print dialog will open — choose "Save as PDF" to save the file.',
+      pdfReportTitle: 'Birth Chart Report',
+      pdfSectionChart: 'Birth Chart',
+      pdfSectionDasha: 'Current Dasha',
+      pdfSectionToday: "Today's Prediction",
+      pdfSectionRemedies: 'Remedies',
+      pdfSectionHouses: 'House Details',
+      pdfGeneratedOn: 'Generated on',
+      pdfNoDataAlert: 'Please generate a kundli first, then create the report.',
       tabCharaKaraka: 'Chara Karaka',
       charaKarakaSub: 'Jaimini method — eight key significators based on each planet’s degree within its own sign',
       charaKarakaNote: 'Note: this uses the 8-Karaka scheme (Rahu included, counted in reverse) — the 7-Karaka scheme (without Rahu) is also classically valid; both are used in different traditions.',
@@ -1162,7 +1428,7 @@
       tabMonthly: 'इस महीने का रुझान',
       tabYearly: 'इस साल का रुझान',
       tabWeekly: 'साप्ताहिक कैलेंडर',
-      weeklySub: 'अगले 7 दिन — रोज़ चंद्रमा किस भाव और नक्षत्र में है, और कौन सा ग्रह कब राशि बदलता है',
+      weeklySub: 'Next 7 days — daily Tithi, Yoga, Karana, the Moon\'s house & nakshatra, and when any planet changes sign',
       tabDasha: 'दशा व प्रभाव',
       tabRemedies: 'उपाय',
       tabYogas: 'योग',
@@ -1174,9 +1440,59 @@
       tabGrahaBala: 'ग्रह बल',
       grahaBalaSub: 'हर ग्रह कितना मजबूत या कमजोर है — शास्त्रीय नियमों पर आधारित',
       grahaBalaNote: 'नोट: यह शास्त्रीय "षड्बल" के 5 गणना-योग्य हिस्सों पर आधारित एक आसान स्कोर है (पूरा पारंपरिक षड्बल नहीं) — राहु/केतु शास्त्रीय रूप से इसमें शामिल नहीं होते।',
+      tabBhavaBala: 'House Strength',
+      bhavaBalaSub: 'How strong each house is — based on its ruling planet\'s strength, directional strength, and aspects from other planets',
+      bhavaBalaNote: 'Note: this combines 3 classical components (house lord\'s Planet Strength + directional strength + aspects from other planets) — based on this app\'s simplified Planet Strength rather than a full traditional Shad Bala.',
+      tabVimshopak: 'Vimshopak Bala',
+      vimshopakSub: 'Each planet\'s strength combining its dignity across 6 different charts (D1, D2, D3, D9, D12, D30) — on a 20-point scale',
+      vimshopakNote: 'Note: this score uses this app\'s simplified dignity categories (exalted/own/neutral/debilitated) rather than the full classical Panchadha Maitri (5-fold friendship) table, which this app does not yet compute.',
+      tabMoonPhases: 'Moon Phases',
+      moonPhasesSub: 'When is the next New Moon (Amavasya) and next Full Moon (Purnima)',
+      moonPhasesNote: 'Note: these dates are estimated using the Moon\'s mean speed (±1 day possible) — eclipse prediction is not included yet, since that needs the Moon\'s ecliptic latitude data, which is not currently available.',
+      nextNewMoon: 'Next New Moon (Amavasya)',
+      nextFullMoon: 'Next Full Moon (Purnima)',
+      daysAway: 'days away',
+      tabAspects: 'Aspects',
+      aspectsSub: 'Which planet aspects which other planet in the chart (classical Parashari rule)',
+      aspectsNoAspect: 'Not currently aspecting any planet',
+      aspectsLooksAt: 'Aspects:',
+      aspectsSeenBy: 'Aspected by:',
+      aspectsMutual: 'Mutual aspect (both looking at each other)',
+      tabKp: 'KP',
+      kpSub: 'Each planet\'s and the Ascendant\'s "Star Lord" and "Sub Lord" (per Krishnamurti Paddhati)',
+      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different) — and currently only covers planet/Ascendant sub-lords, not the full KP cuspal significator system.',
+      kpStarLord: 'Star Lord',
+      kpSubLord: 'Sub Lord',
+      tabWestern: 'Western Chart',
+      westernSub: 'The same planets, by Tropical (Western) sign boundaries',
+      westernNote: 'Note: this chart is built by adding an estimated ayanamsa to this app\'s existing sidereal data (±1-2 arcminutes possible) — and houses are whole-sign (not Placidus).',
+      tabArabianParts: 'Arabian Parts (Lots)',
+      arabianPartsSub: 'Lot of Fortune and Lot of Spirit — the two most well-established "Arabic Parts" from ancient Hellenistic tradition',
+      arabianPartsNote: 'Note: these Lots are computed from this app\'s existing sidereal data (the original Hellenistic tradition is tropical-based) — and the formula changes by day/night chart (the ancient method; the later "always one formula" practice is not used here).',
+      lotOfFortune: 'Lot of Fortune',
+      lotOfSpirit: 'Lot of Spirit',
+      sectLabel: 'Chart sect:',
       tabYoginiDasha: 'योगिनी दशा',
       yoginiDashaSub: '36 वर्षीय शास्त्रीय योगिनी दशा प्रणाली — आठ योगिनियों का चक्र',
       yoginiDashaNote: 'नोट: ये तारीखें औसत वर्ष (365.25 दिन) पर आधारित अनुमान हैं, क्योंकि कोई API यह दशा उपलब्ध नहीं कराती — गणना इसी ऐप में शास्त्रीय सूत्र से की गई है।',
+      tabCharaDasha: 'Chara Dasha',
+      charaDashaSub: "Jaimini's sign-based dasha — each period belongs to a zodiac sign, not a planet",
+      charaDashaNote: "Note: dates are an estimate based on an average year (365.25 days). Two classical points on this dasha are genuinely disputed across lineages — the most directly-sourced convention is used as the default here.",
+      tabPdfReport: 'PDF Report',
+      pdfReportSub: 'Add your name/contact so it appears on every page, then save the report',
+      pdfAstrologerNameLabel: 'Your name / business name (optional)',
+      pdfAstrologerNamePlaceholder: 'e.g. Zaicha Astrology',
+      pdfAstrologerContactLabel: 'Contact number / WhatsApp (optional)',
+      pdfGenerateBtn: 'Generate report (Print / PDF)',
+      pdfReportNote: 'Note: your browser\'s print dialog will open — choose "Save as PDF" to save the file.',
+      pdfReportTitle: 'Birth Chart Report',
+      pdfSectionChart: 'Birth Chart',
+      pdfSectionDasha: 'Current Dasha',
+      pdfSectionToday: "Today's Prediction",
+      pdfSectionRemedies: 'Remedies',
+      pdfSectionHouses: 'House Details',
+      pdfGeneratedOn: 'Generated on',
+      pdfNoDataAlert: 'Please generate a kundli first, then create the report.',
       tabCharaKaraka: 'चर कारक',
       charaKarakaSub: 'जैमिनी पद्धति — हर ग्रह की अपनी राशि में डिग्री के आधार पर आठ कारक (मुख्य संकेतक)',
       charaKarakaNote: 'नोट: यह 8-कारक पद्धति है (राहु शामिल, उल्टे क्रम में) — 7-कारक पद्धति (राहु के बिना) भी शास्त्रीय रूप से मान्य है, दोनों अलग-अलग परंपराओं में प्रचलित हैं।',
@@ -1619,6 +1935,384 @@
     });
   }
 
+  var HOUSE_ORDINAL_UR = ['پہلا','دوسرا','تیسرا','چوتھا','پانچواں','چھٹا','ساتواں','آٹھواں','نواں','دسواں','گیارھواں','بارھواں'];
+  function renderBhavaBala(data){
+    var list = document.getElementById('bhavabala-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = data.bhavaBala || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrBB = currentLang === 'ur';
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.lordPlanet] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.lordPlanet] || '🏛️';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var head = document.createElement('div');
+      head.style.display = 'flex';
+      head.style.alignItems = 'center';
+      head.style.justifyContent = 'space-between';
+      head.style.gap = '.5rem';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      var lordName = isUrBB ? (PLANET_NAME_UR_MAP[r.lordPlanet] || r.lordPlanet) : r.lordPlanet;
+      tag.textContent = isUrBB
+        ? (HOUSE_ORDINAL_UR[r.house - 1] + ' گھر   ·   حاکم: ' + lordName)
+        : ('House ' + r.house + '   ·   Lord: ' + lordName);
+      head.appendChild(tag);
+      var pill = document.createElement('span');
+      pill.className = 'status-pill ' + grahaBalaPillClass(r.strength);
+      pill.textContent = (isUrBB ? r.strengthUrdu : r.strengthEn) + ' (' + r.percent + '%)';
+      head.appendChild(pill);
+      body.appendChild(head);
+
+      var track = document.createElement('div');
+      track.className = 'bala-bar-track';
+      var fill = document.createElement('div');
+      fill.className = 'bala-bar-fill';
+      fill.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.lordPlanet] || '--gold') + ')');
+      fill.style.width = Math.max(0, Math.min(100, r.percent)) + '%';
+      track.appendChild(fill);
+      body.appendChild(track);
+
+      var line = document.createElement('p');
+      line.style.margin = '.25rem 0 0';
+      line.style.fontSize = '.72rem';
+      line.style.color = 'var(--text-muted)';
+      line.textContent = isUrBB
+        ? ('حاکمِ خانہ: ' + r.components.bhavadhipatiBala + '   سمتی: ' + r.components.bhavaDigBala + '   نظر: ' + r.components.bhavaDrishtiBala)
+        : ('Lord\'s strength: ' + r.components.bhavadhipatiBala + '   Directional: ' + r.components.bhavaDigBala + '   Aspects: ' + r.components.bhavaDrishtiBala);
+      body.appendChild(line);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  var VIMSHOPAK_VARGA_ORDER = ['D1', 'D2', 'D3', 'D9', 'D12', 'D30'];
+  var VIMSHOPAK_VARGA_LABEL_UR = { D1: 'راشی', D2: 'ہورا', D3: 'دریکانہ', D9: 'نومانش', D12: 'دوادشانش', D30: 'ترنشانش' };
+  function renderVimshopak(data){
+    var list = document.getElementById('vimshopak-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = data.vimshopakBala || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrVB = currentLang === 'ur';
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.planet] || '🔟';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var head = document.createElement('div');
+      head.style.display = 'flex';
+      head.style.alignItems = 'center';
+      head.style.justifyContent = 'space-between';
+      head.style.gap = '.5rem';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = isUrVB ? (PLANET_NAME_UR_MAP[r.planet] || r.planet) : r.planet;
+      head.appendChild(tag);
+      var pill = document.createElement('span');
+      pill.className = 'status-pill ' + grahaBalaPillClass(r.strength);
+      pill.textContent = (isUrVB ? r.strengthUrdu : r.strengthEn) + ' — ' + r.vimshopakBala + '/20';
+      head.appendChild(pill);
+      body.appendChild(head);
+
+      var track = document.createElement('div');
+      track.className = 'bala-bar-track';
+      var fill = document.createElement('div');
+      fill.className = 'bala-bar-fill';
+      fill.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      fill.style.width = Math.max(0, Math.min(100, r.percent)) + '%';
+      track.appendChild(fill);
+      body.appendChild(track);
+
+      var line = document.createElement('p');
+      line.style.margin = '.25rem 0 0';
+      line.style.fontSize = '.72rem';
+      line.style.color = 'var(--text-muted)';
+      line.textContent = VIMSHOPAK_VARGA_ORDER.map(function(v){
+        var c = r.components[v];
+        if (!c) return '';
+        var vLabel = isUrVB ? (VIMSHOPAK_VARGA_LABEL_UR[v] || v) : v;
+        return vLabel + ': ' + dignityLabel(c.dignity);
+      }).join('   ·   ');
+      body.appendChild(line);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  function renderMoonPhases(data){
+    var wrap = document.getElementById('moonphases-content');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    var mp = data.moonPhases;
+    if (!mp) {
+      wrap.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrMP = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+
+    [
+      { label: t('nextNewMoon'), icon: '🌑', info: mp.nextNewMoon },
+      { label: t('nextFullMoon'), icon: '🌕', info: mp.nextFullMoon },
+    ].forEach(function(row){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.textContent = row.icon;
+      card.appendChild(badge);
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = row.label;
+      body.appendChild(tag);
+      var line = document.createElement('p');
+      line.style.margin = '.35rem 0 0';
+      line.textContent = row.info.date + '   (' + row.info.daysAway + ' ' + t('daysAway') + ')';
+      body.appendChild(line);
+      card.appendChild(body);
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderNatalAspects(data){
+    var list = document.getElementById('aspects-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = data.natalAspects || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrAS = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+    var planetName = function(p){ return isUrAS ? (PLANET_NAME_UR_MAP[p] || p) : p; };
+
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.planet] || '🔭';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = planetName(r.planet);
+      body.appendChild(tag);
+
+      var looksAtLine = document.createElement('p');
+      looksAtLine.style.margin = '.3rem 0 0';
+      looksAtLine.style.fontSize = '.8rem';
+      if (r.aspectsPlanets.length) {
+        looksAtLine.textContent = t('aspectsLooksAt') + ' ' +
+          r.aspectsPlanets.map(function(a){ return a.planets.map(planetName).join(', '); }).join('   ·   ');
+      } else {
+        looksAtLine.textContent = t('aspectsLooksAt') + ' ' + t('aspectsNoAspect');
+        looksAtLine.style.color = 'var(--text-muted)';
+      }
+      body.appendChild(looksAtLine);
+
+      if (r.aspectedByPlanets.length) {
+        var seenByLine = document.createElement('p');
+        seenByLine.style.margin = '.2rem 0 0';
+        seenByLine.style.fontSize = '.75rem';
+        seenByLine.style.color = 'var(--text-muted)';
+        seenByLine.textContent = t('aspectsSeenBy') + ' ' + r.aspectedByPlanets.map(planetName).join(', ');
+        body.appendChild(seenByLine);
+      }
+
+      if (r.mutualAspectWith.length) {
+        var mutualPill = document.createElement('span');
+        mutualPill.className = 'status-pill strong';
+        mutualPill.style.marginTop = '.35rem';
+        mutualPill.style.display = 'inline-block';
+        mutualPill.textContent = t('aspectsMutual') + ': ' + r.mutualAspectWith.map(planetName).join(', ');
+        body.appendChild(mutualPill);
+      }
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  function renderKpInfo(data){
+    var list = document.getElementById('kp-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var kp = data.kpInfo;
+    var rows = (kp && kp.points) || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrKP = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+    var planetName = function(p){
+      if (p === 'Ascendant') return isUrKP ? 'لگن' : 'Ascendant';
+      return isUrKP ? (PLANET_NAME_UR_MAP[p] || p) : p;
+    };
+
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.point] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.point] || '✦';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = planetName(r.point);
+      body.appendChild(tag);
+
+      var line = document.createElement('p');
+      line.style.margin = '.3rem 0 0';
+      line.style.fontSize = '.82rem';
+      line.textContent = t('kpStarLord') + ': ' + planetName(r.starLord) + '   ·   ' + t('kpSubLord') + ': ' + planetName(r.subLord);
+      body.appendChild(line);
+
+      var nakLine = document.createElement('p');
+      nakLine.style.margin = '.15rem 0 0';
+      nakLine.style.fontSize = '.72rem';
+      nakLine.style.color = 'var(--text-muted)';
+      nakLine.textContent = (isUrKP ? r.nakshatra.nameUrdu : r.nakshatra.nameLatin) + ' — ' + (isUrKP ? 'پاد' : 'Pada') + ' ' + r.nakshatra.pada;
+      body.appendChild(nakLine);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+  }
+
+  function renderWesternChart(data){
+    var w = data.westernChart;
+    var signG = document.getElementById('western-sign-numbers');
+    var planetG = document.getElementById('western-planet-chips');
+    if (!signG || !planetG) return;
+    signG.innerHTML = '';
+    planetG.innerHTML = '';
+    if (!w || !w.houses) return;
+
+    for (var h = 1; h <= 12; h++){
+      var geo = HOUSE_GEOMETRY[h];
+      var house = w.houses[h - 1];
+      if (!house) continue;
+
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', geo.signPos.x); t.setAttribute('y', geo.signPos.y);
+      t.textContent = house.signId + 1;
+      signG.appendChild(t);
+
+      house.planets.forEach(function(p, i){
+        var slot = geo.slots[Math.min(i, geo.slots.length - 1)];
+        var pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        pt.setAttribute('x', slot.x);
+        pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
+        pt.style.fill = p.color;
+        pt.textContent = p.abbr;
+        planetG.appendChild(pt);
+      });
+    }
+
+    var headEl = document.getElementById('western-subhead');
+    if (headEl && w.ascendantSignName) {
+      var isUrW = currentLang === 'ur';
+      var ascLabel = isUrW ? 'طالع' : 'Ascendant';
+      var ascVal = isUrW ? w.ascendantSignName : w.ascendantSignLatin;
+      headEl.textContent = ascLabel + ': ' + ascVal + ' ' + Math.round(w.ascendantDegree) + '°';
+    }
+  }
+
+  function renderArabianParts(data){
+    var wrap = document.getElementById('arabianparts-content');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    var ap = data.arabianParts;
+    if (!ap) {
+      wrap.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrAP = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+
+    var sectLine = document.createElement('p');
+    sectLine.style.cssText = 'font-size:.78rem;color:var(--text-muted);margin:0 0 .6rem;';
+    sectLine.textContent = t('sectLabel') + ' ' + (ap.isDayChart ? (isUrAP ? 'دن کا زائچہ' : 'Day chart') : (isUrAP ? 'رات کا زائچہ' : 'Night chart'));
+    wrap.appendChild(sectLine);
+
+    [
+      { label: t('lotOfFortune'), icon: '🍀', info: ap.fortune },
+      { label: t('lotOfSpirit'), icon: '✨', info: ap.spirit },
+    ].forEach(function(row){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.textContent = row.icon;
+      card.appendChild(badge);
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = row.label;
+      body.appendChild(tag);
+      var line = document.createElement('p');
+      line.style.margin = '.3rem 0 0';
+      var signName = isUrAP ? row.info.sign : row.info.signLatin;
+      var lordName = isUrAP ? row.info.lord : row.info.lordLatin;
+      var houseWord = isUrAP ? 'گھر' : 'house';
+      var lordWord = isUrAP ? 'حاکم' : 'Lord';
+      line.textContent = signName + ' ' + row.info.degree + '°   ·   ' + houseWord + ' ' + row.info.house + '   ·   ' + lordWord + ': ' + lordName;
+      body.appendChild(line);
+      var nakLine = document.createElement('p');
+      nakLine.style.margin = '.15rem 0 0';
+      nakLine.style.fontSize = '.72rem';
+      nakLine.style.color = 'var(--text-muted)';
+      nakLine.textContent = (isUrAP ? row.info.nakshatra.nameUrdu : row.info.nakshatra.nameLatin) + ' — ' + (isUrAP ? 'پاد' : 'Pada') + ' ' + row.info.nakshatra.pada;
+      body.appendChild(nakLine);
+      card.appendChild(body);
+      wrap.appendChild(card);
+    });
+  }
+
   function dignityPillClass(dignity){
     if (dignity === 'exalted' || dignity === 'own') return 'strong';
     if (dignity === 'debilitated') return 'weak';
@@ -1968,21 +2662,41 @@
     noteBox.style.display = 'none';
     if (!outlook) { list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>'; return; }
 
-    (outlook.extra || []).forEach(function(text){
-      var row = document.createElement('div');
-      row.className = 'transit-row';
-      row.textContent = text;
-      list.appendChild(row);
-    });
-    (outlook.lines || []).forEach(function(t){
-      var row = document.createElement('div');
-      row.className = 'transit-row';
-      // Har line ke aagay uss graha ka chhota emoji, taake feed ko sirf
-      // text ke bajaye thora scan-friendly (visual) banaya ja sake.
-      var prefix = (t.planet && PLANET_EMOJI[t.planet]) ? (PLANET_EMOJI[t.planet] + ' ') : '';
-      row.textContent = prefix + t.text;
-      list.appendChild(row);
-    });
+    // Yearly Outlook ke paas `themed` (life-area-wise grouping — career,
+    // health, relationships, finance, overall) hoti hai — Jantri-jaisi
+    // simple, mauzu-war presentation ke liye (ROADMAP.md "Zanjani/Imamia
+    // Jantri format" item). Monthly Outlook ke paas ye field nahi hoti,
+    // is liye wahan purana flat-list style hi chalta rehta hai.
+    if (outlook.themed && outlook.themed.length) {
+      outlook.themed.forEach(function(theme){
+        var head = document.createElement('h4');
+        head.style.cssText = 'margin:.9rem 0 .3rem;font-size:.85rem;color:var(--gold-soft);';
+        head.textContent = theme.label;
+        list.appendChild(head);
+        theme.lines.forEach(function(text){
+          var row = document.createElement('div');
+          row.className = 'transit-row';
+          row.textContent = text;
+          list.appendChild(row);
+        });
+      });
+    } else {
+      (outlook.extra || []).forEach(function(text){
+        var row = document.createElement('div');
+        row.className = 'transit-row';
+        row.textContent = text;
+        list.appendChild(row);
+      });
+      (outlook.lines || []).forEach(function(t){
+        var row = document.createElement('div');
+        row.className = 'transit-row';
+        // Har line ke aagay uss graha ka chhota emoji, taake feed ko sirf
+        // text ke bajaye thora scan-friendly (visual) banaya ja sake.
+        var prefix = (t.planet && PLANET_EMOJI[t.planet]) ? (PLANET_EMOJI[t.planet] + ' ') : '';
+        row.textContent = prefix + t.text;
+        list.appendChild(row);
+      });
+    }
 
     if (outlook.note) {
       noteBox.textContent = outlook.note;
@@ -2305,9 +3019,16 @@
     // periods par ye field nahi hoti) — is liye yahan optional hai, jab
     // maujood ho to graha ke naam ke sath (Yogini ka naam) bhi dikha dete hain.
     var yoginiSuffix = period.yoginiName ? (' (' + period.yoginiName + ')') : '';
+    // Chara Dasha ke periods RAASHI hote hain, graha nahi (period.sign
+    // maujood hota hai) — is liye label mein raashi ka naam pehle, aur
+    // uska classical lord (planet) parenthesis mein dikhaya jata hai
+    // (icon/emoji abhi bhi lord planet ka hi istemal hota hai).
+    var mainLabel = period.sign
+      ? ((isUr ? period.sign : period.signLatin) + ' (' + (isUr ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord) + ')')
+      : ((isUr ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord) + yoginiSuffix);
     head.innerHTML =
       '<span class="dasha-row-toggle">▸</span>' +
-      '<span class="dasha-row-label">' + (PLANET_EMOJI[period.lord] || '') + ' ' + (isUr ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord) + yoginiSuffix + '</span>' +
+      '<span class="dasha-row-label">' + (PLANET_EMOJI[period.lord] || '') + ' ' + mainLabel + '</span>' +
       (period.isCurrent ? ('<span class="status-pill strong dasha-current-pill">' + (isUr ? 'ابھی جاری' : 'Ongoing') + '</span>') : '') +
       '<span class="dasha-row-range">' + dashaRangeText(period) + '</span>';
     row.appendChild(head);
@@ -2433,6 +3154,194 @@
     });
   }
 
+  // ---- Chara Dasha (Jaimini) — Phase 2 ka teesra dasha system,
+  // lib/chara-dasha.js dekhein. Periods RAASHI hote hain (planet nahi) —
+  // is liye current-period card yahan alag likha gaya hai (yoginiDashaRow
+  // planet-label maan kar chalta hai), lekin tree render karne ke liye
+  // upar wala buildDashaTreeRow hi reuse hota hai (usmein period.sign wala
+  // hissa is liye hi add kiya gaya tha).
+  function charaDashaRow(label, period){
+    var isUrCD = currentLang === 'ur';
+    var card = document.createElement('div');
+    card.className = 'pred-card';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    var signName = isUrCD ? period.sign : period.signLatin;
+    var lordName = isUrCD ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord;
+    tag.textContent = (PLANET_EMOJI[period.lord] || '') + ' ' + label + ': ' + signName + ' (' + lordName + ')';
+    card.appendChild(tag);
+    var p = document.createElement('p');
+    p.textContent = (fmtDate(period.start) && fmtDate(period.end))
+      ? (isUrCD
+        ? (fmtDate(period.start) + ' سے ' + fmtDate(period.end) + ' تک')
+        : (fmtDate(period.start) + ' to ' + fmtDate(period.end)))
+      : (isUrCD ? 'تاریخیں دستیاب نہیں' : 'Dates not available');
+    card.appendChild(p);
+    return card;
+  }
+
+  function renderCharaDasha(data){
+    var curBox = document.getElementById('charadasha-current');
+    var treeBox = document.getElementById('charadasha-tree');
+    if (!curBox || !treeBox) return;
+    var isUrCD = currentLang === 'ur';
+    var cd = data.charaDasha;
+
+    curBox.innerHTML = '';
+    if (cd && cd.current && cd.current.mahadasha) {
+      curBox.appendChild(charaDashaRow(isUrCD ? 'مہادشا' : 'Mahadasha', cd.current.mahadasha));
+      if (cd.current.antardasha) {
+        curBox.appendChild(charaDashaRow(isUrCD ? 'انتردشا' : 'Antardasha', cd.current.antardasha));
+      }
+    } else {
+      curBox.innerHTML = '<div class="placeholder">' + (isUrCD ? 'چر دشا کی تفصیل دستیاب نہیں' : 'Chara Dasha details not available') + '</div>';
+    }
+
+    treeBox.innerHTML = '';
+    var tree = (cd && cd.tree) || [];
+    var noDetailText = isUrCD ? 'تفصیل دستیاب نہیں' : 'Details not available';
+    if (!tree.length) {
+      treeBox.innerHTML = '<div class="placeholder">' + (isUrCD ? 'مکمل چر دشا شیڈول ابھی دستیاب نہیں' : 'The full Chara Dasha schedule is not available yet') + '</div>';
+      return;
+    }
+    tree.forEach(function(maha){
+      var mahaRow = buildDashaTreeRow(maha, 'dasha-maha', function(body){
+        var antarList = maha.antardasha || [];
+        if (!antarList.length) {
+          body.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">' + noDetailText + '</div>';
+          return;
+        }
+        antarList.forEach(function(antar){
+          body.appendChild(buildDashaTreeRow(antar, 'dasha-antar', null));
+        });
+      });
+      treeBox.appendChild(mahaRow);
+    });
+  }
+
+  // ---- Branded downloadable PDF report (Phase 3 item). Koi naya server
+  // dependency nahi — browser ke apne "Print to PDF" ka istemal hota hai
+  // (window.print()), jo Render ke free-tier server par Playwright/
+  // Chromium jaisi bhaari cheez chalane se kahin zyada reliable hai, aur
+  // app ke maujooda Urdu (Noto Nastaliq) font ko bhi seedha use karta hai
+  // (koi alag font-hosting/embedding ki zaroorat nahi). #pdf-print-sheet
+  // mein wohi live-rendered DOM pieces CLONE ki jati hain (chart SVG,
+  // dasha, aaj ki pishgoi, remedies) — taake report hamesha screen par jo
+  // dikh raha hai usi se match kare, alag se dobara render na karna pare.
+  function buildPrintReportHTML(astrologerName, astrologerContact) {
+    var isUrPR = currentLang === 'ur';
+    var d = lastZaichaData;
+    var name = (document.getElementById('in-name') || {}).value || '';
+    var dob = (document.getElementById('in-dob') || {}).value || '';
+    var time = (document.getElementById('in-time') || {}).value || '';
+    var city = (document.getElementById('in-city') || {}).value || '';
+
+    var wrap = document.createElement('div');
+
+    var header = document.createElement('div');
+    header.className = 'pdf-report-header';
+    var brandDiv = document.createElement('div');
+    brandDiv.innerHTML =
+      '<div class="pdf-report-brand">' + (astrologerName ? astrologerName : 'Zaicha') + '</div>' +
+      (astrologerContact ? ('<div class="pdf-report-brand-contact">' + astrologerContact + '</div>') : '');
+    var metaDiv = document.createElement('div');
+    metaDiv.className = 'pdf-report-meta';
+    var today = new Date();
+    metaDiv.innerHTML =
+      '<div>' + (I18N[currentLang].pdfGeneratedOn || 'Generated on') + ': ' + fmtDate(today.toISOString().slice(0,10)) + '</div>' +
+      (name ? ('<div>' + name + '</div>') : '') +
+      ((dob || time) ? ('<div>' + [dob, time].filter(Boolean).join(' · ') + '</div>') : '') +
+      (city ? ('<div>' + city + '</div>') : '');
+    header.appendChild(brandDiv);
+    header.appendChild(metaDiv);
+    wrap.appendChild(header);
+
+    var titleEl = document.createElement('h3');
+    titleEl.style.margin = '0 0 .6rem';
+    titleEl.textContent = I18N[currentLang].pdfReportTitle || 'Birth Chart Report';
+    wrap.appendChild(titleEl);
+
+    function section(titleKey, contentNode) {
+      var sec = document.createElement('div');
+      sec.className = 'pdf-report-section';
+      var h4 = document.createElement('h4');
+      h4.textContent = I18N[currentLang][titleKey] || titleKey;
+      sec.appendChild(h4);
+      sec.appendChild(contentNode);
+      wrap.appendChild(sec);
+    }
+
+    // Chart
+    var chartSrc = document.querySelector('#phone-chart .chart-wrap');
+    if (chartSrc && d) {
+      var chartClone = chartSrc.cloneNode(true);
+      var chartBox = document.createElement('div');
+      var subheadClone = document.createElement('p');
+      subheadClone.textContent = document.getElementById('chart-subhead').textContent;
+      chartBox.appendChild(subheadClone);
+      chartBox.appendChild(chartClone);
+      section('pdfSectionChart', chartBox);
+    }
+
+    // Current dasha
+    var dashaSrc = document.getElementById('dasha-content');
+    if (dashaSrc && dashaSrc.children.length) {
+      section('pdfSectionDasha', dashaSrc.cloneNode(true));
+    }
+
+    // Today's prediction
+    var predText = document.getElementById('pred-daily-text');
+    if (predText && predText.textContent.trim()) {
+      var predBox = document.createElement('p');
+      predBox.textContent = predText.textContent;
+      section('pdfSectionToday', predBox);
+    }
+
+    // House details (table already rendered as list)
+    var houseSrc = document.getElementById('house-list');
+    if (houseSrc && houseSrc.children.length) {
+      section('pdfSectionHouses', houseSrc.cloneNode(true));
+    }
+
+    // Remedies
+    var remSrc = document.getElementById('remedies-list');
+    if (remSrc && remSrc.children.length) {
+      section('pdfSectionRemedies', remSrc.cloneNode(true));
+    }
+
+    var footer = document.createElement('div');
+    footer.className = 'pdf-report-footer';
+    footer.innerHTML =
+      '<span>Zaicha</span>' +
+      '<span>' + (astrologerContact ? astrologerContact : '') + '</span>';
+    wrap.appendChild(footer);
+
+    return wrap;
+  }
+
+  function generateAndPrintReport() {
+    if (!lastZaichaData) {
+      alert(I18N[currentLang].pdfNoDataAlert || 'Please generate a kundli first.');
+      return;
+    }
+    var astrologerName = (document.getElementById('pdf-astrologer-name') || {}).value || '';
+    var astrologerContact = (document.getElementById('pdf-astrologer-contact') || {}).value || '';
+    var sheet = document.getElementById('pdf-print-sheet');
+    sheet.innerHTML = '';
+    sheet.setAttribute('dir', currentLang === 'ur' ? 'rtl' : 'ltr');
+    sheet.appendChild(buildPrintReportHTML(astrologerName, astrologerContact));
+    document.body.classList.add('printing');
+    window.print();
+    // Print dialog band hone ke baad wapas normal view par (kuch browsers
+    // 'afterprint' event dete hain, fallback ke liye chhota timeout bhi).
+    var restore = function(){ document.body.classList.remove('printing'); window.removeEventListener('afterprint', restore); };
+    window.addEventListener('afterprint', restore);
+    setTimeout(restore, 3000);
+  }
+
+  var pdfGenerateBtnEl = document.getElementById('pdf-generate-btn');
+  if (pdfGenerateBtnEl) pdfGenerateBtnEl.addEventListener('click', generateAndPrintReport);
+
   // ---- Hero strip: Sun/Moon/Ascendant row (AstroMatrix ke Daily screen
   // wale Sun/Moon/Rising row jaisa). Koi naya backend data nahi chahiye —
   // Sun/Moon jis ghar mein baithe hain wahin se un ka burj (sign) mil
@@ -2498,7 +3407,15 @@
     renderNavamsaChart(data);
     renderPlanetProfiles(data);
     renderGrahaBala(data);
+    renderBhavaBala(data);
+    renderVimshopak(data);
+    renderMoonPhases(data);
+    renderNatalAspects(data);
+    renderKpInfo(data);
+    renderWesternChart(data);
+    renderArabianParts(data);
     renderYoginiDasha(data);
+    renderCharaDasha(data);
     renderCharaKarakas(data);
   }
 
@@ -2689,7 +3606,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-yoginidasha', 'phone-charakaraka', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-moonphases', 'phone-aspects', 'phone-kp', 'phone-western', 'phone-arabianparts', 'phone-yoginidasha', 'phone-charadasha', 'phone-charakaraka', 'phone-pdfreport', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
@@ -2760,6 +3677,7 @@
   // hone par) dobara fetch hota hai, warna cache hi dikha diya jata hai. */
   var weeklyCalendarCacheKey = null;
   var lastForwardCalendarDays = null;
+  var lastForwardCalendarPanchang = null;
   var lastForwardCalendarLocked = false;
   var WEEKDAY_NAMES = {
     ur: ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'],
@@ -2792,15 +3710,30 @@
       if (!res.ok) throw new Error(json.error || 'Error');
       weeklyCalendarCacheKey = cacheKey;
       lastForwardCalendarDays = json.days;
+      lastForwardCalendarPanchang = json.panchangCalendar || [];
       lastForwardCalendarLocked = !!json.locked;
-      renderForwardCalendar(json.days, lastForwardCalendarLocked);
+      renderForwardCalendar(json.days, lastForwardCalendarLocked, lastForwardCalendarPanchang);
     } catch (err) {
       list.innerHTML = '<div class="placeholder">' +
         (currentLang === 'en' ? 'Error: ' : currentLang === 'hi' ? 'त्रुटि: ' : 'خرابی: ') + err.message +
         '</div>';
     }
   }
-  function renderForwardCalendar(days, locked){
+  function panchangDayLine(p){
+    if (!p || p.incomplete) return '';
+    var isUrPC = currentLang === 'ur';
+    var tithiName = isUrPC ? p.tithi.nameUrdu : p.tithi.name;
+    var pakshaName = isUrPC ? p.tithi.pakshaUrdu : p.tithi.pakshaEn;
+    var yogaName = isUrPC ? p.yoga.nameUrdu : p.yoga.name;
+    var karanaName = isUrPC ? p.karana.nameUrdu : p.karana.name;
+    var tithiWord = isUrPC ? 'تیتھی' : 'Tithi';
+    var yogaWord = isUrPC ? 'یوگ' : 'Yoga';
+    var karanaWord = isUrPC ? 'کرن' : 'Karana';
+    return tithiWord + ': ' + pakshaName + ' ' + tithiName +
+      '   ·   ' + yogaWord + ': ' + yogaName +
+      '   ·   ' + karanaWord + ': ' + karanaName;
+  }
+  function renderForwardCalendar(days, locked, panchangDays){
     var list = document.getElementById('weekly-list');
     list.innerHTML = '';
     list.classList.remove('paywall-teaser');
@@ -2833,7 +3766,11 @@
       } else {
         eventsHtml = '<div class="sub" style="margin:0;">' + noEventsLabel + '</div>';
       }
-      card.innerHTML = '<span class="tag">' + weekdayName + ' — ' + day.date + '</span><p style="margin-bottom:.5rem;">' + moonLine + '</p>' + eventsHtml;
+      var panchangDay = (panchangDays && panchangDays[idx]) ? panchangDays[idx] : null;
+      var panchangLine = panchangDayLine(panchangDay);
+      var panchangHtml = panchangLine
+        ? '<p class="sub" style="margin:.15rem 0 .5rem;font-size:.75rem;">' + panchangLine + '</p>' : '';
+      card.innerHTML = '<span class="tag">' + weekdayName + ' — ' + day.date + '</span>' + panchangHtml + '<p style="margin-bottom:.5rem;">' + moonLine + '</p>' + eventsHtml;
       list.appendChild(card);
     });
     if (locked) applyTeaserLock(list);
