@@ -153,6 +153,26 @@
   #city-suggestions .city-option{ padding:.5rem .8rem; font-size:.82rem; cursor:pointer; border-bottom:1px solid var(--line-soft); }
   #city-suggestions .city-option:last-child{ border-bottom:none; }
   #city-suggestions .city-option:hover{ background:var(--panel-2); color:var(--gold-soft); }
+  #prasna-city-suggestions{
+    position:absolute; top:100%; left:0; right:0; z-index:10;
+    background:#241a3d; border:1px solid var(--line); border-radius:12px;
+    margin-top:.3rem; max-height:200px; overflow-y:auto; display:none;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.7);
+  }
+  #prasna-city-suggestions.open{ display:block; }
+  #prasna-city-suggestions .city-option{ padding:.5rem .8rem; font-size:.82rem; cursor:pointer; border-bottom:1px solid var(--line-soft); }
+  #prasna-city-suggestions .city-option:last-child{ border-bottom:none; }
+  #prasna-city-suggestions .city-option:hover{ background:var(--panel-2); color:var(--gold-soft); }
+  #milan-groom-city-suggestions, #milan-bride-city-suggestions{
+    position:absolute; top:100%; left:0; right:0; z-index:10;
+    background:#241a3d; border:1px solid var(--line); border-radius:12px;
+    margin-top:.3rem; max-height:200px; overflow-y:auto; display:none;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.7);
+  }
+  #milan-groom-city-suggestions.open, #milan-bride-city-suggestions.open{ display:block; }
+  #milan-groom-city-suggestions .city-option, #milan-bride-city-suggestions .city-option{ padding:.5rem .8rem; font-size:.82rem; cursor:pointer; border-bottom:1px solid var(--line-soft); }
+  #milan-groom-city-suggestions .city-option:last-child, #milan-bride-city-suggestions .city-option:last-child{ border-bottom:none; }
+  #milan-groom-city-suggestions .city-option:hover, #milan-bride-city-suggestions .city-option:hover{ background:var(--panel-2); color:var(--gold-soft); }
 
   #generate-btn:disabled{ opacity:.65; cursor:wait; transform:none; }
   #engine-note{ margin-top:.6rem; font-size:.7rem; color:var(--text-muted); }
@@ -714,6 +734,8 @@
           <button type="button" class="shortcut-item" data-target="phone-yoginidasha"><span class="ic">🌀</span><span data-i18n="tabYoginiDasha">یوگنی دشا</span></button>
           <button type="button" class="shortcut-item" data-target="phone-charadasha"><span class="ic">🧭</span><span data-i18n="tabCharaDasha">چر دشا</span></button>
           <button type="button" class="shortcut-item" data-target="phone-charakaraka"><span class="ic">🎯</span><span data-i18n="tabCharaKaraka">چر کارک</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-prasna"><span class="ic">❓</span><span data-i18n="tabPrasna">پرشنا (سوال کا زائچہ)</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-milan"><span class="ic">💞</span><span data-i18n="tabMilan">کنڈلی ملان</span></button>
         </div>
 
         <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
@@ -969,6 +991,87 @@
         <div id="naisargika-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
+      <div class="phone" id="phone-prasna">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">❓</span> <span data-i18n="tabPrasna">پرشنا (سوال کا زائچہ)</span></div>
+        <p class="sub" data-i18n="prasnaSub">سوال کی نوعیت اور اپنا موجودہ شہر بتائیں — اسی لمحے اور جگہ کے لیے ایک تازہ زائچہ بن کر کلاسیکی اصولوں سے جواب کا رجحان دکھایا جائے گا (یہ آپ کی پیدائشی کنڈلی سے الگ ہے)</p>
+        <p class="sub" data-i18n="prasnaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ ایک بنیادی کلاسیکی طریقہ ہے (لگن اور اس کا حاکم، متعلقہ گھر کا حاکم، اور چاند کی حالت/چاند کا اہم گرہوں سے تعلق) — مکمل روایتی اتھاسلہ/ایشرفہ (تمام زاویوں پر مبنی) یا کے پی ہورری نمبر سسٹم شامل نہیں (درست رفتار کا ڈیٹا دستیاب نہیں)؛ "کھوئی ہوئی چیز" کی قسم شامل نہیں (اس کے لیے الگ، زیادہ پیچیدہ کلاسیکی طریقہ درکار ہے)۔ نتیجہ ایک عمومی "رجحان" ہے، حتمی یا قطعی جواب نہیں — خصوصاً شادی/صحت جیسے اہم معاملات میں کسی ماہر سے مشورہ ضرور کریں۔</p>
+        <div class="field">
+          <label data-i18n="prasnaCategoryLabel">سوال کس بارے میں ہے؟</label>
+          <select id="prasna-category">
+            <option value="general" data-i18n="prasnaCatGeneral">عمومی صورتحال</option>
+            <option value="marriage" data-i18n="prasnaCatMarriage">شادی / رشتہ</option>
+            <option value="career" data-i18n="prasnaCatCareer">ملازمت / کیریئر</option>
+            <option value="wealth" data-i18n="prasnaCatWealth">مال و دولت</option>
+            <option value="health" data-i18n="prasnaCatHealth">صحت / بیماری</option>
+            <option value="education" data-i18n="prasnaCatEducation">تعلیم</option>
+            <option value="litigation" data-i18n="prasnaCatLitigation">مقدمہ / جھگڑا</option>
+            <option value="travel" data-i18n="prasnaCatTravel">سفر (ملکی/غیر ملکی)</option>
+            <option value="property" data-i18n="prasnaCatProperty">جائیداد / گھر</option>
+            <option value="children" data-i18n="prasnaCatChildren">اولاد</option>
+          </select>
+        </div>
+        <div class="field" style="position:relative;">
+          <label data-i18n="prasnaCityLabel">آپ اس وقت کس شہر میں ہیں؟</label>
+          <input type="text" id="prasna-city" placeholder="شہر کا نام لکھیں…" autocomplete="off" data-i18n-placeholder="placeholderCity">
+          <div id="prasna-city-suggestions"></div>
+        </div>
+        <input type="hidden" id="prasna-lat">
+        <input type="hidden" id="prasna-lon">
+        <button type="button" class="cta-btn" id="prasna-ask-btn" data-i18n="prasnaAskBtn">سوال پوچھیں</button>
+        <div id="prasna-error-box" style="display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.4); color:var(--weak); font-size:.78rem;"></div>
+        <div id="prasna-content" style="margin-top:1rem;"></div>
+      </div>
+
+      <div class="phone" id="phone-milan">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">💞</span> <span data-i18n="tabMilan">کنڈلی ملان</span></div>
+        <p class="sub" data-i18n="milanSub">دونوں فریقین کی پیدائشی تفصیلات دیں — کلاسیکی "اشٹکوٹ گُن ملان" (8 پیمانے، کل 36 پوائنٹس) کے مطابق مطابقت دکھائی جائے گی (صرف چاند کی راشی و نچھتر پر مبنی)</p>
+        <p class="sub" data-i18n="milanNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ شمالی ہند کا اشٹکوٹ (8-کوٹ) نظام ہے — جنوبی ہند کا دشکوٹ نظام الگ ہے اور شامل نہیں۔ منگل دوش (کج دوش) بھی اس ورژن میں شامل نہیں (الگ، بڑا فیچر ہوگا)۔ فی الحال صرف پاکستان کا ٹائم زون (+05:00) استعمال ہوتا ہے۔ نتیجہ ایک کلاسیکی رہنما اصول ہے، حتمی فیصلہ نہیں — کسی مستند ماہر سے مشورہ ضرور کریں۔</p>
+
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="milanGroomH4">پہلا فریق (دولہا)</h4>
+        <div class="field-row">
+          <div class="field">
+            <label data-i18n="labelDob">تاریخِ پیدائش</label>
+            <input type="date" id="milan-groom-dob" dir="ltr">
+          </div>
+          <div class="field">
+            <label data-i18n="labelTime">وقتِ پیدائش</label>
+            <input type="time" id="milan-groom-time" dir="ltr">
+          </div>
+        </div>
+        <div class="field" style="position:relative;">
+          <label data-i18n="labelCity">جائے پیدائش (شہر)</label>
+          <input type="text" id="milan-groom-city" placeholder="شہر کا نام لکھیں…" autocomplete="off" data-i18n-placeholder="placeholderCity">
+          <div id="milan-groom-city-suggestions"></div>
+        </div>
+        <input type="hidden" id="milan-groom-lat">
+        <input type="hidden" id="milan-groom-lon">
+
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="milanBrideH4">دوسرا فریق (دلہن)</h4>
+        <div class="field-row">
+          <div class="field">
+            <label data-i18n="labelDob">تاریخِ پیدائش</label>
+            <input type="date" id="milan-bride-dob" dir="ltr">
+          </div>
+          <div class="field">
+            <label data-i18n="labelTime">وقتِ پیدائش</label>
+            <input type="time" id="milan-bride-time" dir="ltr">
+          </div>
+        </div>
+        <div class="field" style="position:relative;">
+          <label data-i18n="labelCity">جائے پیدائش (شہر)</label>
+          <input type="text" id="milan-bride-city" placeholder="شہر کا نام لکھیں…" autocomplete="off" data-i18n-placeholder="placeholderCity">
+          <div id="milan-bride-city-suggestions"></div>
+        </div>
+        <input type="hidden" id="milan-bride-lat">
+        <input type="hidden" id="milan-bride-lon">
+
+        <button type="button" class="cta-btn" id="milan-check-btn" data-i18n="milanCheckBtn">ملان چیک کریں</button>
+        <div id="milan-error-box" style="display:none; margin-top:.7rem; padding:.6rem .8rem; border-radius:10px; background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.4); color:var(--weak); font-size:.78rem;"></div>
+        <div id="milan-content" style="margin-top:1rem;"></div>
+      </div>
+
       <div class="phone" id="phone-weekly">
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">🗓️</span> <span data-i18n="tabWeekly">ہفتہ وار کیلنڈر</span></div>
@@ -1189,6 +1292,75 @@
       charaKarakaSub: 'جیمنی طریقہ — ہر گرہ کی اپنی راشی میں ڈگری کی بنیاد پر آٹھ کارک (اہم اشارے)',
       charaKarakaNote: 'نوٹ: یہ 8-کارک طریقہ ہے (راہو شامل، الٹی ترتیب میں) — 7-کارک طریقہ (راہو کے بغیر) بھی کلاسیکی طور پر رائج ہے، دونوں مستند ہیں۔',
       naisargikaH4: 'قدرتی کارک (ہر کنڈلی میں ایک جیسے)',
+      tabPrasna: 'پرشنا (سوال کا زائچہ)',
+      prasnaSub: 'سوال کی نوعیت اور اپنا موجودہ شہر بتائیں — اسی لمحے اور جگہ کے لیے ایک تازہ زائچہ بن کر کلاسیکی اصولوں سے جواب کا رجحان دکھایا جائے گا (یہ آپ کی پیدائشی کنڈلی سے الگ ہے)',
+      prasnaNote: 'نوٹ: یہ ایک بنیادی کلاسیکی طریقہ ہے (لگن اور اس کا حاکم، متعلقہ گھر کا حاکم، اور چاند کی حالت/چاند کا اہم گرہوں سے تعلق) — مکمل روایتی اتھاسلہ/ایشرفہ (تمام زاویوں پر مبنی) یا کے پی ہورری نمبر سسٹم شامل نہیں (درست رفتار کا ڈیٹا دستیاب نہیں)؛ "کھوئی ہوئی چیز" کی قسم شامل نہیں (اس کے لیے الگ، زیادہ پیچیدہ کلاسیکی طریقہ درکار ہے)۔ نتیجہ ایک عمومی "رجحان" ہے، حتمی یا قطعی جواب نہیں — خصوصاً شادی/صحت جیسے اہم معاملات میں کسی ماہر سے مشورہ ضرور کریں۔',
+      prasnaCategoryLabel: 'سوال کس بارے میں ہے؟',
+      prasnaCatGeneral: 'عمومی صورتحال',
+      prasnaCatMarriage: 'شادی / رشتہ',
+      prasnaCatCareer: 'ملازمت / کیریئر',
+      prasnaCatWealth: 'مال و دولت',
+      prasnaCatHealth: 'صحت / بیماری',
+      prasnaCatEducation: 'تعلیم',
+      prasnaCatLitigation: 'مقدمہ / جھگڑا',
+      prasnaCatTravel: 'سفر (ملکی/غیر ملکی)',
+      prasnaCatProperty: 'جائیداد / گھر',
+      prasnaCatChildren: 'اولاد',
+      prasnaCityLabel: 'آپ اس وقت کس شہر میں ہیں؟',
+      prasnaAskBtn: 'سوال پوچھیں',
+      prasnaErrorNoCity: 'پہلے اپنا موجودہ شہر منتخب کریں۔',
+      prasnaLagna: 'لگن (Ascendant)',
+      prasnaLagnaLord: 'لگن کا حاکم',
+      prasnaKaryesha: 'متعلقہ گھر کا حاکم',
+      prasnaMoonPaksha: 'چاند کی حالت',
+      prasnaShukla: 'شکل پکش (بڑھتا چاند)',
+      prasnaKrishna: 'کرشن پکش (گھٹتا چاند)',
+      prasnaMovementChara: 'چل (تیز تبدیلی کا امکان)',
+      prasnaMovementSthira: 'ساکت (تبدیلی سست/مشکل)',
+      prasnaMovementDwiswabhava: 'دو طبیعتی (تبدیلی، مگر مشکل کے ساتھ)',
+      prasnaDignityExalted: 'اعلیٰ (Exalted)',
+      prasnaDignityOwn: 'اپنی راشی میں',
+      prasnaDignityNeutral: 'غیر جانبدار',
+      prasnaDignityDebilitated: 'ادنیٰ (Debilitated)',
+      prasnaCombust: 'سورج کے قریب (دہکا ہوا)',
+      prasnaRetrograde: 'الٹی چال (Retrograde)',
+      prasnaHouseLabel: 'گھر',
+      prasnaStrengthStrong: 'مضبوط',
+      prasnaStrengthWeak: 'کمزور',
+      prasnaStrengthMixed: 'ملا جلا',
+      prasnaYogaIthasala: 'چاند قریب آ رہا ہے (اتھاسلہ) — حوصلہ افزا اشارہ',
+      prasnaYogaIsarapha: 'چاند دور جا رہا ہے (ایشرفہ) — احتیاط کا اشارہ',
+      prasnaYogaNone: 'فی الحال کوئی براہ راست تعلق نہیں',
+      prasnaYogaUncertain: 'دوسرا گرہ الٹی چال میں ہے — اندازہ قابلِ بھروسہ نہیں',
+      prasnaOverallFavorable: 'مجموعی رجحان: حوصلہ افزا',
+      prasnaOverallMixed: 'مجموعی رجحان: ملا جلا',
+      prasnaOverallCautionary: 'مجموعی رجحان: محتاط رہیں',
+      prasnaWithMoon: 'چاند کا تعلق',
+      tabMilan: 'کنڈلی ملان',
+      milanSub: 'دونوں فریقین کی پیدائشی تفصیلات دیں — کلاسیکی "اشٹکوٹ گُن ملان" (8 پیمانے، کل 36 پوائنٹس) کے مطابق مطابقت دکھائی جائے گی (صرف چاند کی راشی و نچھتر پر مبنی)',
+      milanNote: 'نوٹ: یہ شمالی ہند کا اشٹکوٹ (8-کوٹ) نظام ہے — جنوبی ہند کا دشکوٹ نظام الگ ہے اور شامل نہیں۔ منگل دوش (کج دوش) بھی اس ورژن میں شامل نہیں (الگ، بڑا فیچر ہوگا)۔ فی الحال صرف پاکستان کا ٹائم زون (+05:00) استعمال ہوتا ہے۔ نتیجہ ایک کلاسیکی رہنما اصول ہے، حتمی فیصلہ نہیں — کسی مستند ماہر سے مشورہ ضرور کریں۔',
+      milanGroomH4: 'پہلا فریق (دولہا)',
+      milanBrideH4: 'دوسرا فریق (دلہن)',
+      milanCheckBtn: 'ملان چیک کریں',
+      milanErrorIncomplete: 'براہ کرم دونوں فریقین کی تاریخ، وقت اور شہر مکمل کریں۔',
+      milanTotalScore: 'کل اسکور',
+      milanInterpExcellent: 'بہترین میل',
+      milanInterpGood: 'اچھا میل',
+      milanInterpAverage: 'اوسط میل',
+      milanInterpIncompatible: 'میل مناسب نہیں',
+      milanGroomMoon: 'دولہا کا چاند',
+      milanBrideMoon: 'دلہن کا چاند',
+      milanKootaVarna: 'ورن',
+      milanKootaVashya: 'وشیہ',
+      milanKootaTara: 'تارا',
+      milanKootaYoni: 'یونی',
+      milanKootaGrahaMaitri: 'گرہ میتری',
+      milanKootaGana: 'گَن',
+      milanKootaBhakoot: 'بھکوٹ',
+      milanKootaNadi: 'نادی',
+      milanNadiDoshaWarning: '⚠️ نادی دوش موجود ہے (دونوں کی نادی ایک جیسی ہے)',
+      milanBhakootDoshaWarning: '⚠️ بھکوٹ دوش موجود ہے',
+      milanBhakootCancelled: '(راشی حاکموں کی دوستی کی وجہ سے معاف)',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
@@ -1343,6 +1515,75 @@
       charaKarakaSub: 'Jaimini method — eight key significators based on each planet’s degree within its own sign',
       charaKarakaNote: 'Note: this uses the 8-Karaka scheme (Rahu included, counted in reverse) — the 7-Karaka scheme (without Rahu) is also classically valid; both are used in different traditions.',
       naisargikaH4: 'Natural Karakas (the same for every chart)',
+      tabPrasna: 'Prasna (Horary Chart)',
+      prasnaSub: 'Tell us what your question is about and your current city — a fresh chart is cast for this exact moment and place to show a classical reading (this is separate from your birth chart)',
+      prasnaNote: 'Note: this is a basic classical method (the Lagna and its lord, the lord of the relevant house, and the Moon\'s condition/relationship with the key significators) — it does NOT implement the full traditional Ithasala/Isarapha (across all aspects) or the KP horary-number system (exact planetary-speed data isn\'t available); "lost object" questions are not included (that needs a separate, more elaborate classical method). The result is a general "lean", not a definite yes/no — for important matters (marriage, health) please consult a qualified expert.',
+      prasnaCategoryLabel: 'What is your question about?',
+      prasnaCatGeneral: 'General Situation',
+      prasnaCatMarriage: 'Marriage / Relationship',
+      prasnaCatCareer: 'Job / Career',
+      prasnaCatWealth: 'Wealth / Finance',
+      prasnaCatHealth: 'Health / Illness',
+      prasnaCatEducation: 'Education',
+      prasnaCatLitigation: 'Litigation / Dispute',
+      prasnaCatTravel: 'Travel (local/foreign)',
+      prasnaCatProperty: 'Property / Home',
+      prasnaCatChildren: 'Children',
+      prasnaCityLabel: 'What city are you in right now?',
+      prasnaAskBtn: 'Ask the Question',
+      prasnaErrorNoCity: 'Please select your current city first.',
+      prasnaLagna: 'Ascendant (Lagna)',
+      prasnaLagnaLord: 'Lagna Lord',
+      prasnaKaryesha: 'Lord of the Relevant House',
+      prasnaMoonPaksha: "Moon's Condition",
+      prasnaShukla: 'Shukla Paksha (waxing Moon)',
+      prasnaKrishna: 'Krishna Paksha (waning Moon)',
+      prasnaMovementChara: 'Movable (change likely to come quickly)',
+      prasnaMovementSthira: 'Fixed (change likely slow/difficult)',
+      prasnaMovementDwiswabhava: 'Dual (change likely, but with difficulty)',
+      prasnaDignityExalted: 'Exalted',
+      prasnaDignityOwn: 'Own sign',
+      prasnaDignityNeutral: 'Neutral',
+      prasnaDignityDebilitated: 'Debilitated',
+      prasnaCombust: 'Combust (too close to the Sun)',
+      prasnaRetrograde: 'Retrograde',
+      prasnaHouseLabel: 'House',
+      prasnaStrengthStrong: 'Strong',
+      prasnaStrengthWeak: 'Weak',
+      prasnaStrengthMixed: 'Mixed',
+      prasnaYogaIthasala: 'Moon is applying (Ithasala) — an encouraging sign',
+      prasnaYogaIsarapha: 'Moon is separating (Isarapha) — a cautionary sign',
+      prasnaYogaNone: 'No direct connection right now',
+      prasnaYogaUncertain: 'The other planet is retrograde — the estimate is not reliable',
+      prasnaOverallFavorable: 'Overall lean: encouraging',
+      prasnaOverallMixed: 'Overall lean: mixed',
+      prasnaOverallCautionary: 'Overall lean: be cautious',
+      prasnaWithMoon: "Moon's relationship",
+      tabMilan: 'Kundli Milan',
+      milanSub: 'Enter both parties\' birth details — a classical "Ashtakoot Guna Milan" (8 scales, 36 points total) compatibility reading, based only on the Moon\'s sign and nakshatra',
+      milanNote: 'Note: this is the North Indian Ashtakoot (8-koota) system — the South Indian Dashakoot system is different and not included. Mangal Dosha (Kuja Dosha) is also not included in this version (a separate, larger feature). Currently only Pakistan\'s timezone (+05:00) is used. The result is a classical guideline, not a final decision — please consult a qualified expert.',
+      milanGroomH4: 'First Party (Groom)',
+      milanBrideH4: 'Second Party (Bride)',
+      milanCheckBtn: 'Check Compatibility',
+      milanErrorIncomplete: "Please fill in both parties' date, time, and city.",
+      milanTotalScore: 'Total Score',
+      milanInterpExcellent: 'Excellent Match',
+      milanInterpGood: 'Good Match',
+      milanInterpAverage: 'Average Match',
+      milanInterpIncompatible: 'Not Recommended',
+      milanGroomMoon: "Groom's Moon",
+      milanBrideMoon: "Bride's Moon",
+      milanKootaVarna: 'Varna',
+      milanKootaVashya: 'Vashya',
+      milanKootaTara: 'Tara',
+      milanKootaYoni: 'Yoni',
+      milanKootaGrahaMaitri: 'Graha Maitri',
+      milanKootaGana: 'Gana',
+      milanKootaBhakoot: 'Bhakoot',
+      milanKootaNadi: 'Nadi',
+      milanNadiDoshaWarning: '⚠️ Nadi Dosha present (both share the same Nadi)',
+      milanBhakootDoshaWarning: '⚠️ Bhakoot Dosha present',
+      milanBhakootCancelled: '(cancelled — sign lords are friends)',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
       dailyDefaultText: 'Click "Generate chart" first.',
@@ -1497,6 +1738,75 @@
       charaKarakaSub: 'जैमिनी पद्धति — हर ग्रह की अपनी राशि में डिग्री के आधार पर आठ कारक (मुख्य संकेतक)',
       charaKarakaNote: 'नोट: यह 8-कारक पद्धति है (राहु शामिल, उल्टे क्रम में) — 7-कारक पद्धति (राहु के बिना) भी शास्त्रीय रूप से मान्य है, दोनों अलग-अलग परंपराओं में प्रचलित हैं।',
       naisargikaH4: 'प्राकृतिक कारक (हर कुंडली में एक जैसे)',
+      tabPrasna: 'Prasna (Horary Chart)',
+      prasnaSub: 'Tell us what your question is about and your current city — a fresh chart is cast for this exact moment and place to show a classical reading (this is separate from your birth chart)',
+      prasnaNote: 'Note: this is a basic classical method (the Lagna and its lord, the lord of the relevant house, and the Moon\'s condition/relationship with the key significators) — it does NOT implement the full traditional Ithasala/Isarapha (across all aspects) or the KP horary-number system (exact planetary-speed data isn\'t available); "lost object" questions are not included (that needs a separate, more elaborate classical method). The result is a general "lean", not a definite yes/no — for important matters (marriage, health) please consult a qualified expert.',
+      prasnaCategoryLabel: 'What is your question about?',
+      prasnaCatGeneral: 'General Situation',
+      prasnaCatMarriage: 'Marriage / Relationship',
+      prasnaCatCareer: 'Job / Career',
+      prasnaCatWealth: 'Wealth / Finance',
+      prasnaCatHealth: 'Health / Illness',
+      prasnaCatEducation: 'Education',
+      prasnaCatLitigation: 'Litigation / Dispute',
+      prasnaCatTravel: 'Travel (local/foreign)',
+      prasnaCatProperty: 'Property / Home',
+      prasnaCatChildren: 'Children',
+      prasnaCityLabel: 'What city are you in right now?',
+      prasnaAskBtn: 'Ask the Question',
+      prasnaErrorNoCity: 'Please select your current city first.',
+      prasnaLagna: 'Ascendant (Lagna)',
+      prasnaLagnaLord: 'Lagna Lord',
+      prasnaKaryesha: 'Lord of the Relevant House',
+      prasnaMoonPaksha: "Moon's Condition",
+      prasnaShukla: 'Shukla Paksha (waxing Moon)',
+      prasnaKrishna: 'Krishna Paksha (waning Moon)',
+      prasnaMovementChara: 'Movable (change likely to come quickly)',
+      prasnaMovementSthira: 'Fixed (change likely slow/difficult)',
+      prasnaMovementDwiswabhava: 'Dual (change likely, but with difficulty)',
+      prasnaDignityExalted: 'Exalted',
+      prasnaDignityOwn: 'Own sign',
+      prasnaDignityNeutral: 'Neutral',
+      prasnaDignityDebilitated: 'Debilitated',
+      prasnaCombust: 'Combust (too close to the Sun)',
+      prasnaRetrograde: 'Retrograde',
+      prasnaHouseLabel: 'House',
+      prasnaStrengthStrong: 'Strong',
+      prasnaStrengthWeak: 'Weak',
+      prasnaStrengthMixed: 'Mixed',
+      prasnaYogaIthasala: 'Moon is applying (Ithasala) — an encouraging sign',
+      prasnaYogaIsarapha: 'Moon is separating (Isarapha) — a cautionary sign',
+      prasnaYogaNone: 'No direct connection right now',
+      prasnaYogaUncertain: 'The other planet is retrograde — the estimate is not reliable',
+      prasnaOverallFavorable: 'Overall lean: encouraging',
+      prasnaOverallMixed: 'Overall lean: mixed',
+      prasnaOverallCautionary: 'Overall lean: be cautious',
+      prasnaWithMoon: "Moon's relationship",
+      tabMilan: 'Kundli Milan',
+      milanSub: 'Enter both parties\' birth details — a classical "Ashtakoot Guna Milan" (8 scales, 36 points total) compatibility reading, based only on the Moon\'s sign and nakshatra',
+      milanNote: 'Note: this is the North Indian Ashtakoot (8-koota) system — the South Indian Dashakoot system is different and not included. Mangal Dosha (Kuja Dosha) is also not included in this version (a separate, larger feature). Currently only Pakistan\'s timezone (+05:00) is used. The result is a classical guideline, not a final decision — please consult a qualified expert.',
+      milanGroomH4: 'First Party (Groom)',
+      milanBrideH4: 'Second Party (Bride)',
+      milanCheckBtn: 'Check Compatibility',
+      milanErrorIncomplete: "Please fill in both parties' date, time, and city.",
+      milanTotalScore: 'Total Score',
+      milanInterpExcellent: 'Excellent Match',
+      milanInterpGood: 'Good Match',
+      milanInterpAverage: 'Average Match',
+      milanInterpIncompatible: 'Not Recommended',
+      milanGroomMoon: "Groom's Moon",
+      milanBrideMoon: "Bride's Moon",
+      milanKootaVarna: 'Varna',
+      milanKootaVashya: 'Vashya',
+      milanKootaTara: 'Tara',
+      milanKootaYoni: 'Yoni',
+      milanKootaGrahaMaitri: 'Graha Maitri',
+      milanKootaGana: 'Gana',
+      milanKootaBhakoot: 'Bhakoot',
+      milanKootaNadi: 'Nadi',
+      milanNadiDoshaWarning: '⚠️ Nadi Dosha present (both share the same Nadi)',
+      milanBhakootDoshaWarning: '⚠️ Bhakoot Dosha present',
+      milanBhakootCancelled: '(cancelled — sign lords are friends)',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -2325,6 +2635,401 @@
     if (dignity === 'debilitated') return isUr ? 'کمزور' : 'Debilitated';
     return isUr ? 'درمیانہ' : 'Neutral';
   }
+
+  // ---- Prasna (Task 46) — sawal ka zaicha. Doosre render* functions se
+  // ALAG hai: ye `renderAll()`/`data` se nahi chalta, balke apna alag
+  // on-demand `/api/prasna` POST (category + querent ki current city)
+  // ka result render karta hai.
+  function strengthPillClass(strength){
+    if (strength === 'strong') return 'strong';
+    if (strength === 'weak') return 'weak';
+    return 'neutral';
+  }
+  function strengthLabel(strength){
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+    if (strength === 'strong') return t('prasnaStrengthStrong');
+    if (strength === 'weak') return t('prasnaStrengthWeak');
+    return t('prasnaStrengthMixed');
+  }
+  function movementLabel(type){
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+    if (type === 'chara') return t('prasnaMovementChara');
+    if (type === 'sthira') return t('prasnaMovementSthira');
+    return t('prasnaMovementDwiswabhava');
+  }
+  function prasnaYogaLine(yoga, t){
+    if (!yoga || yoga.type === 'n/a' || yoga.type === 'unavailable' || yoga.type === 'exact') return null;
+    if (yoga.type === 'ithasala') return t('prasnaYogaIthasala');
+    if (yoga.type === 'isarapha') return t('prasnaYogaIsarapha');
+    if (yoga.type === 'uncertain') return t('prasnaYogaUncertain');
+    return t('prasnaYogaNone');
+  }
+  function significatorCard(label, icon, reading, t, isUrP){
+    var card = document.createElement('div');
+    card.className = 'pred-card icon-card';
+    var badge = document.createElement('span');
+    badge.className = 'icon-card-badge';
+    badge.textContent = icon;
+    card.appendChild(badge);
+    var body = document.createElement('div');
+    body.className = 'icon-card-body';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = label;
+    body.appendChild(tag);
+    var line1 = document.createElement('p');
+    line1.style.margin = '.3rem 0 0';
+    var planetName = isUrP ? reading.planetUrdu : reading.planet;
+    var signName = isUrP ? reading.sign : reading.signLatin;
+    line1.innerHTML = planetName + ' — ' + signName + ' · ' + t('prasnaHouseLabel') + ' ' + reading.house +
+      ' <span class="status-pill ' + strengthPillClass(reading.strength) + '">' + strengthLabel(reading.strength) + '</span>';
+    body.appendChild(line1);
+    var line2 = document.createElement('p');
+    line2.style.cssText = 'margin:.25rem 0 0;font-size:.72rem;color:var(--text-muted);';
+    var bits = [dignityLabel(reading.dignity)];
+    if (reading.isCombust) bits.push(t('prasnaCombust'));
+    if (reading.isRetrograde) bits.push(t('prasnaRetrograde'));
+    line2.textContent = bits.join(' · ');
+    body.appendChild(line2);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderPrasnaResult(payload){
+    var wrap = document.getElementById('prasna-content');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    if (!payload || !payload.prasna) return;
+    var p = payload.prasna;
+    var isUrP = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+
+    var leanBanner = document.createElement('div');
+    var leanClass = p.overallLean === 'favorable' ? 'strong' : p.overallLean === 'cautionary' ? 'weak' : 'neutral';
+    leanBanner.className = 'status-pill ' + leanClass;
+    leanBanner.style.cssText = 'display:inline-block; font-size:.85rem; padding:.4rem .9rem; margin-bottom:.8rem;';
+    leanBanner.textContent = t('prasnaOverall' + (p.overallLean === 'favorable' ? 'Favorable' : p.overallLean === 'cautionary' ? 'Cautionary' : 'Mixed'));
+    wrap.appendChild(leanBanner);
+
+    var lagnaCard = document.createElement('div');
+    lagnaCard.className = 'pred-card icon-card';
+    var lagnaBadge = document.createElement('span');
+    lagnaBadge.className = 'icon-card-badge';
+    lagnaBadge.textContent = '🔺';
+    lagnaCard.appendChild(lagnaBadge);
+    var lagnaBody = document.createElement('div');
+    lagnaBody.className = 'icon-card-body';
+    var lagnaTag = document.createElement('span');
+    lagnaTag.className = 'tag';
+    lagnaTag.textContent = t('prasnaLagna');
+    lagnaBody.appendChild(lagnaTag);
+    var lagnaLine = document.createElement('p');
+    lagnaLine.style.margin = '.3rem 0 0';
+    lagnaLine.textContent = (isUrP ? p.ascendant.sign : p.ascendant.signLatin) + ' ' + p.ascendant.degree + '° · ' + movementLabel(p.ascendant.movementType);
+    lagnaBody.appendChild(lagnaLine);
+    lagnaCard.appendChild(lagnaBody);
+    wrap.appendChild(lagnaCard);
+
+    if (p.lagnaLord) wrap.appendChild(significatorCard(t('prasnaLagnaLord'), '👤', p.lagnaLord, t, isUrP));
+    if (p.karyesha) {
+      var karyeshaLabel = (isUrP ? p.categoryLabelUr : p.categoryLabelEn) || t('prasnaKaryesha');
+      wrap.appendChild(significatorCard(karyeshaLabel, '🎯', p.karyesha, t, isUrP));
+    }
+
+    if (p.moonPaksha) {
+      var moonCard = document.createElement('div');
+      moonCard.className = 'pred-card icon-card';
+      var moonBadge = document.createElement('span');
+      moonBadge.className = 'icon-card-badge';
+      moonBadge.textContent = '🌙';
+      moonCard.appendChild(moonBadge);
+      var moonBody = document.createElement('div');
+      moonBody.className = 'icon-card-body';
+      var moonTag = document.createElement('span');
+      moonTag.className = 'tag';
+      moonTag.textContent = t('prasnaMoonPaksha');
+      moonBody.appendChild(moonTag);
+      var moonLine = document.createElement('p');
+      moonLine.style.margin = '.3rem 0 0';
+      moonLine.textContent = p.moonPaksha.paksha === 'shukla' ? t('prasnaShukla') : t('prasnaKrishna');
+      moonBody.appendChild(moonLine);
+      var yogaLines = [prasnaYogaLine(p.yogaWithLagnaLord, t), prasnaYogaLine(p.yogaWithKaryesha, t)].filter(Boolean);
+      if (yogaLines.length) {
+        var yogaP = document.createElement('p');
+        yogaP.style.cssText = 'margin:.25rem 0 0;font-size:.72rem;color:var(--text-muted);';
+        yogaP.textContent = t('prasnaWithMoon') + ': ' + yogaLines.join(' · ');
+        moonBody.appendChild(yogaP);
+      }
+      moonCard.appendChild(moonBody);
+      wrap.appendChild(moonCard);
+    }
+  }
+
+  (function setupPrasna(){
+    var cityInput = document.getElementById('prasna-city');
+    var suggestBox = document.getElementById('prasna-city-suggestions');
+    var latInput = document.getElementById('prasna-lat');
+    var lonInput = document.getElementById('prasna-lon');
+    var askBtn = document.getElementById('prasna-ask-btn');
+    var errorBox = document.getElementById('prasna-error-box');
+    if (!cityInput || !askBtn) return;
+    var debounceTimer = null;
+
+    cityInput.addEventListener('input', function(){
+      var q = cityInput.value.trim();
+      clearTimeout(debounceTimer);
+      latInput.value = '';
+      lonInput.value = '';
+      if (q.length < 2) { suggestBox.classList.remove('open'); return; }
+      debounceTimer = setTimeout(function(){
+        fetch('/api/geocode-city?q=' + encodeURIComponent(q))
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var results = data.results || [];
+            suggestBox.innerHTML = '';
+            if (results.length === 0){ suggestBox.classList.remove('open'); return; }
+            results.forEach(function(city){
+              var opt = document.createElement('div');
+              opt.className = 'city-option';
+              opt.textContent = city.label;
+              opt.addEventListener('click', function(){
+                cityInput.value = city.label;
+                latInput.value = parseFloat(city.lat).toFixed(4);
+                lonInput.value = parseFloat(city.lon).toFixed(4);
+                suggestBox.classList.remove('open');
+              });
+              suggestBox.appendChild(opt);
+            });
+            suggestBox.classList.add('open');
+          })
+          .catch(function(){ suggestBox.classList.remove('open'); });
+      }, 400);
+    });
+    document.addEventListener('click', function(e){
+      if (e.target !== cityInput) suggestBox.classList.remove('open');
+    });
+
+    askBtn.addEventListener('click', function(){
+      var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+      errorBox.style.display = 'none';
+      if (!latInput.value || !lonInput.value) {
+        errorBox.textContent = t('prasnaErrorNoCity');
+        errorBox.style.display = 'block';
+        return;
+      }
+      var category = document.getElementById('prasna-category').value;
+      askBtn.disabled = true;
+      var origLabel = askBtn.textContent;
+      askBtn.textContent = '…';
+      fetch('/api/prasna', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat: latInput.value, lon: lonInput.value, category: category, utcOffset: '+05:00' }),
+      })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+        .then(function(res){
+          if (!res.ok) {
+            errorBox.textContent = res.body.error || 'Error';
+            errorBox.style.display = 'block';
+            return;
+          }
+          renderPrasnaResult(res.body);
+        })
+        .catch(function(err){
+          errorBox.textContent = String(err);
+          errorBox.style.display = 'block';
+        })
+        .finally(function(){
+          askBtn.disabled = false;
+          askBtn.textContent = origLabel;
+        });
+    });
+  })();
+
+  // ---- Kundli Milan (Task 47) — Ashtakoot Guna Milan. Prasna jaisa hi
+  // on-demand feature: apna alag `/api/kundli-milan` POST, renderAll()
+  // se nahi chalta. ----
+  function setupCitySearchGeneric(inputId, suggestBoxId, latId, lonId){
+    var cityInput = document.getElementById(inputId);
+    var suggestBox = document.getElementById(suggestBoxId);
+    var latInput = document.getElementById(latId);
+    var lonInput = document.getElementById(lonId);
+    if (!cityInput || !suggestBox) return;
+    var debounceTimer = null;
+    cityInput.addEventListener('input', function(){
+      var q = cityInput.value.trim();
+      clearTimeout(debounceTimer);
+      latInput.value = '';
+      lonInput.value = '';
+      if (q.length < 2) { suggestBox.classList.remove('open'); return; }
+      debounceTimer = setTimeout(function(){
+        fetch('/api/geocode-city?q=' + encodeURIComponent(q))
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            var results = data.results || [];
+            suggestBox.innerHTML = '';
+            if (results.length === 0){ suggestBox.classList.remove('open'); return; }
+            results.forEach(function(city){
+              var opt = document.createElement('div');
+              opt.className = 'city-option';
+              opt.textContent = city.label;
+              opt.addEventListener('click', function(){
+                cityInput.value = city.label;
+                latInput.value = parseFloat(city.lat).toFixed(4);
+                lonInput.value = parseFloat(city.lon).toFixed(4);
+                suggestBox.classList.remove('open');
+              });
+              suggestBox.appendChild(opt);
+            });
+            suggestBox.classList.add('open');
+          })
+          .catch(function(){ suggestBox.classList.remove('open'); });
+      }, 400);
+    });
+    document.addEventListener('click', function(e){
+      if (e.target !== cityInput) suggestBox.classList.remove('open');
+    });
+  }
+  setupCitySearchGeneric('milan-groom-city', 'milan-groom-city-suggestions', 'milan-groom-lat', 'milan-groom-lon');
+  setupCitySearchGeneric('milan-bride-city', 'milan-bride-city-suggestions', 'milan-bride-lat', 'milan-bride-lon');
+
+  function milanInterpLabel(interpretation, t){
+    if (interpretation === 'excellent') return t('milanInterpExcellent');
+    if (interpretation === 'good') return t('milanInterpGood');
+    if (interpretation === 'average') return t('milanInterpAverage');
+    return t('milanInterpIncompatible');
+  }
+  function milanInterpPillClass(interpretation){
+    if (interpretation === 'excellent' || interpretation === 'good') return 'strong';
+    if (interpretation === 'average') return 'neutral';
+    return 'weak';
+  }
+  function renderMilanResult(payload){
+    var wrap = document.getElementById('milan-content');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    if (!payload || !payload.milan) return;
+    var m = payload.milan;
+    var isUrM = currentLang === 'ur';
+    var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+
+    var scoreBanner = document.createElement('div');
+    scoreBanner.style.cssText = 'text-align:center; margin-bottom:.8rem;';
+    var scoreBig = document.createElement('div');
+    scoreBig.style.cssText = 'font-size:2rem; font-weight:700; color:var(--gold-soft);';
+    scoreBig.textContent = m.totalScore + ' / ' + m.maxScore;
+    scoreBanner.appendChild(scoreBig);
+    var scoreLabel = document.createElement('div');
+    scoreLabel.style.cssText = 'font-size:.75rem; color:var(--text-muted); margin-bottom:.4rem;';
+    scoreLabel.textContent = t('milanTotalScore');
+    scoreBanner.appendChild(scoreLabel);
+    var interpPill = document.createElement('span');
+    interpPill.className = 'status-pill ' + milanInterpPillClass(m.interpretation);
+    interpPill.style.cssText = 'display:inline-block; font-size:.85rem; padding:.4rem .9rem;';
+    interpPill.textContent = milanInterpLabel(m.interpretation, t);
+    scoreBanner.appendChild(interpPill);
+    wrap.appendChild(scoreBanner);
+
+    if (m.hasNadiDosha) {
+      var nadiWarn = document.createElement('p');
+      nadiWarn.style.cssText = 'text-align:center; font-size:.78rem; color:var(--weak); margin:.3rem 0;';
+      nadiWarn.textContent = t('milanNadiDoshaWarning');
+      wrap.appendChild(nadiWarn);
+    }
+    if (m.hasBhakootDosha) {
+      var bhakootWarn = document.createElement('p');
+      bhakootWarn.style.cssText = 'text-align:center; font-size:.78rem; color:var(--weak); margin:.3rem 0;';
+      bhakootWarn.textContent = t('milanBhakootDoshaWarning');
+      wrap.appendChild(bhakootWarn);
+    }
+
+    var moonRow = document.createElement('p');
+    moonRow.style.cssText = 'text-align:center; font-size:.75rem; color:var(--text-muted); margin:.5rem 0 1rem;';
+    moonRow.textContent = t('milanGroomMoon') + ': ' + (isUrM ? m.groom.sign : m.groom.signLatin) + ' — ' + (isUrM ? m.groom.nakshatraUrdu : m.groom.nakshatra) +
+      '   ·   ' + t('milanBrideMoon') + ': ' + (isUrM ? m.bride.sign : m.bride.signLatin) + ' — ' + (isUrM ? m.bride.nakshatraUrdu : m.bride.nakshatra);
+    wrap.appendChild(moonRow);
+
+    var kootaRows = [
+      { key: 'varna', label: t('milanKootaVarna') },
+      { key: 'vashya', label: t('milanKootaVashya') },
+      { key: 'tara', label: t('milanKootaTara') },
+      { key: 'yoni', label: t('milanKootaYoni') },
+      { key: 'grahaMaitri', label: t('milanKootaGrahaMaitri') },
+      { key: 'gana', label: t('milanKootaGana') },
+      { key: 'bhakoot', label: t('milanKootaBhakoot') },
+      { key: 'nadi', label: t('milanKootaNadi') },
+    ];
+    kootaRows.forEach(function(row){
+      var k = m.kootas[row.key];
+      var card = document.createElement('div');
+      card.className = 'house-row';
+      var main = document.createElement('div');
+      var extra = '';
+      if (row.key === 'bhakoot' && k.hasDosha && k.cancelled) extra = ' ' + t('milanBhakootCancelled');
+      main.innerHTML = '<div class="house-title">' + row.label + '</div>' +
+        '<div class="house-lord">' + k.score + ' / ' + k.max + extra + '</div>';
+      card.appendChild(main);
+      var side = document.createElement('div');
+      side.className = 'house-side';
+      side.textContent = k.score + '/' + k.max;
+      card.appendChild(side);
+      wrap.appendChild(card);
+    });
+  }
+
+  (function setupMilan(){
+    var checkBtn = document.getElementById('milan-check-btn');
+    var errorBox = document.getElementById('milan-error-box');
+    if (!checkBtn) return;
+    checkBtn.addEventListener('click', function(){
+      var t = function(key){ return I18N[currentLang] && I18N[currentLang][key] ? I18N[currentLang][key] : I18N.en[key]; };
+      errorBox.style.display = 'none';
+      var groom = {
+        dob: document.getElementById('milan-groom-dob').value,
+        time: document.getElementById('milan-groom-time').value,
+        lat: document.getElementById('milan-groom-lat').value,
+        lon: document.getElementById('milan-groom-lon').value,
+        utcOffset: '+05:00',
+      };
+      var bride = {
+        dob: document.getElementById('milan-bride-dob').value,
+        time: document.getElementById('milan-bride-time').value,
+        lat: document.getElementById('milan-bride-lat').value,
+        lon: document.getElementById('milan-bride-lon').value,
+        utcOffset: '+05:00',
+      };
+      if (!groom.dob || !groom.time || !groom.lat || !groom.lon || !bride.dob || !bride.time || !bride.lat || !bride.lon) {
+        errorBox.textContent = t('milanErrorIncomplete');
+        errorBox.style.display = 'block';
+        return;
+      }
+      checkBtn.disabled = true;
+      var origLabel = checkBtn.textContent;
+      checkBtn.textContent = '…';
+      fetch('/api/kundli-milan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groom: groom, bride: bride }),
+      })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, body: j }; }); })
+        .then(function(res){
+          if (!res.ok) {
+            errorBox.textContent = res.body.error || 'Error';
+            errorBox.style.display = 'block';
+            return;
+          }
+          renderMilanResult(res.body);
+        })
+        .catch(function(err){
+          errorBox.textContent = String(err);
+          errorBox.style.display = 'block';
+        })
+        .finally(function(){
+          checkBtn.disabled = false;
+          checkBtn.textContent = origLabel;
+        });
+    });
+  })();
 
   function renderHouseList(data){
     var wrap = document.getElementById('house-list');
@@ -3606,7 +4311,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-moonphases', 'phone-aspects', 'phone-kp', 'phone-western', 'phone-arabianparts', 'phone-yoginidasha', 'phone-charadasha', 'phone-charakaraka', 'phone-pdfreport', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-moonphases', 'phone-aspects', 'phone-kp', 'phone-western', 'phone-arabianparts', 'phone-yoginidasha', 'phone-charadasha', 'phone-charakaraka', 'phone-pdfreport', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly', 'phone-prasna', 'phone-milan',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
