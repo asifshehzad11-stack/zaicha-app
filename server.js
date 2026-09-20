@@ -58,6 +58,7 @@ const { buildVimshopakBala } = require('./lib/vimshopak-bala');
 const { buildMoonPhases } = require('./lib/moon-phases');
 const { buildNatalAspects } = require('./lib/natal-aspects');
 const { buildKpInfo } = require('./lib/kp-system');
+const { buildKpCuspal } = require('./lib/kp-cuspal');
 const { buildWesternChart } = require('./lib/western-chart');
 const { buildArabianParts } = require('./lib/arabian-parts');
 const { buildPrasnaJudgment, CATEGORY_HOUSES } = require('./lib/prasna');
@@ -417,6 +418,14 @@ app.post('/api/kundli', async (req, res) => {
     // sath (app ka apna Lahiri ayanamsa, aur cuspal significators abhi
     // nahi). Koi extra API call nahi.
     const kpInfo = buildKpInfo(data);
+    // ---- KP full cuspal-significator system — pehle "disclosed-blocked"
+    // tha (ROADMAP mein), Asif ke khaas kehne par ab bana diya gaya
+    // (2026-09-20, session 3 cont'd). lib/kp-cuspal.js dekhein — 12
+    // Placidus house cusps khud calculate karte hain (khaalis riyazi,
+    // Meeus/Munkasey formulas se port kiya gaya, koi extra API call
+    // nahi), phir har ghar ka KP "significator" (A/B/C/D 4-level
+    // hierarchy, 3 independent sources se cross-verified) nikalte hain.
+    const kpCuspal = buildKpCuspal(data, new Date(birthDatetime), parseFloat(effective.lat), parseFloat(effective.lon));
     // ---- Western (Tropical) chart view — OMNIS-7 feature-parity item
     // (Phase 3, task 44). lib/western-chart.js dekhein — mojooda sidereal
     // longitude data mein khud-derive-kiya-gaya ayanamsa-value jama kar ke
@@ -464,6 +473,7 @@ app.post('/api/kundli', async (req, res) => {
       moonPhases,
       natalAspects,
       kpInfo,
+      kpCuspal,
       westernChart,
       arabianParts,
       yoginiDasha,
