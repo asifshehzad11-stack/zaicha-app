@@ -401,7 +401,17 @@
           <div class="feature-card"><span class="fi">🌐</span><span class="ft" data-i18n="featLang">اردو اور انگریزی</span></div>
         </div>
 
-        <div class="auth-tabs" role="tablist">
+        <!-- TESTING_SKIP_AUTH: jab tak ye ON hai, upar wale auth-tabs aur
+             neechay ke dono forms JS se chhupa diye jate hain, aur iske
+             bajaye sirf ye seedha "جاری رکھیں" button dikhta hai (guest
+             flow — bilkul account/password backend aane se pehle wala
+             asal tareeqa). Backend (DB accounts, login/register routes)
+             bilkul intact hai — sirf frontend gate hata hai, taake baad
+             mein sirf JS mein `TESTING_SKIP_AUTH = false` kar ke wapas
+             chalu kiya ja sake. -->
+        <button type="button" class="cta-btn" id="guest-continue-btn" style="display:none;" data-i18n="authContinue">جاری رکھیں</button>
+
+        <div class="auth-tabs" id="auth-tabs" role="tablist">
           <button type="button" class="active" data-auth="signin" data-i18n="authSignIn">سائن اِن</button>
           <button type="button" data-auth="register" data-i18n="authRegister">رجسٹر</button>
         </div>
@@ -650,6 +660,8 @@
           <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
           <button type="button" class="shortcut-item" data-target="phone-planets"><span class="ic">🪐</span><span data-i18n="tabPlanets">گرہوں کی تفصیل</span></button>
           <button type="button" class="shortcut-item" data-target="phone-grahabala"><span class="ic">⚖️</span><span data-i18n="tabGrahaBala">قوتِ گرہ</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-yoginidasha"><span class="ic">🌀</span><span data-i18n="tabYoginiDasha">یوگنی دشا</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-charakaraka"><span class="ic">🎯</span><span data-i18n="tabCharaKaraka">چر کارک</span></button>
         </div>
 
         <!-- Yahan sirf "aaj ka" hub content rehta hai (daily message +
@@ -717,6 +729,7 @@
       <div class="phone" id="phone-yearly">
         <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
         <div class="feed-head"><span class="ic">📅</span> <span data-i18n="tabYearly">اس سال کا رجحان</span></div>
+        <div id="muntha-card"></div>
         <div id="yearly-note" class="note" style="display:none;"></div>
         <div id="yearly-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
@@ -778,6 +791,26 @@
         <p class="sub" data-i18n="grahaBalaSub">ہر گرہ کتنا مضبوط یا کمزور ہے — کلاسیکی اصولوں پر مبنی</p>
         <p class="sub" data-i18n="grahaBalaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ کلاسیکی "شَڈ بَل" کے 5 قابلِ‌حساب اجزاء پر مبنی ایک آسان اسکور ہے (مکمل روایتی شَڈ بَل نہیں) — راہو/کیتو کلاسیکی طور پر اس میں شامل نہیں ہوتے۔</p>
         <div id="grahabala-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-yoginidasha">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🌀</span> <span data-i18n="tabYoginiDasha">یوگنی دشا</span></div>
+        <p class="sub" data-i18n="yoginiDashaSub">36 سالہ کلاسیکی یوگنی دشا نظام — آٹھ یوگنیوں کا چکر</p>
+        <p class="sub" data-i18n="yoginiDashaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ تاریخیں اوسط سال (365.25 دن) پر مبنی تخمینہ ہیں، کیونکہ کوئی API یہ دشا فراہم نہیں کرتی — حساب اسی ایپ میں کلاسیکی فارمولے سے کیا گیا ہے۔</p>
+        <div id="yoginidasha-current"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="dashaTreeH4">مکمل دشا شیڈول — کلک کر کے کھولیں</h4>
+        <div id="yoginidasha-tree" class="dasha-tree"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+      </div>
+
+      <div class="phone" id="phone-charakaraka">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">🎯</span> <span data-i18n="tabCharaKaraka">چر کارک</span></div>
+        <p class="sub" data-i18n="charaKarakaSub">جیمنی طریقہ — ہر گرہ کی اپنی راشی میں ڈگری کی بنیاد پر آٹھ کارک (اہم اشارے)</p>
+        <p class="sub" data-i18n="charaKarakaNote" style="font-size:.72rem; opacity:.75;">نوٹ: یہ 8-کارک طریقہ ہے (راہو شامل، الٹی ترتیب میں) — 7-کارک طریقہ (راہو کے بغیر) بھی کلاسیکی طور پر رائج ہے، دونوں مستند ہیں۔</p>
+        <div id="charakaraka-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
+        <h4 style="margin:1rem 0 .4rem;font-size:.85rem;color:var(--text-muted);" data-i18n="naisargikaH4">قدرتی کارک (ہر کنڈلی میں ایک جیسے)</h4>
+        <div id="naisargika-list"><div class="placeholder">ڈیٹا کا انتظار ہے</div></div>
       </div>
 
       <div class="phone" id="phone-weekly">
@@ -933,6 +966,13 @@
       tabGrahaBala: 'قوتِ گرہ',
       grahaBalaSub: 'ہر گرہ کتنا مضبوط یا کمزور ہے — کلاسیکی اصولوں پر مبنی',
       grahaBalaNote: 'نوٹ: یہ کلاسیکی "شَڈ بَل" کے 5 قابلِ‌حساب اجزاء پر مبنی ایک آسان اسکور ہے (مکمل روایتی شَڈ بَل نہیں) — راہو/کیتو کلاسیکی طور پر اس میں شامل نہیں ہوتے۔',
+      tabYoginiDasha: 'یوگنی دشا',
+      yoginiDashaSub: '36 سالہ کلاسیکی یوگنی دشا نظام — آٹھ یوگنیوں کا چکر',
+      yoginiDashaNote: 'نوٹ: یہ تاریخیں اوسط سال (365.25 دن) پر مبنی تخمینہ ہیں، کیونکہ کوئی API یہ دشا فراہم نہیں کرتی — حساب اسی ایپ میں کلاسیکی فارمولے سے کیا گیا ہے۔',
+      tabCharaKaraka: 'چر کارک',
+      charaKarakaSub: 'جیمنی طریقہ — ہر گرہ کی اپنی راشی میں ڈگری کی بنیاد پر آٹھ کارک (اہم اشارے)',
+      charaKarakaNote: 'نوٹ: یہ 8-کارک طریقہ ہے (راہو شامل، الٹی ترتیب میں) — 7-کارک طریقہ (راہو کے بغیر) بھی کلاسیکی طور پر رائج ہے، دونوں مستند ہیں۔',
+      naisargikaH4: 'قدرتی کارک (ہر کنڈلی میں ایک جیسے)',
       tabPanchang: 'پنچانگ',
       tabAshtakavarga: 'اشٹک ورگ',
       dailyDefaultText: 'پہلے "زائچہ بنائیں" دبائیں۔',
@@ -1030,6 +1070,13 @@
       tabGrahaBala: 'Planet Strength',
       grahaBalaSub: 'How strong or weak each planet is, based on classical rules',
       grahaBalaNote: 'Note: this is a simplified score based on 5 computable components of classical "Shad Bala" (not the full traditional Shad Bala) — Rahu/Ketu are classically excluded from this.',
+      tabYoginiDasha: 'Yogini Dasha',
+      yoginiDashaSub: 'The classical 36-year Yogini Dasha system — a cycle of eight Yoginis',
+      yoginiDashaNote: "Note: these dates are an estimate based on an average year (365.25 days), since no API provides this dasha — it is calculated in-app using the classical formula.",
+      tabCharaKaraka: 'Chara Karaka',
+      charaKarakaSub: 'Jaimini method — eight key significators based on each planet’s degree within its own sign',
+      charaKarakaNote: 'Note: this uses the 8-Karaka scheme (Rahu included, counted in reverse) — the 7-Karaka scheme (without Rahu) is also classically valid; both are used in different traditions.',
+      naisargikaH4: 'Natural Karakas (the same for every chart)',
       tabPanchang: 'Panchang',
       tabAshtakavarga: 'Ashtakavarga',
       dailyDefaultText: 'Click "Generate chart" first.',
@@ -1127,6 +1174,13 @@
       tabGrahaBala: 'ग्रह बल',
       grahaBalaSub: 'हर ग्रह कितना मजबूत या कमजोर है — शास्त्रीय नियमों पर आधारित',
       grahaBalaNote: 'नोट: यह शास्त्रीय "षड्बल" के 5 गणना-योग्य हिस्सों पर आधारित एक आसान स्कोर है (पूरा पारंपरिक षड्बल नहीं) — राहु/केतु शास्त्रीय रूप से इसमें शामिल नहीं होते।',
+      tabYoginiDasha: 'योगिनी दशा',
+      yoginiDashaSub: '36 वर्षीय शास्त्रीय योगिनी दशा प्रणाली — आठ योगिनियों का चक्र',
+      yoginiDashaNote: 'नोट: ये तारीखें औसत वर्ष (365.25 दिन) पर आधारित अनुमान हैं, क्योंकि कोई API यह दशा उपलब्ध नहीं कराती — गणना इसी ऐप में शास्त्रीय सूत्र से की गई है।',
+      tabCharaKaraka: 'चर कारक',
+      charaKarakaSub: 'जैमिनी पद्धति — हर ग्रह की अपनी राशि में डिग्री के आधार पर आठ कारक (मुख्य संकेतक)',
+      charaKarakaNote: 'नोट: यह 8-कारक पद्धति है (राहु शामिल, उल्टे क्रम में) — 7-कारक पद्धति (राहु के बिना) भी शास्त्रीय रूप से मान्य है, दोनों अलग-अलग परंपराओं में प्रचलित हैं।',
+      naisargikaH4: 'प्राकृतिक कारक (हर कुंडली में एक जैसे)',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -1217,6 +1271,15 @@
   });
   applyLanguage('en'); // default language — dekhein currentLang ke upar wala note
 
+  // ---- Multi-language foundation: chhote shared UI-chrome helpers, taake
+  // render*() functions mein har jagah alag-alag ternary likhne ke bajaye
+  // ek hi jagah se aayen. Data khud (narrative/transits/yogas/remedies)
+  // server se pehle hi currentLang mein aata hai — ye sirf structural
+  // labels (placeholders, headings, prefixes) ke liye hain.
+  function waitingForDataText(){
+    return currentLang === 'ur' ? 'ڈیٹا کا انتظار ہے' : 'Waiting for data';
+  }
+
   var HOUSE_GEOMETRY = {
     1:  { signPos:{x:150,y:46},  slots:[{x:128,y:82},{x:172,y:82}] },
     2:  { signPos:{x:75,y:22},   slots:[{x:75,y:30}] },
@@ -1272,8 +1335,12 @@
       });
     }
 
+    var ascLabel = currentLang === 'en' ? 'Ascendant' : currentLang === 'hi' ? 'Ascendant' : 'طالع';
+    var sysLabel = currentLang === 'en' ? 'System' : currentLang === 'hi' ? 'System' : 'نظام';
+    var ascVal = currentLang === 'ur' ? data.person.ascendantSignName : data.person.ascendantSignLatin;
+    var sysVal = currentLang === 'ur' ? data.person.system : data.person.systemLatin;
     document.getElementById('chart-subhead').textContent =
-      'طالع: ' + data.person.ascendantSignName + '   ·   نظام: ' + data.person.system;
+      ascLabel + ': ' + ascVal + '   ·   ' + sysLabel + ': ' + sysVal;
   }
 
   // Navamsa (D9) — bilkul wahi diamond-chart rendering jo main D1 chart
@@ -1311,14 +1378,20 @@
     }
 
     var headEl = document.getElementById('navamsa-subhead');
-    if (headEl) headEl.textContent = 'نومانش طالع: ' + nav.ascendantSignName;
+    if (headEl) {
+      var navAscLabel = currentLang === 'ur' ? 'نومانش طالع: ' : 'Navamsa Ascendant: ';
+      var navAscVal = currentLang === 'ur' ? nav.ascendantSignName : nav.ascendantSignLatin;
+      headEl.textContent = navAscLabel + navAscVal;
+    }
 
     var vEl = document.getElementById('navamsa-vargottama');
     if (vEl) {
       var vp = nav.vargottamaPlanets || [];
       if (vp.length) {
-        var names = vp.map(function(n){ return PLANET_NAME_UR_SHORT[n] || n; }).join('، ');
-        vEl.textContent = '✦ ورگوتم (D1 اور D9 دونوں میں ایک ہی راشی میں): ' + names + ' — کلاسیکی طور پر بہت مضبوط مانا جاتا ہے۔';
+        var names = vp.map(function(n){ return currentLang === 'ur' ? (PLANET_NAME_UR_SHORT[n] || n) : n; }).join(currentLang === 'ur' ? '، ' : ', ');
+        vEl.textContent = currentLang === 'ur'
+          ? ('✦ ورگوتم (D1 اور D9 دونوں میں ایک ہی راشی میں): ' + names + ' — کلاسیکی طور پر بہت مضبوط مانا جاتا ہے۔')
+          : ('✦ Vargottama (same sign in both D1 and D9): ' + names + ' — classically considered very strong.');
       } else {
         vEl.textContent = '';
       }
@@ -1335,9 +1408,10 @@
     list.innerHTML = '';
     var profiles = data.planetProfiles || [];
     if (!profiles.length) {
-      list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
       return;
     }
+    var isUr = currentLang === 'ur';
     profiles.forEach(function(p){
       var card = document.createElement('div');
       card.className = 'pred-card icon-card';
@@ -1351,25 +1425,31 @@
       body.className = 'icon-card-body';
       var tag = document.createElement('span');
       tag.className = 'tag';
-      tag.textContent = p.nameUrdu + (p.isRetrograde ? ' (رجعت⟲)' : '') + (p.isCombust ? ' (مدھم/Combust)' : '');
+      var retroTag = isUr ? ' (رجعت⟲)' : ' (Retrograde⟲)';
+      var combustTag = isUr ? ' (مدھم/Combust)' : ' (Combust)';
+      tag.textContent = (isUr ? p.nameUrdu : p.name) + (p.isRetrograde ? retroTag : '') + (p.isCombust ? combustTag : '');
       body.appendChild(tag);
 
       var line1 = document.createElement('p');
-      line1.textContent = 'راشی: ' + p.sign + ' (' + p.degree + ')   ·   گھر: ' + (p.house || '—');
+      line1.textContent = isUr
+        ? ('راشی: ' + p.sign + ' (' + p.degree + ')   ·   گھر: ' + (p.house || '—'))
+        : ('Sign: ' + p.signLatin + ' (' + p.degree + ')   ·   House: ' + (p.house || '—'));
       body.appendChild(line1);
 
       var line2 = document.createElement('p');
       line2.style.margin = '.25rem 0 0';
-      line2.textContent = 'نچھتر: ' + p.nakshatra + ' پاد ' + p.pada + '   ·   حاکمِ نچھتر: ' + p.nakshatraLordUrdu;
+      line2.textContent = isUr
+        ? ('نچھتر: ' + p.nakshatra + ' پاد ' + p.pada + '   ·   حاکمِ نچھتر: ' + p.nakshatraLordUrdu)
+        : ('Nakshatra: ' + p.nakshatraLatin + ' Pada ' + p.pada + '   ·   Nakshatra Lord: ' + p.nakshatraLord);
       body.appendChild(line2);
 
       var line3 = document.createElement('p');
       line3.style.margin = '.25rem 0 0';
       line3.style.fontSize = '.78rem';
       line3.style.color = 'var(--text-muted)';
-      var extra = 'حالت: ' + p.dignityLabel;
-      if (p.navamsaSign) extra += '   ·   نومانش: ' + p.navamsaSign;
-      if (p.isVargottama) extra += '   ·   ✦ ورگوتم';
+      var extra = isUr ? ('حالت: ' + p.dignityLabel) : ('Dignity: ' + p.dignityLabelEn);
+      if (p.navamsaSign) extra += isUr ? ('   ·   نومانش: ' + p.navamsaSign) : ('   ·   Navamsa: ' + p.navamsaSignLatin);
+      if (p.isVargottama) extra += isUr ? '   ·   ✦ ورگوتم' : '   ·   ✦ Vargottama';
       line3.textContent = extra;
       body.appendChild(line3);
 
@@ -1378,21 +1458,20 @@
     });
   }
 
-  function grahaBalaPillClass(strength){
-    if (strength === 'strong') return 'strong';
-    if (strength === 'weak') return 'weak';
-    return 'neutral';
-  }
-
-  function renderGrahaBala(data){
-    var list = document.getElementById('grahabala-list');
+  // ---- Chara Karaka (Jaimini) — lib/jaimini-karaka.js dekhein. Graha
+  // Bala jaisa hi icon-card layout reuse kiya gaya hai, kyunke dono ka
+  // shape milta-julta hai (har card = ek graha + uska rank/role).
+  function renderCharaKarakas(data){
+    var list = document.getElementById('charakaraka-list');
     if (!list) return;
     list.innerHTML = '';
-    var rows = data.grahaBala || [];
+    var ck = data.charaKarakas;
+    var rows = (ck && ck.karakas) || [];
     if (!rows.length) {
-      list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
       return;
     }
+    var isUrCK = currentLang === 'ur';
     rows.forEach(function(r){
       var card = document.createElement('div');
       card.className = 'pred-card icon-card';
@@ -1413,11 +1492,103 @@
       head.style.gap = '.5rem';
       var tag = document.createElement('span');
       tag.className = 'tag';
-      tag.textContent = r.nameUrdu + (r.house ? '   ·   گھر ' + r.house : '');
+      var planetNm = isUrCK ? (PLANET_NAME_UR_MAP[r.planet] || r.planet) : r.planet;
+      tag.textContent = r.rank + '. ' + r.karakaLabel + ' — ' + planetNm;
+      head.appendChild(tag);
+      body.appendChild(head);
+
+      var line = document.createElement('p');
+      line.style.margin = '.3rem 0 0';
+      line.style.fontSize = '.78rem';
+      line.style.color = 'var(--text-muted)';
+      var signVal = isUrCK ? r.sign : r.signLatin;
+      line.textContent = isUrCK
+        ? ('راشی: ' + signVal + (r.house ? ('   ·   گھر ' + r.house) : '') + '   ·   ڈگری: ' + r.degreeInSign + '°')
+        : ('Sign: ' + signVal + (r.house ? ('   ·   House ' + r.house) : '') + '   ·   Degree: ' + r.degreeInSign + '°');
+      body.appendChild(line);
+
+      card.appendChild(body);
+      list.appendChild(card);
+    });
+
+    // Naisargika Karaka (fixed table, chart se independent) — usi
+    // response ke andar (data.charaKarakas.naisargika) aata hai.
+    var natList = document.getElementById('naisargika-list');
+    if (natList) {
+      natList.innerHTML = '';
+      var natRows = (ck && ck.naisargika) || [];
+      if (!natRows.length) {
+        natList.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      } else {
+        natRows.forEach(function(n){
+          var ncard = document.createElement('div');
+          ncard.className = 'pred-card icon-card';
+          var nbadge = document.createElement('span');
+          nbadge.className = 'icon-card-badge';
+          nbadge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[n.planet] || '--gold') + ')');
+          nbadge.textContent = PLANET_EMOJI[n.planet] || '✦';
+          ncard.appendChild(nbadge);
+          var nbody = document.createElement('div');
+          nbody.className = 'icon-card-body';
+          var ntag = document.createElement('span');
+          ntag.className = 'tag';
+          ntag.textContent = isUrCK ? (PLANET_NAME_UR_MAP[n.planet] || n.planet) : n.planet;
+          nbody.appendChild(ntag);
+          var nline = document.createElement('p');
+          nline.style.margin = '.3rem 0 0';
+          nline.style.fontSize = '.78rem';
+          nline.style.color = 'var(--text-muted)';
+          nline.textContent = n.signification;
+          nbody.appendChild(nline);
+          ncard.appendChild(nbody);
+          natList.appendChild(ncard);
+        });
+      }
+    }
+  }
+
+  function grahaBalaPillClass(strength){
+    if (strength === 'strong') return 'strong';
+    if (strength === 'weak') return 'weak';
+    return 'neutral';
+  }
+
+  function renderGrahaBala(data){
+    var list = document.getElementById('grahabala-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var rows = data.grahaBala || [];
+    if (!rows.length) {
+      list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
+      return;
+    }
+    var isUrGB = currentLang === 'ur';
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'pred-card icon-card';
+
+      var badge = document.createElement('span');
+      badge.className = 'icon-card-badge';
+      badge.style.setProperty('--_c', 'var(' + (PLANET_CSS_VAR[r.planet] || '--gold') + ')');
+      badge.textContent = PLANET_EMOJI[r.planet] || '✦';
+      card.appendChild(badge);
+
+      var body = document.createElement('div');
+      body.className = 'icon-card-body';
+
+      var head = document.createElement('div');
+      head.style.display = 'flex';
+      head.style.alignItems = 'center';
+      head.style.justifyContent = 'space-between';
+      head.style.gap = '.5rem';
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      var houseSuffix = r.house ? (isUrGB ? ('   ·   گھر ' + r.house) : ('   ·   House ' + r.house)) : '';
+      tag.textContent = (isUrGB ? r.nameUrdu : r.nameLatin) + houseSuffix;
       head.appendChild(tag);
       var pill = document.createElement('span');
       pill.className = 'status-pill ' + grahaBalaPillClass(r.strength);
-      pill.textContent = r.strengthUrdu + ' (' + r.percent + '%)';
+      pill.textContent = (isUrGB ? r.strengthUrdu : r.strengthEn) + ' (' + r.percent + '%)';
       head.appendChild(pill);
       body.appendChild(head);
 
@@ -1434,9 +1605,13 @@
       line.style.margin = '.25rem 0 0';
       line.style.fontSize = '.72rem';
       line.style.color = 'var(--text-muted)';
-      line.textContent = 'اُچّا: ' + r.components.uchchaBala + '   کیندری: ' + r.components.kendradiBala +
-        '   دِگ: ' + r.components.digBala + '   درِک: ' + r.components.drikBala +
-        '   پکش: ' + r.components.pakshaBala + '   ·   نیسرگک (فکس): ' + r.naisargikaBala;
+      line.textContent = isUrGB
+        ? ('اُچّا: ' + r.components.uchchaBala + '   کیندری: ' + r.components.kendradiBala +
+          '   دِگ: ' + r.components.digBala + '   درِک: ' + r.components.drikBala +
+          '   پکش: ' + r.components.pakshaBala + '   ·   نیسرگک (فکس): ' + r.naisargikaBala)
+        : ('Uchcha: ' + r.components.uchchaBala + '   Kendradi: ' + r.components.kendradiBala +
+          '   Dig: ' + r.components.digBala + '   Drik: ' + r.components.drikBala +
+          '   Paksha: ' + r.components.pakshaBala + '   ·   Naisargika (fixed): ' + r.naisargikaBala);
       body.appendChild(line);
 
       card.appendChild(body);
@@ -1450,23 +1625,27 @@
     return 'neutral';
   }
   function dignityLabel(dignity){
-    if (dignity === 'exalted') return 'اعلیٰ';
-    if (dignity === 'own') return 'اپنا گھر';
-    if (dignity === 'debilitated') return 'کمزور';
-    return 'درمیانہ';
+    var isUr = currentLang === 'ur';
+    if (dignity === 'exalted') return isUr ? 'اعلیٰ' : 'Exalted';
+    if (dignity === 'own') return isUr ? 'اپنا گھر' : 'Own Sign';
+    if (dignity === 'debilitated') return isUr ? 'کمزور' : 'Debilitated';
+    return isUr ? 'درمیانہ' : 'Neutral';
   }
 
   function renderHouseList(data){
     var wrap = document.getElementById('house-list');
     wrap.innerHTML = '';
+    var isUrHL = currentLang === 'ur';
+    var houseWord = isUrHL ? 'خانہ' : 'House';
+    var lordWord = isUrHL ? 'حاکم' : 'Lord';
     data.houses.forEach(function(house){
       var row = document.createElement('div');
       row.className = 'house-row';
 
       var main = document.createElement('div');
       main.innerHTML =
-        '<div class="house-title">خانہ <span class="mono">' + house.n + '</span> — ' + house.sign + '</div>' +
-        '<div class="house-lord">حاکم: ' + house.lord + ' <span class="status-pill ' + dignityPillClass(house.lordDignity) + '">' + dignityLabel(house.lordDignity) + '</span></div>';
+        '<div class="house-title">' + houseWord + ' <span class="mono">' + house.n + '</span> — ' + (isUrHL ? house.sign : house.signLatin) + '</div>' +
+        '<div class="house-lord">' + lordWord + ': ' + (isUrHL ? house.lord : house.lordLatin) + ' <span class="status-pill ' + dignityPillClass(house.lordDignity) + '">' + dignityLabel(house.lordDignity) + '</span></div>';
 
       var side = document.createElement('div');
       side.className = 'house-side';
@@ -1489,11 +1668,19 @@
   }
 
   function renderPredictions(data){
-    document.getElementById('pred-daily-tag').textContent = data.asOfDate + ' — ' + (data.dasha.mahadasha ? data.dasha.mahadasha.lord + ' مہادشا' : '');
+    var isUrPred = currentLang === 'ur';
+    var mahaSuffix = data.dasha.mahadasha
+      ? (isUrPred
+        ? (data.dasha.mahadasha.lord + ' مہادشا')
+        : (data.dasha.mahadasha.lord + ' Mahadasha'))
+      : '';
+    document.getElementById('pred-daily-tag').textContent = data.asOfDate + ' — ' + mahaSuffix;
     var dailyTextEl = document.getElementById('pred-daily-text');
     dailyTextEl.textContent = data.narrative;
     dailyTextEl.dataset.hasRealData = 'true';
-    document.getElementById('pred-subhead').textContent = data.person.name + ' کے زائچے کی بنیاد پر';
+    document.getElementById('pred-subhead').textContent = isUrPred
+      ? (data.person.name + ' کے زائچے کی بنیاد پر')
+      : ("Based on " + data.person.name + "'s chart");
 
     renderPredStatTiles(data);
 
@@ -1505,7 +1692,7 @@
     combinedList.innerHTML = '';
     var combined = data.transitCombined || [];
     if (!combined.length) {
-      combinedList.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>';
+      combinedList.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>';
     } else {
       combined.forEach(function(c){
         var card = document.createElement('div');
@@ -1536,6 +1723,42 @@
         card.appendChild(body);
         combinedList.appendChild(card);
       });
+    }
+
+    // Muntha (Varshaphal ka verified hissa — lib/varshaphal.js dekhein)
+    // — chhota sa card, Yearly Outlook ke sar par, kyunke ye khud
+    // "is saal" (yearly-cycle) wali baat hai.
+    var munthaBox = document.getElementById('muntha-card');
+    if (munthaBox) {
+      munthaBox.innerHTML = '';
+      var m = data.muntha;
+      var isUrM = currentLang === 'ur';
+      if (m) {
+        var mCard = document.createElement('div');
+        mCard.className = 'pred-card icon-card';
+        var mBadge = document.createElement('span');
+        mBadge.className = 'icon-card-badge';
+        mBadge.style.setProperty('--_c', 'var(--gold)');
+        mBadge.textContent = '🌗';
+        mCard.appendChild(mBadge);
+        var mBody = document.createElement('div');
+        mBody.className = 'icon-card-body';
+        var mTag = document.createElement('span');
+        mTag.className = 'tag';
+        mTag.textContent = isUrM ? ('منتھا (سالانہ راشی) — ' + m.sign) : ('Muntha (yearly sign) — ' + m.signLatin);
+        mBody.appendChild(mTag);
+        var mLine = document.createElement('p');
+        mLine.style.margin = '.3rem 0 0';
+        mLine.style.fontSize = '.78rem';
+        mLine.style.color = 'var(--text-muted)';
+        var lordNm = isUrM ? (PLANET_NAME_UR_MAP[m.lord] || m.lord) : m.lord;
+        mLine.textContent = isUrM
+          ? ('عمر ' + m.age + ' سال مکمل   ·   حاکم: ' + lordNm + (m.house ? ('   ·   پیدائشی طالع سے گھر ' + m.house) : ''))
+          : ('Age ' + m.age + ' completed   ·   Lord: ' + lordNm + (m.house ? ('   ·   House ' + m.house + ' from natal Lagna') : ''));
+        mBody.appendChild(mLine);
+        mCard.appendChild(mBody);
+        munthaBox.appendChild(mCard);
+      }
     }
 
     renderLinesWithNote('monthly-list', 'monthly-note', data.monthlyOutlook);
@@ -1600,10 +1823,11 @@
     if (!maha && !birthPanchang) { row.hidden = true; return; }
     row.hidden = false;
 
+    var isUrTiles = currentLang === 'ur';
     var mahaVal = document.getElementById('stat-mahadasha-value');
     var mahaSub = document.getElementById('stat-mahadasha-sub');
     if (maha && maha.lord) {
-      mahaVal.textContent = (PLANET_EMOJI[maha.lord] || '') + ' ' + (PLANET_NAME_UR_MAP[maha.lord] || maha.lord);
+      mahaVal.textContent = (PLANET_EMOJI[maha.lord] || '') + ' ' + (isUrTiles ? (PLANET_NAME_UR_MAP[maha.lord] || maha.lord) : maha.lord);
       var s = fmtDate(maha.start), e = fmtDate(maha.end);
       mahaSub.textContent = (s && e) ? (s + ' — ' + e) : '';
     } else {
@@ -1615,7 +1839,7 @@
     var nakSub = document.getElementById('stat-nakshatra-sub');
     if (birthPanchang && birthPanchang.nakshatra) {
       nakVal.textContent = birthPanchang.nakshatra;
-      nakSub.textContent = birthPanchang.tithi ? ('تِتھی: ' + birthPanchang.tithi) : '';
+      nakSub.textContent = birthPanchang.tithi ? ((isUrTiles ? 'تِتھی: ' : 'Tithi: ') + birthPanchang.tithi) : '';
     } else {
       nakVal.textContent = '—';
       nakSub.textContent = '';
@@ -1628,8 +1852,12 @@
     var box = document.getElementById('daily-routine-list');
     if (!routine) { note.textContent = ''; box.innerHTML = ''; return; }
 
+    var isUrDR = currentLang === 'ur';
+    var planetNameDR = routine.weekday ? (isUrDR ? (PLANET_NAME_UR_MAP[routine.weekday.planet] || routine.weekday.planet) : routine.weekday.planet) : '';
     note.textContent = routine.weekday
-      ? 'آج ' + routine.weekday.name + ' ہے — روایتی حساب سے آج کا حاکم سیارہ ' + (PLANET_EMOJI[routine.weekday.planet] || '') + ' ' + (PLANET_NAME_UR_MAP[routine.weekday.planet] || routine.weekday.planet) + '، رنگ: ' + routine.weekday.color
+      ? (isUrDR
+        ? ('آج ' + routine.weekday.name + ' ہے — روایتی حساب سے آج کا حاکم سیارہ ' + (PLANET_EMOJI[routine.weekday.planet] || '') + ' ' + planetNameDR + '، رنگ: ' + routine.weekday.color)
+        : ('Today is ' + routine.weekday.name + ' — traditionally ruled by ' + (PLANET_EMOJI[routine.weekday.planet] || '') + ' ' + planetNameDR + ', color: ' + routine.weekday.color))
       : '';
 
     box.innerHTML = '';
@@ -1738,7 +1966,7 @@
     list.innerHTML = '';
     list.classList.remove('paywall-teaser');
     noteBox.style.display = 'none';
-    if (!outlook) { list.innerHTML = '<div class="placeholder">ڈیٹا کا انتظار ہے</div>'; return; }
+    if (!outlook) { list.innerHTML = '<div class="placeholder">' + waitingForDataText() + '</div>'; return; }
 
     (outlook.extra || []).forEach(function(text){
       var row = document.createElement('div');
@@ -1773,13 +2001,14 @@
     tag.className = 'tag';
     tag.textContent = title;
     card.appendChild(tag);
+    var isUrPC = currentLang === 'ur';
     if (!p) {
       var p1 = document.createElement('p');
-      p1.textContent = 'یہ معلومات ابھی حاصل نہیں ہو سکیں۔';
+      p1.textContent = isUrPC ? 'یہ معلومات ابھی حاصل نہیں ہو سکیں۔' : 'This information could not be retrieved yet.';
       card.appendChild(p1);
       return card;
     }
-    var rows = [
+    var rows = isUrPC ? [
       ['دن', p.vaara],
       ['تِتھی', p.tithi ? (p.tithi + (p.tithiPaksha ? ' (' + p.tithiPaksha + ')' : '')) : null],
       ['نچھتر', p.nakshatra],
@@ -1787,6 +2016,14 @@
       ['کرن', p.karana],
       ['طلوعِ آفتاب', p.sunrise],
       ['غروبِ آفتاب', p.sunset],
+    ] : [
+      ['Day', p.vaara],
+      ['Tithi', p.tithi ? (p.tithi + (p.tithiPaksha ? ' (' + p.tithiPaksha + ')' : '')) : null],
+      ['Nakshatra', p.nakshatra],
+      ['Yoga', p.yoga],
+      ['Karana', p.karana],
+      ['Sunrise', p.sunrise],
+      ['Sunset', p.sunset],
     ];
     // Pehle ye har cheez alag stacked line thi ("label: value") — ab
     // AstroSage jaisi saaf 2-column grid mein, taake ek nazar mein poora
@@ -1815,8 +2052,9 @@
     var box = document.getElementById('panchang-content');
     box.innerHTML = '';
     var panchang = data.panchang || {};
-    box.appendChild(panchangCard('پیدائش کا پنچانگ', panchang.birth));
-    box.appendChild(panchangCard('آج کا پنچانگ', panchang.today));
+    var isUrPan = currentLang === 'ur';
+    box.appendChild(panchangCard(isUrPan ? 'پیدائش کا پنچانگ' : 'Birth Panchang', panchang.birth));
+    box.appendChild(panchangCard(isUrPan ? 'آج کا پنچانگ' : "Today's Panchang", panchang.today));
   }
 
   /**
@@ -1832,8 +2070,11 @@
     if (!list) return;
     list.innerHTML = '';
     var yogas = data.yogas || [];
+    var isUrYoga = currentLang === 'ur';
     if (!yogas.length) {
-      list.innerHTML = '<div class="placeholder">اس کنڈلی میں فی الحال کوئی نمایاں کلاسیکی یوگ نہیں ملا۔</div>';
+      list.innerHTML = '<div class="placeholder">' + (isUrYoga
+        ? 'اس کنڈلی میں فی الحال کوئی نمایاں کلاسیکی یوگ نہیں ملا۔'
+        : 'No notable classical yoga was found in this chart at this time.') + '</div>';
       return;
     }
     yogas.forEach(function(y){
@@ -1858,7 +2099,7 @@
         cause.style.margin = '.3rem 0 0';
         cause.style.fontSize = '.78rem';
         cause.style.color = 'var(--text-muted)';
-        cause.textContent = 'وجہ: ' + y.cause;
+        cause.textContent = (isUrYoga ? 'وجہ: ' : 'Cause: ') + y.cause;
         body.appendChild(cause);
       }
       card.appendChild(body);
@@ -1871,13 +2112,18 @@
     box.innerHTML = '';
     box.classList.remove('paywall-teaser');
     var ak = data.ashtakavarga || {};
+    var isUrAk = currentLang === 'ur';
     if (!ak.available) {
-      box.innerHTML = '<div class="placeholder">اشٹک ورگ ابھی دستیاب نہیں — اس کا API حصہ ابھی حتمی نہیں ہوا، جلد شامل ہوگا۔</div>';
+      box.innerHTML = '<div class="placeholder">' + (isUrAk
+        ? 'اشٹک ورگ ابھی دستیاب نہیں — اس کا API حصہ ابھی حتمی نہیں ہوا، جلد شامل ہوگا۔'
+        : "Ashtakavarga isn't available yet — its API integration isn't finalized yet, coming soon.") + '</div>';
       return;
     }
     var note = document.createElement('div');
     note.className = 'note';
-    note.textContent = 'یہ ڈیٹا اپنی خام (raw) شکل میں دکھایا جا رہا ہے جب تک اسے گھر وار خوبصورت شکل میں نہ ڈھالا جائے۔';
+    note.textContent = isUrAk
+      ? 'یہ ڈیٹا اپنی خام (raw) شکل میں دکھایا جا رہا ہے جب تک اسے گھر وار خوبصورت شکل میں نہ ڈھالا جائے۔'
+      : 'This data is shown in its raw form until it is formatted house-by-house.';
     box.appendChild(note);
     var pre = document.createElement('pre');
     pre.style.whiteSpace = 'pre-wrap';
@@ -1897,20 +2143,23 @@
   }
 
   function dashaRow(label, period, natalHouse, isRetro){
+    var isUrDash = currentLang === 'ur';
     var card = document.createElement('div');
     card.className = 'pred-card';
     var tag = document.createElement('span');
     tag.className = 'tag';
-    tag.textContent = (PLANET_EMOJI[period.lord] || '') + ' ' + label + ': ' + (PLANET_NAME_UR_MAP[period.lord] || period.lord);
+    tag.textContent = (PLANET_EMOJI[period.lord] || '') + ' ' + label + ': ' + (isUrDash ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord);
     card.appendChild(tag);
     var p = document.createElement('p');
     var range = (fmtDate(period.start) && fmtDate(period.end))
-      ? (fmtDate(period.start) + ' سے ' + fmtDate(period.end) + ' تک')
-      : 'تاریخیں دستیاب نہیں';
+      ? (isUrDash
+        ? (fmtDate(period.start) + ' سے ' + fmtDate(period.end) + ' تک')
+        : (fmtDate(period.start) + ' to ' + fmtDate(period.end)))
+      : (isUrDash ? 'تاریخیں دستیاب نہیں' : 'Dates not available');
     var extra = [];
-    if (natalHouse) extra.push('پیدائشی زائچے میں ' + natalHouse + 'واں گھر');
-    if (isRetro) extra.push('حالتِ رجعت (retrograde) میں');
-    p.textContent = range + (extra.length ? ' — ' + extra.join('، ') : '');
+    if (natalHouse) extra.push(isUrDash ? ('پیدائشی زائچے میں ' + natalHouse + 'واں گھر') : ('house ' + natalHouse + ' in the natal chart'));
+    if (isRetro) extra.push(isUrDash ? 'حالتِ رجعت (retrograde) میں' : 'in retrograde');
+    p.textContent = range + (extra.length ? ' — ' + extra.join(isUrDash ? '، ' : ', ') : '');
     card.appendChild(p);
     return card;
   }
@@ -1921,19 +2170,24 @@
     var combustBox = document.getElementById('combust-content');
     if (!dashaBox || !sadeSatiBox || !combustBox) return;
 
+    var isUrDP = currentLang === 'ur';
+    var L = isUrDP
+      ? { maha: 'مہادشا', antar: 'انتردشا', pratyantar: 'پرتیانتردشا' }
+      : { maha: 'Mahadasha', antar: 'Antardasha', pratyantar: 'Pratyantardasha' };
+
     dashaBox.innerHTML = '';
     var dasha = data.dasha || {};
     if (dasha.mahadasha) {
-      dashaBox.appendChild(dashaRow('مہادشا', dasha.mahadasha, dasha.mahadashaLordNatalHouse, dasha.mahadashaLordRetrograde));
+      dashaBox.appendChild(dashaRow(L.maha, dasha.mahadasha, dasha.mahadashaLordNatalHouse, dasha.mahadashaLordRetrograde));
     }
     if (dasha.antardasha) {
-      dashaBox.appendChild(dashaRow('انتردشا', dasha.antardasha, dasha.antardashaLordNatalHouse, dasha.antardashaLordRetrograde));
+      dashaBox.appendChild(dashaRow(L.antar, dasha.antardasha, dasha.antardashaLordNatalHouse, dasha.antardashaLordRetrograde));
     }
     if (dasha.pratyantardasha) {
-      dashaBox.appendChild(dashaRow('پرتیانتردشا', dasha.pratyantardasha, null, false));
+      dashaBox.appendChild(dashaRow(L.pratyantar, dasha.pratyantardasha, null, false));
     }
     if (!dashaBox.children.length) {
-      dashaBox.innerHTML = '<div class="placeholder">دشا کی تفصیل دستیاب نہیں</div>';
+      dashaBox.innerHTML = '<div class="placeholder">' + (isUrDP ? 'دشا کی تفصیل دستیاب نہیں' : 'Dasha details not available') + '</div>';
     }
 
     sadeSatiBox.innerHTML = '';
@@ -1944,36 +2198,44 @@
     if (isInSadeSati && window_) {
       var ssTag = document.createElement('span');
       ssTag.className = 'tag';
-      ssTag.textContent = 'موجودہ مرحلہ: ' + window_.phaseLabel;
+      ssTag.textContent = (isUrDP ? 'موجودہ مرحلہ: ' : 'Current phase: ') + window_.phaseLabel;
       ssCard.appendChild(ssTag);
       var ssP = document.createElement('p');
-      ssP.textContent = 'یہ مرحلہ تقریباً ' + window_.currentPhaseStart + ' سے ' + window_.currentPhaseEnd + ' تک رہے گا۔';
+      ssP.textContent = isUrDP
+        ? ('یہ مرحلہ تقریباً ' + window_.currentPhaseStart + ' سے ' + window_.currentPhaseEnd + ' تک رہے گا۔')
+        : ('This phase will run approximately from ' + window_.currentPhaseStart + ' to ' + window_.currentPhaseEnd + '.');
       ssCard.appendChild(ssP);
       var ssP2 = document.createElement('p');
       ssP2.style.margin = '.3rem 0 0';
-      ssP2.textContent = 'مکمل ساڑھ ساتی (تینوں مراحل) تقریباً ' + window_.wholeSadeSatiStart + ' سے ' + window_.wholeSadeSatiEnd + ' تک ہے۔';
+      ssP2.textContent = isUrDP
+        ? ('مکمل ساڑھ ساتی (تینوں مراحل) تقریباً ' + window_.wholeSadeSatiStart + ' سے ' + window_.wholeSadeSatiEnd + ' تک ہے۔')
+        : ('The full Sade Sati (all three phases) runs approximately from ' + window_.wholeSadeSatiStart + ' to ' + window_.wholeSadeSatiEnd + '.');
       ssCard.appendChild(ssP2);
       var ssNote = document.createElement('p');
       ssNote.style.margin = '.4rem 0 0';
       ssNote.style.fontSize = '.75rem';
       ssNote.style.color = 'var(--text-muted)';
-      ssNote.textContent = 'نوٹ: یہ تاریخیں زحل کی اوسط رفتار پر مبنی تخمینہ ہیں، حتمی نہیں — Prokerala کا اپنا ڈیٹا صرف موجودہ مرحلہ بتاتا ہے، صحیح تاریخیں نہیں۔';
+      ssNote.textContent = isUrDP
+        ? 'نوٹ: یہ تاریخیں زحل کی اوسط رفتار پر مبنی تخمینہ ہیں، حتمی نہیں — Prokerala کا اپنا ڈیٹا صرف موجودہ مرحلہ بتاتا ہے، صحیح تاریخیں نہیں۔'
+        : "Note: these dates are an estimate based on Saturn's average speed, not exact — the API itself only gives the current phase, not precise dates.";
       ssCard.appendChild(ssNote);
     } else if (isInSadeSati) {
       var ssTag2 = document.createElement('span');
       ssTag2.className = 'tag';
-      ssTag2.textContent = 'ساڑھ ساتی جاری ہے';
+      ssTag2.textContent = isUrDP ? 'ساڑھ ساتی جاری ہے' : 'Sade Sati is ongoing';
       ssCard.appendChild(ssTag2);
       var ssP3 = document.createElement('p');
-      ssP3.textContent = (data.sadeSati && data.sadeSati.transit_phase) || 'مرحلے کی تفصیل دستیاب نہیں۔';
+      ssP3.textContent = (data.sadeSati && data.sadeSati.transit_phase) || (isUrDP ? 'مرحلے کی تفصیل دستیاب نہیں۔' : 'Phase details not available.');
       ssCard.appendChild(ssP3);
     } else {
       var ssTag3 = document.createElement('span');
       ssTag3.className = 'tag';
-      ssTag3.textContent = 'ابھی ساڑھ ساتی نہیں';
+      ssTag3.textContent = isUrDP ? 'ابھی ساڑھ ساتی نہیں' : 'No Sade Sati right now';
       ssCard.appendChild(ssTag3);
       var ssP4 = document.createElement('p');
-      ssP4.textContent = 'اس وقت زحل آپ کے چاند سے ساڑھ ساتی والے گھروں (بارہویں، پہلے، دوسرے) میں نہیں ہے۔';
+      ssP4.textContent = isUrDP
+        ? 'اس وقت زحل آپ کے چاند سے ساڑھ ساتی والے گھروں (بارہویں، پہلے، دوسرے) میں نہیں ہے۔'
+        : "Saturn is currently not in the Sade Sati houses (12th, 1st, 2nd) from your Moon.";
       ssCard.appendChild(ssP4);
     }
     sadeSatiBox.appendChild(ssCard);
@@ -1985,27 +2247,34 @@
     if (combust.length) {
       var cTag = document.createElement('span');
       cTag.className = 'tag';
-      cTag.textContent = 'یہ سیارے آفتاب کے قریب ہونے کی وجہ سے کمزور (combust) ہیں';
+      cTag.textContent = isUrDP ? 'یہ سیارے آفتاب کے قریب ہونے کی وجہ سے کمزور (combust) ہیں' : 'These planets are weak (combust) from being close to the Sun';
       cCard.appendChild(cTag);
       combust.forEach(function(c){
         var cp = document.createElement('p');
         cp.style.margin = '.25rem 0';
-        cp.textContent = (PLANET_EMOJI[c.planet] || '') + ' ' + (PLANET_NAME_UR_MAP[c.planet] || c.planet) + ' — آفتاب سے فاصلہ صرف ' + c.distanceFromSun + '° (حد: ' + c.orb + '°)';
+        var planetNm = isUrDP ? (PLANET_NAME_UR_MAP[c.planet] || c.planet) : c.planet;
+        cp.textContent = isUrDP
+          ? ((PLANET_EMOJI[c.planet] || '') + ' ' + planetNm + ' — آفتاب سے فاصلہ صرف ' + c.distanceFromSun + '° (حد: ' + c.orb + '°)')
+          : ((PLANET_EMOJI[c.planet] || '') + ' ' + planetNm + ' — only ' + c.distanceFromSun + '° from the Sun (orb: ' + c.orb + '°)');
         cCard.appendChild(cp);
       });
       var cNote = document.createElement('p');
       cNote.style.margin = '.4rem 0 0';
       cNote.style.fontSize = '.75rem';
       cNote.style.color = 'var(--text-muted)';
-      cNote.textContent = 'کمبست سیارہ اپنا پورا اثر نہیں دکھا پاتا، اس کا پھل کمزور یا مشکل صورت میں ظاہر ہو سکتا ہے۔';
+      cNote.textContent = isUrDP
+        ? 'کمبست سیارہ اپنا پورا اثر نہیں دکھا پاتا، اس کا پھل کمزور یا مشکل صورت میں ظاہر ہو سکتا ہے۔'
+        : "A combust planet can't show its full effect — its results may appear weaker or more difficult.";
       cCard.appendChild(cNote);
     } else {
       var cTag2 = document.createElement('span');
       cTag2.className = 'tag';
-      cTag2.textContent = 'کوئی سیارہ کمبست نہیں';
+      cTag2.textContent = isUrDP ? 'کوئی سیارہ کمبست نہیں' : 'No planet is combust';
       cCard.appendChild(cTag2);
       var cp2 = document.createElement('p');
-      cp2.textContent = 'آپ کی پیدائشی کنڈلی میں فی الحال کوئی سیارہ آفتاب کے اتنے قریب نہیں کہ کمبست شمار ہو۔';
+      cp2.textContent = isUrDP
+        ? 'آپ کی پیدائشی کنڈلی میں فی الحال کوئی سیارہ آفتاب کے اتنے قریب نہیں کہ کمبست شمار ہو۔'
+        : "In your natal chart, no planet is currently close enough to the Sun to count as combust.";
       cCard.appendChild(cp2);
     }
     combustBox.appendChild(cCard);
@@ -2019,21 +2288,27 @@
   // pare. Jo period "abhi chal raha hai" (isCurrent) usay khud khol kar
   // dikhaya jata hai, sath ek "ابھی جاری" badge ke.
   function dashaRangeText(period){
+    var isUr = currentLang === 'ur';
     return (fmtDate(period.start) && fmtDate(period.end))
       ? (fmtDate(period.start) + ' → ' + fmtDate(period.end))
-      : 'تاریخیں دستیاب نہیں';
+      : (isUr ? 'تاریخیں دستیاب نہیں' : 'Dates not available');
   }
 
   function buildDashaTreeRow(period, levelClass, onExpand){
+    var isUr = currentLang === 'ur';
     var row = document.createElement('div');
     row.className = 'dasha-row ' + levelClass + (period.isCurrent ? ' current' : '') + (onExpand ? '' : ' leaf');
 
     var head = document.createElement('div');
     head.className = 'dasha-row-head';
+    // yoginiName sirf Yogini Dasha ke periods par hota hai (Vimshottari
+    // periods par ye field nahi hoti) — is liye yahan optional hai, jab
+    // maujood ho to graha ke naam ke sath (Yogini ka naam) bhi dikha dete hain.
+    var yoginiSuffix = period.yoginiName ? (' (' + period.yoginiName + ')') : '';
     head.innerHTML =
       '<span class="dasha-row-toggle">▸</span>' +
-      '<span class="dasha-row-label">' + (PLANET_EMOJI[period.lord] || '') + ' ' + (PLANET_NAME_UR_MAP[period.lord] || period.lord) + '</span>' +
-      (period.isCurrent ? '<span class="status-pill strong dasha-current-pill">ابھی جاری</span>' : '') +
+      '<span class="dasha-row-label">' + (PLANET_EMOJI[period.lord] || '') + ' ' + (isUr ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord) + yoginiSuffix + '</span>' +
+      (period.isCurrent ? ('<span class="status-pill strong dasha-current-pill">' + (isUr ? 'ابھی جاری' : 'Ongoing') + '</span>') : '') +
       '<span class="dasha-row-range">' + dashaRangeText(period) + '</span>';
     row.appendChild(head);
 
@@ -2061,22 +2336,24 @@
     if (!box) return;
     box.innerHTML = '';
     var tree = (data.dasha && data.dasha.tree) || [];
+    var isUrTree = currentLang === 'ur';
+    var noDetailText = isUrTree ? 'تفصیل دستیاب نہیں' : 'Details not available';
     if (!tree.length) {
-      box.innerHTML = '<div class="placeholder">مکمل دشا شیڈول ابھی دستیاب نہیں</div>';
+      box.innerHTML = '<div class="placeholder">' + (isUrTree ? 'مکمل دشا شیڈول ابھی دستیاب نہیں' : 'The full Dasha schedule is not available yet') + '</div>';
       return;
     }
     tree.forEach(function(maha){
       var mahaRow = buildDashaTreeRow(maha, 'dasha-maha', function(body){
         var antarList = maha.antardasha || [];
         if (!antarList.length) {
-          body.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">تفصیل دستیاب نہیں</div>';
+          body.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">' + noDetailText + '</div>';
           return;
         }
         antarList.forEach(function(antar){
           var antarRow = buildDashaTreeRow(antar, 'dasha-antar', function(abody){
             var pratyantarList = antar.pratyantardasha || [];
             if (!pratyantarList.length) {
-              abody.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">تفصیل دستیاب نہیں</div>';
+              abody.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">' + noDetailText + '</div>';
               return;
             }
             pratyantarList.forEach(function(pratyantar){
@@ -2087,6 +2364,72 @@
         });
       });
       box.appendChild(mahaRow);
+    });
+  }
+
+  // ---- Yogini Dasha (classical 36-year, 8-Yogini system — Phase 2 ka
+  // doosra item, lib/yogini-dasha.js dekhein). Koi API isay provide nahi
+  // karti, is liye poori tarah is app ke andar khud calculate hoti hai;
+  // dates estimate hain (isEstimate true), UI mein bhi note ke zariye
+  // disclose kiya gaya hai. Tree render karne ke liye upar wala
+  // buildDashaTreeRow/dashaRangeText hi reuse kiya gaya hai — kyunke
+  // Yogini Dasha ke lord bhi wahi classical graha names (Sun, Moon,
+  // Mars, ...) hain jo Vimshottari mein use hote hain.
+  function yoginiDashaRow(label, period){
+    var isUrYD = currentLang === 'ur';
+    var card = document.createElement('div');
+    card.className = 'pred-card';
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    var lordName = isUrYD ? (PLANET_NAME_UR_MAP[period.lord] || period.lord) : period.lord;
+    tag.textContent = (PLANET_EMOJI[period.lord] || '') + ' ' + label + ': ' + lordName + ' (' + period.yoginiName + ')';
+    card.appendChild(tag);
+    var p = document.createElement('p');
+    p.textContent = (fmtDate(period.start) && fmtDate(period.end))
+      ? (isUrYD
+        ? (fmtDate(period.start) + ' سے ' + fmtDate(period.end) + ' تک')
+        : (fmtDate(period.start) + ' to ' + fmtDate(period.end)))
+      : (isUrYD ? 'تاریخیں دستیاب نہیں' : 'Dates not available');
+    card.appendChild(p);
+    return card;
+  }
+
+  function renderYoginiDasha(data){
+    var curBox = document.getElementById('yoginidasha-current');
+    var treeBox = document.getElementById('yoginidasha-tree');
+    if (!curBox || !treeBox) return;
+    var isUrYD = currentLang === 'ur';
+    var yd = data.yoginiDasha;
+
+    curBox.innerHTML = '';
+    if (yd && yd.current && yd.current.mahadasha) {
+      curBox.appendChild(yoginiDashaRow(isUrYD ? 'مہادشا' : 'Mahadasha', yd.current.mahadasha));
+      if (yd.current.antardasha) {
+        curBox.appendChild(yoginiDashaRow(isUrYD ? 'انتردشا' : 'Antardasha', yd.current.antardasha));
+      }
+    } else {
+      curBox.innerHTML = '<div class="placeholder">' + (isUrYD ? 'یوگنی دشا کی تفصیل دستیاب نہیں' : 'Yogini Dasha details not available') + '</div>';
+    }
+
+    treeBox.innerHTML = '';
+    var tree = (yd && yd.tree) || [];
+    var noDetailText = isUrYD ? 'تفصیل دستیاب نہیں' : 'Details not available';
+    if (!tree.length) {
+      treeBox.innerHTML = '<div class="placeholder">' + (isUrYD ? 'مکمل یوگنی دشا شیڈول ابھی دستیاب نہیں' : 'The full Yogini Dasha schedule is not available yet') + '</div>';
+      return;
+    }
+    tree.forEach(function(maha){
+      var mahaRow = buildDashaTreeRow(maha, 'dasha-maha', function(body){
+        var antarList = maha.antardasha || [];
+        if (!antarList.length) {
+          body.innerHTML = '<div class="placeholder" style="padding:.4rem 0;">' + noDetailText + '</div>';
+          return;
+        }
+        antarList.forEach(function(antar){
+          body.appendChild(buildDashaTreeRow(antar, 'dasha-antar', null));
+        });
+      });
+      treeBox.appendChild(mahaRow);
     });
   }
 
@@ -2104,12 +2447,13 @@
   }
 
   function renderHeroStrip(data){
+    var isUrHero = currentLang === 'ur';
     var sunHouse = findPlanetHouse(data.houses, 'Su');
     var moonHouse = findPlanetHouse(data.houses, 'Mo');
     var items = [
-      { label: 'سورج', emoji: PLANET_EMOJI.Su, value: sunHouse ? sunHouse.sign : '—' },
-      { label: 'چاند', emoji: PLANET_EMOJI.Mo, value: moonHouse ? moonHouse.sign : '—' },
-      { label: 'طالع', emoji: PLANET_EMOJI.Lg, value: (data.person && data.person.ascendantSignName) || '—' },
+      { label: isUrHero ? 'سورج' : 'Sun', emoji: PLANET_EMOJI.Su, value: sunHouse ? (isUrHero ? sunHouse.sign : sunHouse.signLatin) : '—' },
+      { label: isUrHero ? 'چاند' : 'Moon', emoji: PLANET_EMOJI.Mo, value: moonHouse ? (isUrHero ? moonHouse.sign : moonHouse.signLatin) : '—' },
+      { label: isUrHero ? 'طالع' : 'Ascendant', emoji: PLANET_EMOJI.Lg, value: (data.person && (isUrHero ? data.person.ascendantSignName : data.person.ascendantSignLatin)) || '—' },
     ];
     // Ye strip teen jagah dikhti hai — Chart screen ke upar, Profile
     // screen mein, aur ab Predictions/Daily hub ke sab se upar (bilkul
@@ -2154,6 +2498,8 @@
     renderNavamsaChart(data);
     renderPlanetProfiles(data);
     renderGrahaBala(data);
+    renderYoginiDasha(data);
+    renderCharaKarakas(data);
   }
 
   function showError(msg){
@@ -2168,7 +2514,7 @@
   // ---- Demo sample fill (Ayesha Raza test case — sirf link dabane par) ----
   document.getElementById('fill-demo-link').addEventListener('click', function(e){
     e.preventDefault();
-    document.getElementById('in-name').value = 'عائشہ رضا';
+    document.getElementById('in-name').value = currentLang === 'ur' ? 'عائشہ رضا' : 'Ayesha Raza';
     document.getElementById('in-dob').value = '1994-03-14';
     document.getElementById('in-time').value = '06:45';
     document.getElementById('in-city').value = 'Lahore, Pakistan';
@@ -2343,7 +2689,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-yoginidasha', 'phone-charakaraka', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
@@ -2504,6 +2850,24 @@
     });
   });
 
+  // ---- TESTING_SKIP_AUTH: guest continue button chalu, asal auth UI
+  // chhupa dein (upar wale flag ka comment dekhein). ----
+  if (TESTING_SKIP_AUTH) {
+    var authTabsEl = document.getElementById('auth-tabs');
+    var authSigninEl = document.getElementById('auth-signin');
+    var authRegisterEl = document.getElementById('auth-register');
+    var guestBtn = document.getElementById('guest-continue-btn');
+    if (authTabsEl) authTabsEl.style.display = 'none';
+    if (authSigninEl) authSigninEl.style.display = 'none';
+    if (authRegisterEl) authRegisterEl.style.display = 'none';
+    if (guestBtn) {
+      guestBtn.style.display = '';
+      guestBtn.addEventListener('click', function(){
+        showScreen('phone-entry');
+      });
+    }
+  }
+
   // ---- Step 2: asal login/register (email/password), server ke
   // /api/auth/* routes se — kamyaab hone par backend khud ek httpOnly
   // cookie mein session set kar deta hai (JS is cookie ko chhoo nahi
@@ -2517,6 +2881,15 @@
   // dein — subscribe screen, checkout, Safepay, sab kuch waisay hi mojood
   // hai, chhera nahi gaya.
   var TESTING_FREE_MODE = true;
+  // ---- TESTING_SKIP_AUTH: Asif ne khud manga (2026-09-20) — filhaal
+  // Sign In/Register ka jhanjhat hata do, guest ki tarah seedha birth
+  // details form khulay. Backend (/api/auth/login, /api/auth/register,
+  // DB accounts) bilkul intact/mojood hai, sirf welcome screen ka gate
+  // hata hai — jab dobara chalu karni ho to bas is line ko `false` kar
+  // dein (upar wala #guest-continue-btn khud-ba-khud chhup jayega aur
+  // #auth-tabs+forms wapas dikh jayenge, kuch aur badalne ki zaroorat
+  // nahi).
+  var TESTING_SKIP_AUTH = true;
   // ---- Subscription (paid features) state — /api/subscribe/status se
   // page load par aur checkout se wapas aane par refresh hoti hai. ----
   var subscriptionStatus = { isPremium: false, premiumUntil: null, plans: {}, safepayConfigured: false };
@@ -2796,7 +3169,7 @@
   fetch('/api/health').then(function(r){ return r.json(); }).then(function(h){
     var badge = document.getElementById('status-badge');
     if (!h.credentialsConfigured) {
-      badge.textContent = '⚠ Prokerala کریڈینشلز .env میں سیٹ نہیں';
+      badge.textContent = currentLang === 'ur' ? '⚠ Prokerala کریڈینشلز .env میں سیٹ نہیں' : '⚠ Prokerala credentials not set in .env';
       badge.classList.remove('gold');
     }
     if (!h.dbConfigured) {
