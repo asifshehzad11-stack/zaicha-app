@@ -48,6 +48,9 @@ const { buildYogas } = require('./lib/yoga-engine');
 const { buildNavamsaChart } = require('./lib/navamsa');
 const { buildPlanetProfiles } = require('./lib/planet-profile');
 const { buildGrahaBala } = require('./lib/graha-bala');
+const { buildYoginiDasha } = require('./lib/yogini-dasha');
+const { buildCharaKarakas } = require('./lib/jaimini-karaka');
+const { buildMuntha } = require('./lib/varshaphal');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -330,7 +333,7 @@ app.post('/api/kundli', async (req, res) => {
     // nahi lagti, sirf pehle se maujood natal data par classical rules
     // apply hoti hain). Feature-list mein sab se pehle add kiya gaya
     // (Asif ke "OMNIS 7 jaisa feature-rich banao" wale roadmap ka Phase 1).
-    const yogas = buildYogas(data);
+    const yogas = buildYogas(data, reqLang);
     // ---- Navamsa (D9) — bhi bilkul free hai, pehle se maujood natal
     // degrees par sirf classical divisional-chart formula apply hoti hai.
     // Roadmap Phase 1 ka doosra item.
@@ -345,6 +348,21 @@ app.post('/api/kundli', async (req, res) => {
     // ka disclaimer lib/graha-bala.js ke header comment aur UI dono mein
     // saaf likha gaya hai.
     const grahaBala = buildGrahaBala(data);
+    // ---- Yogini Dasha (Phase 2 ka doosra item) — ye bhi bilkul free hai,
+    // koi API is dasha ko provide nahi karti (sirf Vimshottari milta hai),
+    // is liye poori tarah khud calculate ki gayi hai (lib/yogini-dasha.js
+    // dekhein — classical formula do independent sources se verify kiya
+    // gaya hai). Dates estimate hain (isEstimate: true), UI mein disclose
+    // hota hai — bilkul Sade Sati window estimate ki tarah.
+    const yoginiDasha = buildYoginiDasha(data, new Date(birthDatetime), now, reqLang);
+    // ---- Chara Karaka (Jaimini) — Phase 3 ka Karakatva building block,
+    // aur Chara Dasha (Phase 2, agla item) ke liye bhi zaroori hai. Bilkul
+    // free hai, pehle se maujood natal degrees se hi nikal aata hai.
+    const charaKarakas = buildCharaKarakas(data, reqLang);
+    // ---- Muntha (Varshaphal ka pehla, verified hissa — Phase 2 ka
+    // teesra item) — lib/varshaphal.js ka header comment dekhein ke
+    // poora Varshaphal (Varshesh/year-lord) abhi kyun shamil nahi.
+    const muntha = buildMuntha(data, new Date(birthDatetime), now, reqLang);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -376,6 +394,9 @@ app.post('/api/kundli', async (req, res) => {
       navamsa,
       planetProfiles,
       grahaBala,
+      yoginiDasha,
+      charaKarakas,
+      muntha,
       panchang,
       ashtakavarga: withLockFlag(ashtakavarga, premiumStatus.isPremium),
       asOfDate: now.toISOString().slice(0, 10),
