@@ -495,7 +495,52 @@ app.post('/api/kundli', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message || 'Kuch ghalat ho gaya.' });
+    // ---- Friendly error messages (2026-09-24, Asif ke WhatsApp testing-group
+    // feedback ke baad — ALMAS YOUNAS ne report kiya "mera nahi open ho raha,
+    // error aa raha, don't know why"). ROOT CAUSE (khud live test kar ke
+    // confirm kiya): koi naya code-bug nahi mila, balke 2 pehle-se-jaani
+    // hui infrastructure limitations ek sath lagti hain jab kai log ek waqt
+    // test karte hain — (1) Render ka FREE tier ~15 minute idle ke baad
+    // server "so" jata hai, agli request par 30-60 second "waking up" delay
+    // lagta hai; (2) VedAstro ka FREE tier sirf 5 calls/minute deta hai, aur
+    // ek hi kundli banane mein khud 15 calls lagti hain — is liye jab
+    // WhatsApp group mein ek saath kai astrologers "Generate chart" dabate
+    // hain, VedAstro se seedha "Free tier rate limit exceeded" wala LAMBA,
+    // ANGREZI, technical error text wapas aata tha aur user ko raw-as-is
+    // dikha diya jata tha (`err.message` seedha frontend bhej diya jata
+    // tha) — jo kisi bhi Urdu-speaking user ko sirf "samajh na aane wala
+    // error" hi lagega. Ye dono cheezein pehle se ROADMAP.md mein disclosed
+    // hain (VedAstro rate-limit) — is fix ka scope sirf ye hai ke error
+    // MESSAGE ab user ki apni language mein, samajh aane wala, aur
+    // "dobara koshish karein" wala mashwara de — asal rate-limit/cold-start
+    // khud khatam karne ke liye paid upgrade chahiye (VedAstro $1/month,
+    // Render paid plan), jo Asif ka apna faisla hai.
+    const errReqLang = ['en', 'ur', 'hi'].indexOf(req.body && req.body.lang) !== -1 ? req.body.lang : 'en';
+    const rawMsg = String((err && err.message) || '');
+    const isRateLimit = /rate limit|too many requests|429/i.test(rawMsg);
+    const isColdStartOrNetwork = /timeout|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ECONNABORTED|EAI_AGAIN|fetch failed|network/i.test(rawMsg);
+    const FRIENDLY = {
+      rateLimit: {
+        en: 'The astrology engine is getting a lot of requests right now (this happens when several people try at the same time). Please wait about a minute and try again.',
+        ur: 'اس وقت astrology engine پر بہت زیادہ درخواستیں آ رہی ہیں (ایسا اس وقت ہوتا ہے جب کئی لوگ ایک ساتھ کوشش کریں)۔ براہ کرم ایک منٹ انتظار کریں اور دوبارہ کوشش کریں۔',
+        hi: 'अभी ज्योतिष इंजन पर बहुत ज़्यादा अनुरोध आ रहे हैं (ऐसा तब होता है जब कई लोग एक साथ कोशिश करते हैं)। कृपया एक मिनट रुकें और दोबारा कोशिश करें।',
+      },
+      coldStart: {
+        en: 'The server was asleep and is waking up — this can take up to a minute the first time. Please try again shortly.',
+        ur: 'سرور سو رہا تھا اور ابھی جاگ رہا ہے — پہلی بار ایک منٹ تک لگ سکتا ہے۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
+        hi: 'सर्वर सो रहा था और अभी जाग रहा है — पहली बार एक मिनट तक लग सकता है। कृपया थोड़ी देर बाद दोबारा कोशिश करें।',
+      },
+      generic: {
+        en: 'Something went wrong while generating your kundli. Please try again in a moment.',
+        ur: 'آپ کی کنڈلی بناتے وقت کچھ خرابی ہوئی۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
+        hi: 'आपकी कुंडली बनाते समय कुछ गड़बड़ हुई। कृपया थोड़ी देर बाद दोबारा कोशिश करें।',
+      },
+    };
+    const bucket = isRateLimit ? 'rateLimit' : (isColdStartOrNetwork ? 'coldStart' : 'generic');
+    res.status(500).json({
+      error: FRIENDLY[bucket][errReqLang] || FRIENDLY[bucket].en,
+      errorCode: bucket, // frontend chahe to ismein "retry" button jaisa UI bana sake
+    });
   }
 });
 
