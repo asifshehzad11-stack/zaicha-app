@@ -286,6 +286,18 @@
   .modal-card .lock-ic{ font-size:1.9rem; }
   .modal-card p{ margin:0; font-size:.85rem; color:var(--text-muted); line-height:1.7; }
   .modal-dismiss-btn{ background:transparent; border:none; color:var(--text-muted); font-family:inherit; font-size:.76rem; cursor:pointer; padding:.4rem; text-decoration:underline; }
+  /* ---- Planet click menu (OMNIS-7 style: chart par graha dabane se
+     Signs/Vargas/Owns dikhane wala popup) — Phase 3 roadmap item. */
+  .planet-modal-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:16px; padding:1.2rem 1rem; max-width:26rem; width:100%; max-height:82vh; overflow-y:auto; text-align:start; }
+  .planet-modal-head{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.7rem; }
+  .planet-modal-title{ font-size:1.05rem; font-weight:700; color:var(--gold-soft); display:flex; align-items:center; gap:.4rem; }
+  .planet-modal-close{ background:transparent; border:1px solid var(--line); color:var(--text-muted); font-family:inherit; font-size:.8rem; cursor:pointer; padding:.25rem .65rem; border-radius:999px; }
+  .planet-modal-section{ margin-bottom:.9rem; }
+  .planet-modal-section:last-child{ margin-bottom:0; }
+  .planet-modal-section h4{ margin:0 0 .4rem; font-size:.82rem; color:var(--gold-soft); }
+  .planet-modal-section p{ margin:.15rem 0; font-size:.8rem; color:var(--text-muted); line-height:1.6; }
+  .planet-modal-chip-row{ display:flex; flex-wrap:wrap; gap:.4rem; }
+  .planet-modal-chip{ background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:.2rem .6rem; font-size:.74rem; color:var(--text); }
   .back-btn{ display:inline-flex; align-items:center; gap:.35rem; background:transparent; border:1px solid var(--line); color:var(--text-muted); font-family:inherit; font-size:.78rem; padding:.4rem .8rem; border-radius:999px; cursor:pointer; }
   .back-btn:hover{ color:var(--gold-soft); border-color:var(--gold-soft); }
 
@@ -1178,6 +1190,20 @@
   </div>
 </div>
 
+<!-- Planet click menu (OMNIS-7 style) — main D1 chart mein kisi graha/lagna
+     ke chip par click karne se khulta hai, 3 hisse: Signs / Vargas / Owns.
+     Content JS (openPlanetMenu) se bharta hai, koi naya server data nahi
+     lagta — sab kuch already-fetched lastZaichaData se aata hai. -->
+<div class="modal-overlay" id="planet-menu-modal" hidden>
+  <div class="planet-modal-card">
+    <div class="planet-modal-head">
+      <span class="planet-modal-title" id="planet-modal-title">—</span>
+      <button type="button" class="planet-modal-close" id="planet-modal-close">✕</button>
+    </div>
+    <div id="planet-modal-body"></div>
+  </div>
+</div>
+
 <script>
   // ---- Language toggle (UR/EN) ----
   // NOTE (honest scope note): ye sirf UI ke sthir (static) chrome — headings,
@@ -1683,7 +1709,7 @@
       labelOffset: 'देश और टाइम ज़ोन',
       labelAyanamsa: 'गणना प्रणाली (अयनांश)',
       ayanamsaNote: 'नोट: KP प्रणाली का संख्यात्मक कोड (5) Swiss Ephemeris के मानक कोड पर आधारित है, Prokerala से 100% पुष्ट नहीं — अगर परिणाम अप्रत्याशित लगें तो बताएं।',
-      ayanamsaNoteRaman: 'Note: the Raman ayanamsa value has been verified against 2 independent published references (roxyapi.com, vedika.io) and against VedAstro\'s own live API — the difference came out under 1 arcminute. This system is far less commonly used than Lahiri; only some astrologers prefer it.',
+      ayanamsaNoteRaman: 'नोट: रमन अयनांश की वैल्यू को 2 स्वतंत्र प्रकाशित स्रोतों (roxyapi.com, vedika.io) से, और VedAstro की अपनी लाइव API से मिलाकर सत्यापित किया गया है — अंतर 1 आर्क मिनट से भी कम निकला। यह प्रणाली लाहिड़ी जितनी आम इस्तेमाल नहीं होती, कुछ ज्योतिषी ही इसे प्राथमिकता देते हैं।',
       generateBtn: 'कुंडली बनाएं',
       generateBtnLoading: 'तैयार हो रहा है...',
       engineNote: 'यह बटन आपके बैकएंड सर्वर से, जो असली Prokerala API को कॉल करता है, असली गणना लाएगा।',
@@ -1699,7 +1725,7 @@
       tabMonthly: 'इस महीने का रुझान',
       tabYearly: 'इस साल का रुझान',
       tabWeekly: 'साप्ताहिक कैलेंडर',
-      weeklySub: 'Next 7 days — daily Tithi, Yoga, Karana, the Moon\'s house & nakshatra, and when any planet changes sign',
+      weeklySub: 'अगले 7 दिन — रोज़ाना तिथि, योग, करण, चंद्रमा का भाव व नक्षत्र, और किसी ग्रह की राशि बदलने का समय',
       tabDasha: 'दशा व प्रभाव',
       tabRemedies: 'उपाय',
       tabYogas: 'योग',
@@ -1711,143 +1737,143 @@
       tabGrahaBala: 'ग्रह बल',
       grahaBalaSub: 'हर ग्रह कितना मजबूत या कमजोर है — शास्त्रीय नियमों पर आधारित',
       grahaBalaNote: 'नोट: यह शास्त्रीय "षड्बल" के 5 गणना-योग्य हिस्सों पर आधारित एक आसान स्कोर है (पूरा पारंपरिक षड्बल नहीं) — राहु/केतु शास्त्रीय रूप से इसमें शामिल नहीं होते।',
-      tabBhavaBala: 'House Strength',
-      bhavaBalaSub: 'How strong each house is — based on its ruling planet\'s strength, directional strength, and aspects from other planets',
-      bhavaBalaNote: 'Note: this combines 3 classical components (house lord\'s Planet Strength + directional strength + aspects from other planets) — based on this app\'s simplified Planet Strength rather than a full traditional Shad Bala.',
-      tabVimshopak: 'Vimshopak Bala',
-      vimshopakSub: 'Each planet\'s strength combining its dignity across 6 different charts (D1, D2, D3, D9, D12, D30) — on a 20-point scale',
-      vimshopakNote: 'Note: this score uses this app\'s simplified dignity categories (exalted/own/neutral/debilitated) rather than the full classical Panchadha Maitri (5-fold friendship) table, which this app does not yet compute.',
-      tabMoonPhases: 'Moon Phases',
-      moonPhasesSub: 'When is the next New Moon (Amavasya) and next Full Moon (Purnima)',
-      moonPhasesNote: 'Note: these dates are estimated using the Moon\'s mean speed (±1 day possible) — eclipse prediction is not included yet, since that needs the Moon\'s ecliptic latitude data, which is not currently available.',
-      nextNewMoon: 'Next New Moon (Amavasya)',
-      nextFullMoon: 'Next Full Moon (Purnima)',
-      daysAway: 'days away',
-      tabAspects: 'Aspects',
-      aspectsSub: 'Which planet aspects which other planet in the chart (classical Parashari rule)',
-      aspectsNoAspect: 'Not currently aspecting any planet',
-      aspectsLooksAt: 'Aspects:',
-      aspectsSeenBy: 'Aspected by:',
-      aspectsMutual: 'Mutual aspect (both looking at each other)',
-      tabKp: 'KP',
-      kpSub: 'Each planet\'s and the Ascendant\'s "Star Lord" and "Sub Lord" (per Krishnamurti Paddhati)',
-      kpNote: 'Note: this uses this app\'s existing Lahiri ayanamsa (the traditional Krishnamurti ayanamsa is separate and slightly different).',
-      kpStarLord: 'Star Lord',
-      kpSubLord: 'Sub Lord',
-      kpCuspalH4: 'Full Cuspal Significator System (Placidus)',
-      kpCuspalNote: 'Note: these 12 Placidus house cusps are self-calculated within this app (no extra API call, pure math) using classical Meeus and Munkasey formulas. The Placidus system is itself known to behave irregularly at very high latitudes (beyond 60°). Significator ranking: A (strongest) > B > C > D (weakest).',
-      kpHouseLabel: 'House',
-      kpOwner: 'House Owner',
-      kpOccupants: 'Occupants',
-      kpNoOccupants: 'None',
-      kpSigA: 'A',
-      kpSigB: 'B',
-      kpSigC: 'C',
-      kpSigD: 'D',
-      kpCrossCheckWarning: 'Note: this chart showed a larger-than-usual discrepancy in this calculation — please treat the result with caution.',
-      tabWestern: 'Western Chart',
-      westernSub: 'The same planets, by Tropical (Western) sign boundaries',
-      westernNote: 'Note: this chart is built by adding an estimated ayanamsa to this app\'s existing sidereal data (±1-2 arcminutes possible) — and houses are whole-sign (not Placidus).',
-      tabArabianParts: 'Arabian Parts (Lots)',
-      arabianPartsSub: 'Lot of Fortune and Lot of Spirit — the two most well-established "Arabic Parts" from ancient Hellenistic tradition',
-      arabianPartsNote: 'Note: these Lots are computed from this app\'s existing sidereal data (the original Hellenistic tradition is tropical-based) — and the formula changes by day/night chart (the ancient method; the later "always one formula" practice is not used here).',
-      lotOfFortune: 'Lot of Fortune',
-      lotOfSpirit: 'Lot of Spirit',
-      sectLabel: 'Chart sect:',
+      tabBhavaBala: 'भाव बल',
+      bhavaBalaSub: 'हर भाव कितना मज़बूत है — उसके स्वामी ग्रह की शक्ति, दिग्बल, और अन्य ग्रहों की दृष्टि के आधार पर',
+      bhavaBalaNote: 'नोट: यह 3 शास्त्रीय हिस्सों को जोड़ता है (भाव-स्वामी का ग्रह बल + दिग्बल + अन्य ग्रहों की दृष्टि) — यह ऐप के सरलीकृत \'ग्रह बल\' पर आधारित है, पूरे पारंपरिक षड्बल पर नहीं।',
+      tabVimshopak: 'विंशोपक बल',
+      vimshopakSub: 'हर ग्रह की शक्ति, 6 अलग-अलग चार्ट्स (D1, D2, D3, D9, D12, D30) में उसकी स्थिति को मिलाकर — 20 अंकों के पैमाने पर',
+      vimshopakNote: 'नोट: यह स्कोर ऐप की सरलीकृत स्थिति-श्रेणियों (उच्च/स्वराशि/सम/नीच) का इस्तेमाल करता है, पूरी शास्त्रीय पंचधा मैत्री (5-स्तरीय मित्रता) तालिका का नहीं, जो यह ऐप अभी तक नहीं निकालता।',
+      tabMoonPhases: 'चंद्र कलाएं',
+      moonPhasesSub: 'अगली अमावस्या और अगली पूर्णिमा कब है',
+      moonPhasesNote: 'नोट: ये तारीखें चंद्रमा की औसत गति से अनुमानित की गई हैं (±1 दिन का अंतर संभव है) — ग्रहण की भविष्यवाणी अभी शामिल नहीं है, क्योंकि इसके लिए चंद्रमा के क्रांतिवृत्त-अक्षांश का डेटा चाहिए, जो अभी उपलब्ध नहीं है।',
+      nextNewMoon: 'अगली अमावस्या',
+      nextFullMoon: 'अगली पूर्णिमा',
+      daysAway: 'दिन शेष',
+      tabAspects: 'दृष्टियां',
+      aspectsSub: 'कुंडली में कौन सा ग्रह किस दूसरे ग्रह को देख रहा है (शास्त्रीय पाराशरी नियम)',
+      aspectsNoAspect: 'फ़िलहाल किसी ग्रह को नहीं देख रहा',
+      aspectsLooksAt: 'दृष्टि डाल रहा है:',
+      aspectsSeenBy: 'इन ग्रहों की दृष्टि में:',
+      aspectsMutual: 'आपसी दृष्टि (दोनों एक-दूसरे को देख रहे हैं)',
+      tabKp: 'केपी (KP)',
+      kpSub: 'हर ग्रह और लग्न का \'नक्षत्र स्वामी\' और \'सब लॉर्ड\' (कृष्णमूर्ति पद्धति के अनुसार)',
+      kpNote: 'नोट: यह ऐप के मौजूदा लाहिड़ी अयनांश का उपयोग करता है (पारंपरिक कृष्णमूर्ति अयनांश अलग है और थोड़ा भिन्न होता है)।',
+      kpStarLord: 'नक्षत्र स्वामी',
+      kpSubLord: 'सब लॉर्ड',
+      kpCuspalH4: 'पूर्ण कस्पल सिग्निफिकेटर सिस्टम (प्लेसिडस)',
+      kpCuspalNote: 'नोट: ये 12 प्लेसिडस भाव-कस्प इसी ऐप के अंदर खुद गणना किए जाते हैं (कोई अतिरिक्त API कॉल नहीं, सिर्फ शास्त्रीय Meeus और Munkasey फ़ॉर्मूलों से गणित) — प्लेसिडस प्रणाली खुद बहुत ऊंचे अक्षांशों (60° से ऊपर) पर अनियमित व्यवहार करने के लिए जानी जाती है। सिग्निफिकेटर क्रम: A (सबसे मज़बूत) > B > C > D (सबसे कमज़ोर)।',
+      kpHouseLabel: 'भाव',
+      kpOwner: 'भाव स्वामी',
+      kpOccupants: 'स्थित ग्रह',
+      kpNoOccupants: 'कोई नहीं',
+      kpSigA: 'ए',
+      kpSigB: 'बी',
+      kpSigC: 'सी',
+      kpSigD: 'डी',
+      kpCrossCheckWarning: 'नोट: इस कुंडली में इस गणना में सामान्य से ज़्यादा अंतर देखा गया है — कृपया परिणाम को सावधानी से लें।',
+      tabWestern: 'पश्चिमी चार्ट',
+      westernSub: 'वही ग्रह, ट्रॉपिकल (पश्चिमी) राशि-सीमाओं के अनुसार',
+      westernNote: 'नोट: यह चार्ट ऐप के मौजूदा सायडेरियल डेटा में एक अनुमानित अयनांश जोड़कर बनाया गया है (±1-2 आर्क मिनट का अंतर संभव है) — और भाव \'होल-साइन\' प्रणाली से हैं (प्लेसिडस से नहीं)।',
+      tabArabianParts: 'अरबी अंश (Lots)',
+      arabianPartsSub: 'भाग्य बिंदु (Lot of Fortune) और आत्मा बिंदु (Lot of Spirit) — प्राचीन हेलेनिस्टिक परंपरा के दो सबसे मान्य \'अरबी अंश\'',
+      arabianPartsNote: 'नोट: ये अंश ऐप के मौजूदा सायडेरियल डेटा से निकाले गए हैं (मूल हेलेनिस्टिक परंपरा ट्रॉपिकल पर आधारित है) — और फ़ॉर्मूला दिन/रात की कुंडली के अनुसार बदलता है (यह प्राचीन तरीका है; बाद का \'हमेशा एक ही फ़ॉर्मूला\' वाला रिवाज़ यहां इस्तेमाल नहीं किया गया)।',
+      lotOfFortune: 'भाग्य बिंदु',
+      lotOfSpirit: 'आत्मा बिंदु',
+      sectLabel: 'कुंडली का पक्ष (दिन/रात):',
       tabYoginiDasha: 'योगिनी दशा',
       yoginiDashaSub: '36 वर्षीय शास्त्रीय योगिनी दशा प्रणाली — आठ योगिनियों का चक्र',
       yoginiDashaNote: 'नोट: ये तारीखें औसत वर्ष (365.25 दिन) पर आधारित अनुमान हैं, क्योंकि कोई API यह दशा उपलब्ध नहीं कराती — गणना इसी ऐप में शास्त्रीय सूत्र से की गई है।',
-      tabCharaDasha: 'Chara Dasha',
-      charaDashaSub: "Jaimini's sign-based dasha — each period belongs to a zodiac sign, not a planet",
+      tabCharaDasha: 'चर दशा',
+      charaDashaSub: 'जैमिनी की राशि-आधारित दशा — हर अवधि किसी राशि की होती है, ग्रह की नहीं',
       charaDashaNote: "Note: dates are an estimate based on an average year (365.25 days). Two classical points on this dasha are genuinely disputed across lineages — the most directly-sourced convention is used as the default here.",
-      tabPdfReport: 'PDF Report',
-      pdfReportSub: 'Add your name/contact so it appears on every page, then save the report',
-      pdfAstrologerNameLabel: 'Your name / business name (optional)',
-      pdfAstrologerNamePlaceholder: 'e.g. Zaicha Astrology',
-      pdfAstrologerContactLabel: 'Contact number / WhatsApp (optional)',
-      pdfGenerateBtn: 'Generate report (Print / PDF)',
-      pdfReportNote: 'Note: your browser\'s print dialog will open — choose "Save as PDF" to save the file.',
-      pdfReportTitle: 'Birth Chart Report',
-      pdfSectionChart: 'Birth Chart',
-      pdfSectionDasha: 'Current Dasha',
-      pdfSectionToday: "Today's Prediction",
-      pdfSectionRemedies: 'Remedies',
-      pdfSectionHouses: 'House Details',
-      pdfGeneratedOn: 'Generated on',
-      pdfNoDataAlert: 'Please generate a kundli first, then create the report.',
+      tabPdfReport: 'पीडीएफ़ रिपोर्ट',
+      pdfReportSub: 'अपना नाम/संपर्क जोड़ें ताकि यह हर पेज पर दिखे, फिर रिपोर्ट सेव करें',
+      pdfAstrologerNameLabel: 'आपका नाम / व्यवसाय का नाम (वैकल्पिक)',
+      pdfAstrologerNamePlaceholder: 'जैसे: Zaicha Astrology',
+      pdfAstrologerContactLabel: 'संपर्क नंबर / व्हाट्सऐप (वैकल्पिक)',
+      pdfGenerateBtn: 'रिपोर्ट बनाएं (प्रिंट / पीडीएफ़)',
+      pdfReportNote: 'नोट: आपके ब्राउज़र का प्रिंट डायलॉग खुलेगा — फ़ाइल सेव करने के लिए \'Save as PDF\' चुनें।',
+      pdfReportTitle: 'जन्म कुंडली रिपोर्ट',
+      pdfSectionChart: 'जन्म कुंडली',
+      pdfSectionDasha: 'मौजूदा दशा',
+      pdfSectionToday: 'आज की भविष्यवाणी',
+      pdfSectionRemedies: 'उपाय',
+      pdfSectionHouses: 'भावों का विवरण',
+      pdfGeneratedOn: 'बनाई गई तारीख',
+      pdfNoDataAlert: 'कृपया पहले कुंडली बनाएं, फिर रिपोर्ट तैयार करें।',
       tabCharaKaraka: 'चर कारक',
       charaKarakaSub: 'जैमिनी पद्धति — हर ग्रह की अपनी राशि में डिग्री के आधार पर आठ कारक (मुख्य संकेतक)',
       charaKarakaNote: 'नोट: यह 8-कारक पद्धति है (राहु शामिल, उल्टे क्रम में) — 7-कारक पद्धति (राहु के बिना) भी शास्त्रीय रूप से मान्य है, दोनों अलग-अलग परंपराओं में प्रचलित हैं।',
       naisargikaH4: 'प्राकृतिक कारक (हर कुंडली में एक जैसे)',
-      tabPrasna: 'Prasna (Horary Chart)',
-      prasnaSub: 'Tell us what your question is about and your current city — a fresh chart is cast for this exact moment and place to show a classical reading (this is separate from your birth chart)',
-      prasnaNote: 'Note: this is a basic classical method (the Lagna and its lord, the lord of the relevant house, and the Moon\'s condition/relationship with the key significators) — it does NOT implement the full traditional Ithasala/Isarapha (across all aspects) or the KP horary-number system (exact planetary-speed data isn\'t available); "lost object" questions are not included (that needs a separate, more elaborate classical method). The result is a general "lean", not a definite yes/no — for important matters (marriage, health) please consult a qualified expert.',
-      prasnaCategoryLabel: 'What is your question about?',
-      prasnaCatGeneral: 'General Situation',
-      prasnaCatMarriage: 'Marriage / Relationship',
-      prasnaCatCareer: 'Job / Career',
-      prasnaCatWealth: 'Wealth / Finance',
-      prasnaCatHealth: 'Health / Illness',
-      prasnaCatEducation: 'Education',
-      prasnaCatLitigation: 'Litigation / Dispute',
-      prasnaCatTravel: 'Travel (local/foreign)',
-      prasnaCatProperty: 'Property / Home',
-      prasnaCatChildren: 'Children',
-      prasnaCityLabel: 'What city are you in right now?',
-      prasnaAskBtn: 'Ask the Question',
-      prasnaErrorNoCity: 'Please select your current city first.',
-      prasnaLagna: 'Ascendant (Lagna)',
-      prasnaLagnaLord: 'Lagna Lord',
-      prasnaKaryesha: 'Lord of the Relevant House',
-      prasnaMoonPaksha: "Moon's Condition",
-      prasnaShukla: 'Shukla Paksha (waxing Moon)',
-      prasnaKrishna: 'Krishna Paksha (waning Moon)',
-      prasnaMovementChara: 'Movable (change likely to come quickly)',
-      prasnaMovementSthira: 'Fixed (change likely slow/difficult)',
-      prasnaMovementDwiswabhava: 'Dual (change likely, but with difficulty)',
-      prasnaDignityExalted: 'Exalted',
-      prasnaDignityOwn: 'Own sign',
-      prasnaDignityNeutral: 'Neutral',
-      prasnaDignityDebilitated: 'Debilitated',
-      prasnaCombust: 'Combust (too close to the Sun)',
-      prasnaRetrograde: 'Retrograde',
-      prasnaHouseLabel: 'House',
-      prasnaStrengthStrong: 'Strong',
-      prasnaStrengthWeak: 'Weak',
-      prasnaStrengthMixed: 'Mixed',
-      prasnaYogaIthasala: 'Moon is applying (Ithasala) — an encouraging sign',
-      prasnaYogaIsarapha: 'Moon is separating (Isarapha) — a cautionary sign',
-      prasnaYogaNone: 'No direct connection right now',
-      prasnaYogaUncertain: 'The other planet is retrograde — the estimate is not reliable',
-      prasnaOverallFavorable: 'Overall lean: encouraging',
-      prasnaOverallMixed: 'Overall lean: mixed',
-      prasnaOverallCautionary: 'Overall lean: be cautious',
-      prasnaWithMoon: "Moon's relationship",
-      tabMilan: 'Kundli Milan',
-      milanSub: 'Enter both parties\' birth details — a classical "Ashtakoot Guna Milan" (8 scales, 36 points total) compatibility reading, based only on the Moon\'s sign and nakshatra',
-      milanNote: 'Note: this is the North Indian Ashtakoot (8-koota) system — the South Indian Dashakoot system is different and not included. Mangal Dosha (Kuja Dosha) is also not included in this version (a separate, larger feature). Currently only Pakistan\'s timezone (+05:00) is used. The result is a classical guideline, not a final decision — please consult a qualified expert.',
-      milanGroomH4: 'First Party (Groom)',
-      milanBrideH4: 'Second Party (Bride)',
-      milanCheckBtn: 'Check Compatibility',
-      milanErrorIncomplete: "Please fill in both parties' date, time, and city.",
-      milanTotalScore: 'Total Score',
-      milanInterpExcellent: 'Excellent Match',
-      milanInterpGood: 'Good Match',
-      milanInterpAverage: 'Average Match',
-      milanInterpIncompatible: 'Not Recommended',
-      milanGroomMoon: "Groom's Moon",
-      milanBrideMoon: "Bride's Moon",
-      milanKootaVarna: 'Varna',
-      milanKootaVashya: 'Vashya',
-      milanKootaTara: 'Tara',
-      milanKootaYoni: 'Yoni',
-      milanKootaGrahaMaitri: 'Graha Maitri',
-      milanKootaGana: 'Gana',
-      milanKootaBhakoot: 'Bhakoot',
-      milanKootaNadi: 'Nadi',
-      milanNadiDoshaWarning: '⚠️ Nadi Dosha present (both share the same Nadi)',
-      milanBhakootDoshaWarning: '⚠️ Bhakoot Dosha present',
-      milanBhakootCancelled: '(cancelled — sign lords are friends)',
+      tabPrasna: 'प्रश्न कुंडली (Prasna)',
+      prasnaSub: 'बताएं आपका सवाल किस बारे में है और आप अभी किस शहर में हैं — इसी पल और जगह के लिए एक नई कुंडली बनाकर शास्त्रीय विश्लेषण दिखाया जाएगा (यह आपकी जन्म कुंडली से अलग है)',
+      prasnaNote: 'नोट: यह एक बुनियादी शास्त्रीय तरीका है (लग्न और उसका स्वामी, संबंधित भाव का स्वामी, और चंद्रमा की स्थिति/मुख्य कारकों से उसका संबंध) — इसमें पूरी पारंपरिक इत्थशाला/इसराफा (सभी दृष्टिकोणों के साथ) या केपी होररी-नंबर प्रणाली शामिल नहीं है (सटीक ग्रह-गति का डेटा उपलब्ध नहीं है); \'खोई हुई चीज़\' से जुड़े सवाल शामिल नहीं हैं (उसके लिए अलग, ज़्यादा जटिल शास्त्रीय तरीका चाहिए)। नतीजा एक सामान्य \'रुझान\' है, पक्का हां/ना जवाब नहीं — शादी/सेहत जैसे अहम मामलों में किसी योग्य विशेषज्ञ से ज़रूर सलाह लें।',
+      prasnaCategoryLabel: 'आपका सवाल किस बारे में है?',
+      prasnaCatGeneral: 'सामान्य स्थिति',
+      prasnaCatMarriage: 'शादी / रिश्ता',
+      prasnaCatCareer: 'नौकरी / करियर',
+      prasnaCatWealth: 'धन / वित्त',
+      prasnaCatHealth: 'स्वास्थ्य / बीमारी',
+      prasnaCatEducation: 'शिक्षा',
+      prasnaCatLitigation: 'मुकदमा / विवाद',
+      prasnaCatTravel: 'यात्रा (देश/विदेश)',
+      prasnaCatProperty: 'संपत्ति / घर',
+      prasnaCatChildren: 'संतान',
+      prasnaCityLabel: 'अभी आप किस शहर में हैं?',
+      prasnaAskBtn: 'सवाल पूछें',
+      prasnaErrorNoCity: 'कृपया पहले अपना मौजूदा शहर चुनें।',
+      prasnaLagna: 'लग्न (Ascendant)',
+      prasnaLagnaLord: 'लग्न स्वामी',
+      prasnaKaryesha: 'संबंधित भाव का स्वामी',
+      prasnaMoonPaksha: 'चंद्रमा की स्थिति',
+      prasnaShukla: 'शुक्ल पक्ष (बढ़ता चंद्रमा)',
+      prasnaKrishna: 'कृष्ण पक्ष (घटता चंद्रमा)',
+      prasnaMovementChara: 'चर राशि (बदलाव जल्दी आने की संभावना)',
+      prasnaMovementSthira: 'स्थिर राशि (बदलाव धीमा/मुश्किल होने की संभावना)',
+      prasnaMovementDwiswabhava: 'द्विस्वभाव राशि (बदलाव संभव, पर मुश्किल के साथ)',
+      prasnaDignityExalted: 'उच्च का',
+      prasnaDignityOwn: 'स्वराशि',
+      prasnaDignityNeutral: 'सम',
+      prasnaDignityDebilitated: 'नीच का',
+      prasnaCombust: 'अस्त (सूर्य के बहुत नज़दीक)',
+      prasnaRetrograde: 'वक्री',
+      prasnaHouseLabel: 'भाव',
+      prasnaStrengthStrong: 'मज़बूत',
+      prasnaStrengthWeak: 'कमज़ोर',
+      prasnaStrengthMixed: 'मिश्रित',
+      prasnaYogaIthasala: 'चंद्रमा निकट आ रहा है (इत्थशाला) — यह एक उत्साहजनक संकेत है',
+      prasnaYogaIsarapha: 'चंद्रमा दूर जा रहा है (इसराफा) — यह एक सावधानी का संकेत है',
+      prasnaYogaNone: 'फ़िलहाल कोई सीधा संबंध नहीं',
+      prasnaYogaUncertain: 'दूसरा ग्रह वक्री है — अनुमान भरोसेमंद नहीं है',
+      prasnaOverallFavorable: 'कुल मिलाकर रुझान: उत्साहजनक',
+      prasnaOverallMixed: 'कुल मिलाकर रुझान: मिश्रित',
+      prasnaOverallCautionary: 'कुल मिलाकर रुझान: सावधान रहें',
+      prasnaWithMoon: 'चंद्रमा का संबंध',
+      tabMilan: 'कुंडली मिलान',
+      milanSub: 'दोनों पक्षों का जन्म विवरण दर्ज करें — एक शास्त्रीय \'अष्टकूट गुण मिलान\' (8 कूट, कुल 36 अंक) संगतता विश्लेषण, सिर्फ चंद्रमा की राशि और नक्षत्र पर आधारित',
+      milanNote: 'नोट: यह उत्तर भारतीय अष्टकूट (8-कूट) प्रणाली है — दक्षिण भारतीय दशकूट प्रणाली अलग है और इसमें शामिल नहीं है। मंगल दोष (कुज दोष) भी इस वर्ज़न में शामिल नहीं है (यह एक अलग, बड़ा फ़ीचर है)। फ़िलहाल सिर्फ पाकिस्तान की टाइमज़ोन (+05:00) इस्तेमाल की जाती है। नतीजा एक शास्त्रीय मार्गदर्शन है, अंतिम फ़ैसला नहीं — कृपया किसी योग्य विशेषज्ञ से सलाह लें।',
+      milanGroomH4: 'पहला पक्ष (वर)',
+      milanBrideH4: 'दूसरा पक्ष (वधू)',
+      milanCheckBtn: 'संगतता जांचें',
+      milanErrorIncomplete: 'कृपया दोनों पक्षों की तारीख, समय और शहर भरें।',
+      milanTotalScore: 'कुल अंक',
+      milanInterpExcellent: 'बेहतरीन मेल',
+      milanInterpGood: 'अच्छा मेल',
+      milanInterpAverage: 'औसत मेल',
+      milanInterpIncompatible: 'सलाह नहीं दी जाती',
+      milanGroomMoon: 'वर का चंद्रमा',
+      milanBrideMoon: 'वधू का चंद्रमा',
+      milanKootaVarna: 'वर्ण',
+      milanKootaVashya: 'वश्य',
+      milanKootaTara: 'तारा',
+      milanKootaYoni: 'योनि',
+      milanKootaGrahaMaitri: 'ग्रह मैत्री',
+      milanKootaGana: 'गण',
+      milanKootaBhakoot: 'भकूट',
+      milanKootaNadi: 'नाड़ी',
+      milanNadiDoshaWarning: '⚠️ नाड़ी दोष मौजूद है (दोनों की नाड़ी एक ही है)',
+      milanBhakootDoshaWarning: '⚠️ भकूट दोष मौजूद है',
+      milanBhakootCancelled: '(निरस्त — राशि स्वामी मित्र हैं)',
       tabPanchang: 'पंचांग',
       tabAshtakavarga: 'अष्टकवर्ग',
       dailyDefaultText: 'पहले "कुंडली बनाएं" दबाएं।',
@@ -1998,6 +2024,14 @@
         pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
         pt.style.fill = p.color;
         pt.textContent = p.abbr;
+        // ---- Interactive click-a-planet menu (OMNIS-7 style, Phase 3
+        // roadmap item) — chip dabane se Signs/Vargas/Owns popup khulta
+        // hai (openPlanetMenu, neeche define). Sirf main D1 chart par.
+        pt.style.cursor = 'pointer';
+        pt.setAttribute('data-planet', p.name);
+        (function(planetName){
+          pt.addEventListener('click', function(){ openPlanetMenu(planetName); });
+        })(p.name);
         planetG.appendChild(pt);
       });
     }
@@ -2009,6 +2043,190 @@
     document.getElementById('chart-subhead').textContent =
       ascLabel + ': ' + ascVal + '   ·   ' + sysLabel + ': ' + sysVal;
   }
+
+  // ---- Planet click menu (OMNIS-7 style: chart par graha/lagna dabane
+  // se Signs/Vargas/Owns dikhana) — Phase 3 roadmap item. Koi naya server
+  // data/API call nahi lagta — teeno hisse pehle se `/api/kundli` response
+  // (lastZaichaData) mein maujood, aur pehle se AKSRA-verified, data se
+  // seedha nikalte hain:
+  //   - Signs: data.planetProfiles (Phase-1 "per-planet deep profile"
+  //     feature ka wahi data, jo renderPlanetProfiles() mein bhi istemal
+  //     hota hai)
+  //   - Vargas: data.vimshopakBala[].components (Vimshopak Bala feature ka
+  //     wahi D1/D2/D3/D9/D12/D30 sign+dignity data, sirf 7 classical
+  //     grahon ke liye — Rahu/Ketu ke liye sirf D1/D9 dikhaya jata hai,
+  //     jo pehle se disclosed limitation hai)
+  //   - Owns: data.houses[].lordLatin se seedha nikala (classical
+  //     Parashari sign-rulership, astro-engine.js ka SIGN_LORDS table)
+  var RASI_NAMES_LATIN_C = ['Mesha','Vrishabha','Mithuna','Karka','Simha','Kanya','Tula','Vrishchika','Dhanu','Makara','Kumbha','Meena'];
+  var RASI_NAMES_URDU_C = ['حمل','ثور','جوزا','سرطان','اسد','سنبلہ','میزان','عقرب','قوس','جدی','دلو','حوت'];
+  function rasiNameC(signId){
+    if (typeof signId !== 'number' || signId < 0 || signId > 11) return '—';
+    return currentLang === 'ur' ? RASI_NAMES_URDU_C[signId] : RASI_NAMES_LATIN_C[signId];
+  }
+  function findPlanetProfile(data, name){
+    var list = data.planetProfiles || [];
+    for (var i = 0; i < list.length; i++) if (list[i].name === name) return list[i];
+    return null;
+  }
+  function ownedHousesForPlanet(data, name){
+    var owned = [];
+    (data.houses || []).forEach(function(h){
+      if (h.lordLatin === name) owned.push(h.n);
+    });
+    return owned;
+  }
+  function planetMenuLabel(name){
+    if (name === 'Ascendant') return currentLang === 'ur' ? 'طالع (لگن)' : 'Ascendant (Lagna)';
+    return currentLang === 'ur' ? (PLANET_NAME_UR_MAP[name] || name) : name;
+  }
+  function openPlanetMenu(planetName){
+    var data = lastZaichaData;
+    var modal = document.getElementById('planet-menu-modal');
+    var body = document.getElementById('planet-modal-body');
+    var titleEl = document.getElementById('planet-modal-title');
+    if (!data || !modal || !body || !titleEl) return;
+    var isUr = currentLang === 'ur';
+    titleEl.textContent = (PLANET_EMOJI[planetName] || '✦') + ' ' + planetMenuLabel(planetName);
+    body.innerHTML = '';
+
+    // ---- Section 1: Signs (raashi/nakshatra/degree/house/dignity) ----
+    var sec1 = document.createElement('div');
+    sec1.className = 'planet-modal-section';
+    var h1 = document.createElement('h4');
+    h1.textContent = isUr ? '📍 راشی و برج کی تفصیل' : '📍 Signs & Placement';
+    sec1.appendChild(h1);
+    var profile = findPlanetProfile(data, planetName);
+    if (profile) {
+      var p1 = document.createElement('p');
+      p1.textContent = isUr
+        ? ('راشی: ' + profile.sign + ' (' + profile.degree + ')   ·   گھر: ' + (profile.house || '—'))
+        : ('Sign: ' + profile.signLatin + ' (' + profile.degree + ')   ·   House: ' + (profile.house || '—'));
+      sec1.appendChild(p1);
+      var p2 = document.createElement('p');
+      p2.textContent = isUr
+        ? ('نچھتر: ' + profile.nakshatra + ' پاد ' + profile.pada + '   ·   حاکمِ نچھتر: ' + profile.nakshatraLordUrdu)
+        : ('Nakshatra: ' + profile.nakshatraLatin + ' Pada ' + profile.pada + '   ·   Nakshatra Lord: ' + profile.nakshatraLord);
+      sec1.appendChild(p2);
+      var p3 = document.createElement('p');
+      var extra3 = isUr ? ('حالت: ' + profile.dignityLabel) : ('Dignity: ' + profile.dignityLabelEn);
+      if (profile.isRetrograde) extra3 += isUr ? '   ·   رجعت⟲' : '   ·   Retrograde⟲';
+      if (profile.isCombust) extra3 += isUr ? '   ·   مدھم/Combust' : '   ·   Combust';
+      p3.textContent = extra3;
+      sec1.appendChild(p3);
+    } else if (planetName === 'Ascendant') {
+      var pAsc = document.createElement('p');
+      pAsc.textContent = isUr
+        ? ('طالع کی راشی: ' + data.person.ascendantSignName)
+        : ('Ascendant sign: ' + data.person.ascendantSignLatin);
+      sec1.appendChild(pAsc);
+    } else {
+      var pNone = document.createElement('p');
+      pNone.textContent = isUr ? 'ڈیٹا دستیاب نہیں۔' : 'No data available.';
+      sec1.appendChild(pNone);
+    }
+    body.appendChild(sec1);
+
+    // ---- Section 2: Vargas (divisional-chart placements) ----
+    var sec2 = document.createElement('div');
+    sec2.className = 'planet-modal-section';
+    var h2 = document.createElement('h4');
+    h2.textContent = isUr ? '🧩 مختلف ورگ چارٹس (Vargas)' : '🧩 Divisional Charts (Vargas)';
+    sec2.appendChild(h2);
+    var vRow = findVimshopakRow(data, planetName);
+    if (vRow) {
+      var chipRow = document.createElement('div');
+      chipRow.className = 'planet-modal-chip-row';
+      VIMSHOPAK_VARGA_ORDER.forEach(function(v){
+        var c = vRow.components[v];
+        if (!c) return;
+        var chip = document.createElement('span');
+        chip.className = 'planet-modal-chip';
+        var vLabel = isUr ? (VIMSHOPAK_VARGA_LABEL_UR[v] || v) : v;
+        chip.textContent = vLabel + ': ' + rasiNameC(c.signId) + ' (' + dignityLabel(c.dignity) + ')';
+        chipRow.appendChild(chip);
+      });
+      sec2.appendChild(chipRow);
+    } else if ((planetName === 'Rahu' || planetName === 'Ketu') && profile) {
+      var chipRow2 = document.createElement('div');
+      chipRow2.className = 'planet-modal-chip-row';
+      var chipD1 = document.createElement('span');
+      chipD1.className = 'planet-modal-chip';
+      chipD1.textContent = (isUr ? 'راشی (D1): ' : 'D1 (Rasi): ') + (isUr ? profile.sign : profile.signLatin);
+      chipRow2.appendChild(chipD1);
+      if (profile.navamsaSign) {
+        var chipD9 = document.createElement('span');
+        chipD9.className = 'planet-modal-chip';
+        chipD9.textContent = (isUr ? 'نومانش (D9): ' : 'D9 (Navamsa): ') + (isUr ? profile.navamsaSign : profile.navamsaSignLatin);
+        chipRow2.appendChild(chipD9);
+      }
+      sec2.appendChild(chipRow2);
+      var noteRK = document.createElement('p');
+      noteRK.textContent = isUr
+        ? 'نوٹ: ونشوپک بل حساب صرف 7 کلاسیکی سیاروں کے لیے ہے، اس لیے راہو/کیتو کے لیے صرف D1/D9 دستیاب ہیں۔'
+        : 'Note: Vimshopak Bala only covers the 7 classical planets, so only D1/D9 are shown for Rahu/Ketu.';
+      noteRK.style.fontSize = '.72rem';
+      sec2.appendChild(noteRK);
+    } else {
+      var pNoV = document.createElement('p');
+      pNoV.textContent = isUr ? 'لگن کے لیے یہ حصہ لاگو نہیں ہوتا۔' : 'Not applicable to the Ascendant.';
+      sec2.appendChild(pNoV);
+    }
+    body.appendChild(sec2);
+
+    // ---- Section 3: Owns (which houses this planet rules) ----
+    var sec3 = document.createElement('div');
+    sec3.className = 'planet-modal-section';
+    var h3 = document.createElement('h4');
+    h3.textContent = isUr ? '👑 کن گھروں کا حاکم ہے (Owns)' : '👑 Owns (House Rulership)';
+    sec3.appendChild(h3);
+    if (planetName === 'Ascendant') {
+      var pAscOwn = document.createElement('p');
+      pAscOwn.textContent = isUr
+        ? 'لگن خود کسی گھر کا حاکم نہیں ہوتا — یہ زائچے کی بنیاد (پہلا گھر) ہے۔'
+        : 'The Ascendant itself does not rule a house — it is the chart\'s own foundation (house 1).';
+      sec3.appendChild(pAscOwn);
+    } else {
+      var owned = ownedHousesForPlanet(data, planetName);
+      if (owned.length) {
+        var chipRow3 = document.createElement('div');
+        chipRow3.className = 'planet-modal-chip-row';
+        owned.forEach(function(n){
+          var chip = document.createElement('span');
+          chip.className = 'planet-modal-chip';
+          chip.textContent = isUr ? (URDU_ORDINALS_C[n] + ' گھر') : ('House ' + n);
+          chipRow3.appendChild(chip);
+        });
+        sec3.appendChild(chipRow3);
+      } else {
+        var pNoOwn = document.createElement('p');
+        pNoOwn.textContent = isUr
+          ? 'کلاسیکی طور پر ' + planetMenuLabel(planetName) + ' کسی راشی/گھر کا حاکم نہیں ہوتا۔'
+          : 'Classically, ' + planetMenuLabel(planetName) + ' does not rule any sign/house.';
+        sec3.appendChild(pNoOwn);
+      }
+    }
+    body.appendChild(sec3);
+
+    modal.hidden = false;
+  }
+  var URDU_ORDINALS_C = {
+    1: 'پہلے', 2: 'دوسرے', 3: 'تیسرے', 4: 'چوتھے', 5: 'پانچویں',
+    6: 'چھٹے', 7: 'ساتویں', 8: 'آٹھویں', 9: 'نویں', 10: 'دسویں',
+    11: 'گیارہویں', 12: 'بارہویں',
+  };
+  function findVimshopakRow(data, planetName){
+    var rows = data.vimshopakBala || [];
+    for (var i = 0; i < rows.length; i++) if (rows[i].planet === planetName) return rows[i];
+    return null;
+  }
+  (function wirePlanetModalClose(){
+    var modal = document.getElementById('planet-menu-modal');
+    var closeBtn = document.getElementById('planet-modal-close');
+    if (!modal || !closeBtn) return;
+    closeBtn.addEventListener('click', function(){ modal.hidden = true; });
+    modal.addEventListener('click', function(e){ if (e.target === modal) modal.hidden = true; });
+  })();
 
   // Navamsa (D9) — bilkul wahi diamond-chart rendering jo main D1 chart
   // (renderChart) mein hai, bas data.navamsa.houses se (backend pehle se
