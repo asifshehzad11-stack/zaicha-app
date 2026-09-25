@@ -1223,6 +1223,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// VedAstro key diagnostics (2026-09-25) — sirf booleans + VedAstro ka apna
+// (redacted) jawab. Key ki value kabhi response mein nahi aati. Isi se pata
+// chalta hai ke Render par key sahi pehchani ja rahi hai ya nahi, bina
+// Render dashboard/secret ko chhuay.
+app.get('/api/health/vedastro', async (req, res) => {
+  if (typeof prokerala.probeVedAstro !== 'function') {
+    return res.json({ provider: 'prokerala', note: 'VedAstro active provider nahi hai.' });
+  }
+  const key = prokerala.apiKeyDiagnostics();
+  const probe = await prokerala.probeVedAstro();
+  res.json({ provider: 'vedastro', key, probe });
+});
+
 app.listen(PORT, () => {
   console.log(`Zaicha server chal raha hai: http://localhost:${PORT}`);
   if (!process.env.PROKERALA_CLIENT_ID || !process.env.PROKERALA_CLIENT_SECRET) {
