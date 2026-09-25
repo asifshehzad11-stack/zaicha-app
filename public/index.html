@@ -652,6 +652,18 @@
           <p class="sub" id="ayanamsa-note" style="display:none;" data-i18n="ayanamsaNote">نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔</p>
           <p class="sub" id="ayanamsa-note-raman" style="display:none;" data-i18n="ayanamsaNoteRaman">نوٹ: رامن ایانامسا کی قدر ہم نے 2 آزاد ذرائع (roxyapi.com, vedika.io) کے حوالہ نمبروں سے، اور خود VedAstro کی لائیو API سے موازنہ کر کے تصدیق کی ہے — فرق 1 آرک منٹ سے بھی کم نکلا۔ یہ نظام لاہری جتنا عام استعمال نہیں، صرف کچھ علمائے فلکیات اسے ترجیح دیتے ہیں۔</p>
         </div>
+        <div class="field">
+          <!-- Rahu/Ketu Node Type — session 6 (2026-09-25), 2 independent
+               astrologers ki maang par (poori tehqeeq ROADMAP.md + lib/
+               true-node.js ke header comments mein). -->
+          <label data-i18n="labelNodeType">راہو/کیتو (Node Type)</label>
+          <select id="in-node-type">
+            <option value="mean">اوسط — Mean Node (ڈیفالٹ)</option>
+            <option value="true">حقیقی — True Node</option>
+          </select>
+          <p class="sub" data-i18n="nodeTypeNote">نوٹ: زیادہ تر astrology software ڈیفالٹ کے طور پر Mean Node دیتے ہیں۔ True Node اصل (osculating) پوزیشن ہے جو Mean سے تقریباً 0 سے 1.5 ڈگری تک آگے پیچھے ہوتی رہتی ہے — یہ اس ایپ کے اندر خود، معیاری orbital-mechanics فارمولے سے نکالی جاتی ہے (کسی الگ ذریعے سے کاپی نہیں کی جاتی)۔</p>
+          <p class="sub" id="node-type-fallback-note" style="display:none;"></p>
+        </div>
 
         <button id="generate-btn" class="cta-btn" type="button" data-i18n="generateBtn">زائچہ بنائیں</button>
         <div id="engine-note" data-i18n="engineNote">یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔</div>
@@ -1272,6 +1284,9 @@
       labelAyanamsa: 'نظامِ حساب (Ayanamsa)',
       ayanamsaNote: 'نوٹ: KP نظام کا عددی کوڈ (5) Swiss Ephemeris کے معیاری کوڈز پر مبنی ہے، Prokerala سے 100% تصدیق شدہ نہیں — اگر نتائج غیر متوقع لگیں تو بتائیں۔',
       ayanamsaNoteRaman: 'نوٹ: رامن ایانامسا کی قدر ہم نے 2 آزاد ذرائع (roxyapi.com, vedika.io) کے حوالہ نمبروں سے، اور خود VedAstro کی لائیو API سے موازنہ کر کے تصدیق کی ہے — فرق 1 آرک منٹ سے بھی کم نکلا۔ یہ نظام لاہری جتنا عام استعمال نہیں، صرف کچھ علمائے فلکیات اسے ترجیح دیتے ہیں۔',
+      labelNodeType: 'راہو/کیتو (Node Type)',
+      nodeTypeNote: 'نوٹ: زیادہ تر astrology software ڈیفالٹ کے طور پر Mean Node دیتے ہیں۔ True Node اصل (osculating) پوزیشن ہے جو Mean سے تقریباً 0 سے 1.5 ڈگری تک آگے پیچھے ہوتی رہتی ہے — یہ اس ایپ کے اندر خود، معیاری orbital-mechanics فارمولے سے نکالی جاتی ہے (کسی الگ ذریعے سے کاپی نہیں کی جاتی)۔',
+      nodeTypeFallback: 'نوٹ: True Node اس وقت دستیاب نہیں ہو سکا — Mean Node دکھایا جا رہا ہے۔',
       generateBtn: 'زائچہ بنائیں',
       generateBtnLoading: 'تیار ہو رہا ہے...',
       engineNote: 'یہ بٹن آپ کے backend server سے، جو اصل Prokerala API کو کال کرتا ہے، حقیقی حساب لائے گا۔',
@@ -1509,6 +1524,9 @@
       labelAyanamsa: 'Ayanamsa (system)',
       ayanamsaNote: 'Note: the KP system\'s numeric code (5) is based on the standard Swiss Ephemeris constants, not 100% confirmed with Prokerala yet — let us know if results look off.',
       ayanamsaNoteRaman: 'Note: the Raman ayanamsa value has been verified against 2 independent published references (roxyapi.com, vedika.io) and against VedAstro\'s own live API — the difference came out under 1 arcminute. This system is far less commonly used than Lahiri; only some astrologers prefer it.',
+      labelNodeType: 'Rahu/Ketu Node Type',
+      nodeTypeNote: 'Note: most astrology software defaults to the Mean Node. The True Node is the actual (osculating) position, which oscillates roughly 0-1.5° from the Mean Node — this app derives it itself using a standard orbital-mechanics formula (not copied from any external source).',
+      nodeTypeFallback: 'Note: True Node was not available right now — showing Mean Node instead.',
       generateBtn: 'Generate chart',
       generateBtnLoading: 'Generating...',
       engineNote: 'This button calls your backend server, which calls the real Prokerala API for a genuine calculation.',
@@ -1746,6 +1764,9 @@
       labelAyanamsa: 'गणना प्रणाली (अयनांश)',
       ayanamsaNote: 'नोट: KP प्रणाली का संख्यात्मक कोड (5) Swiss Ephemeris के मानक कोड पर आधारित है, Prokerala से 100% पुष्ट नहीं — अगर परिणाम अप्रत्याशित लगें तो बताएं।',
       ayanamsaNoteRaman: 'नोट: रमन अयनांश की वैल्यू को 2 स्वतंत्र प्रकाशित स्रोतों (roxyapi.com, vedika.io) से, और VedAstro की अपनी लाइव API से मिलाकर सत्यापित किया गया है — अंतर 1 आर्क मिनट से भी कम निकला। यह प्रणाली लाहिड़ी जितनी आम इस्तेमाल नहीं होती, कुछ ज्योतिषी ही इसे प्राथमिकता देते हैं।',
+      labelNodeType: 'राहु/केतु (Node Type)',
+      nodeTypeNote: 'नोट: ज़्यादातर astrology software डिफ़ॉल्ट रूप से Mean Node देते हैं। True Node असली (osculating) पोज़िशन है जो Mean से लगभग 0 से 1.5 डिग्री आगे-पीछे होती रहती है — यह ऐप के अंदर ही, मानक orbital-mechanics फ़ॉर्मूले से निकाली जाती है (किसी अलग स्रोत से कॉपी नहीं की जाती)।',
+      nodeTypeFallback: 'नोट: True Node इस समय उपलब्ध नहीं हो सका — Mean Node दिखाया जा रहा है।',
       generateBtn: 'कुंडली बनाएं',
       generateBtnLoading: 'तैयार हो रहा है...',
       engineNote: 'यह बटन आपके बैकएंड सर्वर से, जो असली Prokerala API को कॉल करता है, असली गणना लाएगा।',
@@ -2078,8 +2099,18 @@
     var sysLabel = currentLang === 'en' ? 'System' : currentLang === 'hi' ? 'System' : 'نظام';
     var ascVal = currentLang === 'ur' ? data.person.ascendantSignName : data.person.ascendantSignLatin;
     var sysVal = currentLang === 'ur' ? data.person.system : data.person.systemLatin;
-    document.getElementById('chart-subhead').textContent =
-      ascLabel + ': ' + ascVal + '   ·   ' + sysLabel + ': ' + sysVal;
+    var subhead = ascLabel + ': ' + ascVal + '   ·   ' + sysLabel + ': ' + sysVal;
+    // Rahu/Ketu Node Type — jab True Node asal mein lagu ho (session 6,
+    // 2026-09-25 feature) to yahan bhi saaf dikha dete hain, taake user ko
+    // pata rahe kaunsa convention is chart mein istemal ho raha hai
+    // (teacher ka mutalba "ye option front page par honi chahiye" — sirf
+    // input hi nahi, result mein bhi saaf hona chahiye).
+    if (data.nodeType && data.nodeType.applied === 'true') {
+      var nodeLabel = currentLang === 'en' ? 'Node' : currentLang === 'hi' ? 'Node' : 'نوڈ';
+      var nodeVal = currentLang === 'en' ? 'True' : currentLang === 'hi' ? 'True' : 'حقیقی';
+      subhead += '   ·   ' + nodeLabel + ': ' + nodeVal;
+    }
+    document.getElementById('chart-subhead').textContent = subhead;
   }
 
   // ---- Planet click menu (OMNIS-7 style: chart par graha/lagna dabane
@@ -4637,8 +4668,9 @@
       // transit predictions, monthly/yearly outlook, daily routine aur
       // remedies — sab isi language mein generate kare (na ke hamesha Urdu
       // mein — pehle yehi masla tha).
+      var nodeType = document.getElementById('in-node-type').value;
       var person = loadedProfileId
-        ? { profileId: loadedProfileId, lang: currentLang }
+        ? { profileId: loadedProfileId, lang: currentLang, nodeType: nodeType }
         : {
             name: document.getElementById('in-name').value,
             dob: document.getElementById('in-dob').value,
@@ -4648,10 +4680,21 @@
             utcOffset: document.getElementById('in-offset').value,
             ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1,
             phone: document.getElementById('in-phone').value.trim() || undefined,
-            lang: currentLang
+            lang: currentLang,
+            nodeType: nodeType
           };
       var data = await fetchChartData(person);
       if (data.profileId) loadedProfileId = data.profileId;
+      // Rahu/Ketu Node Type — agar True maanga gaya magar engine se na mil
+      // saka (unsupported provider ya calculation error), saaf batate hain
+      // (silently Mean par fallback nahi karte bina disclose kiye).
+      var fallbackNote = document.getElementById('node-type-fallback-note');
+      if (data.nodeType && data.nodeType.requested === 'true' && data.nodeType.applied !== 'true') {
+        fallbackNote.textContent = I18N[currentLang].nodeTypeFallback;
+        fallbackNote.style.display = 'block';
+      } else {
+        fallbackNote.style.display = 'none';
+      }
       renderAll(data);
       // AstroMatrix jaisa: birth-details submit hote hi seedha "Daily"
       // ke muadil screen (yahan پیشگوئی) khul jaye, bottom-nav bhi ab
