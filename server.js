@@ -47,6 +47,7 @@ const {
 } = require('./lib/narrative');
 const { buildYogas } = require('./lib/yoga-engine');
 const { buildNavamsaChart } = require('./lib/navamsa');
+const { buildHoraChart } = require('./lib/hora');
 const { buildPlanetProfiles } = require('./lib/planet-profile');
 const { buildGrahaBala } = require('./lib/graha-bala');
 const { buildYoginiDasha } = require('./lib/yogini-dasha');
@@ -350,6 +351,11 @@ app.post('/api/kundli', async (req, res) => {
     // degrees par sirf classical divisional-chart formula apply hoti hai.
     // Roadmap Phase 1 ka doosra item.
     const navamsa = buildNavamsaChart(data);
+    // ---- Hora (D2) — mukammal chart-diagram, astrology TEACHER ke feedback
+    // (session 6, 2026-09-25) par banaya gaya. Bilkul Navamsa jaisa free
+    // hai (koi nayi API call nahi) — lib/hora.js dekhein poori tafseel ke
+    // liye (formula pehle se lib/vargas.js mein verify shuda hai).
+    const hora = buildHoraChart(data);
     // ---- Per-planet deep profile — Phase 1 ka teesra item. Navamsa ke
     // baad banaya isi liye taake har graha ki profile mein uski D9 rasi
     // aur vargottama status bhi shamil ho sake.
@@ -467,6 +473,7 @@ app.post('/api/kundli', async (req, res) => {
       remedies,
       yogas,
       navamsa,
+      hora,
       planetProfiles,
       grahaBala,
       vimshopakBala,
