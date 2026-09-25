@@ -1057,8 +1057,22 @@ app.get('/api/geocode-city', async (req, res) => {
     if (!r.ok) throw new Error(`Geocoding failed: ${r.status}`);
     const raw = await r.json();
 
+    // BUG FIX (2026-09-25) — Ustaad/teacher ne report kiya: "Sheikhupura"
+    // type karne par app ne 32.2787,74.5070 (Sialkot District ka ek chhota
+    // "Shaikhpura" gaon) select kar liya, jab ke asal mashhoor Sheikhupura
+    // shehar (Lahore ke qareeb, Sheikhupura District ka HQ) 31.87,74.21 par
+    // hai — Google/Wikipedia se cross-check kiya (31.71,73.99, chhota farq
+    // reference-point ki wajah se, lekin sahi shehar). Open-Meteo ki API
+    // khud is naam se PAKISTAN mein 6 alag-alag jagahein deti hai
+    // (Sialkot, Khanewal, Okara, aur Sheikhupura District khud) — pehle
+    // label sirf "name, admin1(=Punjab), country" dikhata tha, jo in sab ko
+    // EK JAISA dikhata tha (list mein sab "Punjab, Pakistan" wale). Ab
+    // admin2 (district) shamil kiya gaya hai taake user sahi jagah khud
+    // pehchan kar select kar sake — koi automatic "guess" nahi ki gayi
+    // (kaunsi jagah "sahi" hai ye khud decide karna theek nahi, kyunke
+    // koi bhi in mein se user ki asal paidaish ki jagah ho sakti hai).
     const results = (raw.results || []).map((item) => {
-      const label = [item.name, item.admin1, item.country].filter(Boolean).join(', ');
+      const label = [item.name, item.admin2, item.admin1, item.country].filter(Boolean).join(', ');
       return {
         label,
         lat: item.latitude,
