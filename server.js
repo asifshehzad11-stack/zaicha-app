@@ -192,16 +192,27 @@ function shiftDatetimeByHours(isoDatetime, hours) {
 
 /**
  * computeTrueNodeForPerson — `person` ({datetime, coordinates, ayanamsa})
- * ke liye True (osculating) Rahu/Ketu nikalta hai. 2 halke Moon-only
- * VedAstro calls lagti hain (T1 = person.datetime, T2 = T1+3 ghante) — sirf
- * VedAstro provider hi is ke liye zaroori `getMoonTropicalSnapshot` deta
- * hai (Prokerala nahi — dono providers ki research ROADMAP.md mein hai).
- * Poora tariqa/AKSRA-verification lib/true-node.js ke header comment mein.
+ * ke liye True (osculating) Rahu/Ketu nikalta hai. T1 (person.datetime) ka
+ * Moon-tropical sample agar `natalMoonEntry` (jo natalPlanetPosition se
+ * pehle hi ek hi call ke andar mil chuka hota hai, dekhein
+ * lib/vedastro-client.js's getPlanetPosition) mein maujood ho to WAHI reuse
+ * hota hai — sirf T2 (T1+3 ghante) ke liye 1 HALKI extra call lagti hai (na
+ * ke 2). Ye optimization is session mein isi liye ki gayi ke live testing
+ * mein VedAstro ka rate-limit baar baar lag raha tha — kam calls lagne se
+ * usay bachne ka behtar mauka milta hai (poori tafseel ROADMAP.md mein).
+ * Purani/cached profile ka data agar is naye field ke bagair ho (feature se
+ * pehle ka cache) to dono samples fresh calls se hi le liye jate hain.
  */
-async function computeTrueNodeForPerson(person) {
+async function computeTrueNodeForPerson(person, natalMoonEntry) {
   const t2Datetime = shiftDatetimeByHours(person.datetime, 3);
+  const hasT1FromCache = natalMoonEntry
+    && typeof natalMoonEntry.tropicalLongitude === 'number'
+    && typeof natalMoonEntry.tropicalLatitude === 'number';
+
   const [sample1, sample2] = await Promise.all([
-    prokerala.getMoonTropicalSnapshot(person),
+    hasT1FromCache
+      ? Promise.resolve({ longitude: natalMoonEntry.tropicalLongitude, latitude: natalMoonEntry.tropicalLatitude })
+      : prokerala.getMoonTropicalSnapshot(person),
     prokerala.getMoonTropicalSnapshot({ ...person, datetime: t2Datetime }),
   ]);
   const birthDate = new Date(person.datetime);
@@ -217,7 +228,7 @@ async function computeTrueNodeForPerson(person) {
 
 /**
  * applyNodeOverride — natalPlanetPosition.data.planet_position ke andar
- * Rahu/Ketu entries ko naye (True Node se nikले) rasi/degree se seedha
+ * Rahu/Ketu entries ko naye (True Node se nikaale gaye) rasi/degree se seedha
  * OVERWRITE kar deta hai — is ke baad buildZaichaData() aur us ke baad
  * chalne wali HAR cheez (houses, Navamsa, Hora, Vimshopak, Yogas, Chara
  * Karaka waghera) khud-ba-khud nayi value istemal karti hai, kyunke wo sab
@@ -353,7 +364,8 @@ app.post('/api/kundli', async (req, res) => {
         nodeTypeNote = 'is waqt ka calculation engine (Prokerala) True Node support nahi karta — Mean Node dikhaya ja raha hai.';
       } else {
         try {
-          const trueNode = await computeTrueNodeForPerson(person);
+          const natalMoonEntry = natalBundle.natalPlanetPosition.data.planet_position.find((p) => p.name === 'Moon');
+          const trueNode = await computeTrueNodeForPerson(person, natalMoonEntry);
           natalPlanetPosition = {
             data: {
               planet_position: natalBundle.natalPlanetPosition.data.planet_position.map((p) => ({ ...p, rasi: { ...p.rasi } })),
