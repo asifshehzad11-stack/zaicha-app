@@ -735,6 +735,7 @@
           <button type="button" class="shortcut-item" data-target="phone-yogas"><span class="ic">✨</span><span data-i18n="tabYogas">یوگ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-pdfreport"><span class="ic">🖨️</span><span data-i18n="tabPdfReport">پی ڈی ایف رپورٹ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-navamsa"><span class="ic">💠</span><span data-i18n="tabNavamsa">نومانش (D9)</span></button>
+          <button type="button" class="shortcut-item" data-target="phone-hora"><span class="ic">💰</span><span data-i18n="tabHora">ہورا (D2)</span></button>
           <button type="button" class="shortcut-item" data-target="phone-planets"><span class="ic">🪐</span><span data-i18n="tabPlanets">گرہوں کی تفصیل</span></button>
           <button type="button" class="shortcut-item" data-target="phone-grahabala"><span class="ic">⚖️</span><span data-i18n="tabGrahaBala">قوتِ گرہ</span></button>
           <button type="button" class="shortcut-item" data-target="phone-bhavabala"><span class="ic">🏛️</span><span data-i18n="tabBhavaBala">قوتِ خانہ</span></button>
@@ -863,6 +864,37 @@
           <span class="legend-item" style="--_c:var(--ke)">☋ Ke کیتو</span>
         </div>
         <p class="sub" id="navamsa-vargottama" style="margin-top:.8rem;"></p>
+      </div>
+
+      <div class="phone" id="phone-hora">
+        <div class="subscreen-head"><button type="button" class="back-btn" data-back="phone-predictions">→ <span data-i18n="backToHub">واپس</span></button></div>
+        <div class="feed-head"><span class="ic">💰</span> <span data-i18n="tabHora">ہورا (D2)</span></div>
+        <p class="sub" id="hora-subhead" data-i18n="horaSub">دولت/مالی حیثیت دیکھنے کا چارٹ — صرف سورج یا چاند کی "ہورا" ہوتی ہے، اس لیے زیادہ تر گرہ صرف 2 گھروں میں جمع نظر آئیں گے (یہ کلاسیکی طرزِ عمل ہے)</p>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 300 300" role="img" aria-label="ہورا (D2) چارٹ">
+            <g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.4" style="color:var(--line)">
+              <rect x="0" y="0" width="300" height="300"/>
+              <polygon points="150,0 300,150 150,300 0,150"/>
+              <line x1="0" y1="0" x2="300" y2="300"/>
+              <line x1="300" y1="0" x2="0" y2="300"/>
+            </g>
+            <g id="hora-sign-numbers" font-family="JetBrains Mono, monospace" font-size="11" style="fill:var(--text-muted)" text-anchor="middle"></g>
+            <g id="hora-planet-chips" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" text-anchor="middle"></g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item" style="--_c:var(--gold)">✦ Lg طالع</span>
+          <span class="legend-item" style="--_c:var(--su)">☉ Su سورج</span>
+          <span class="legend-item" style="--_c:var(--mo)">☾ Mo چاند</span>
+          <span class="legend-item" style="--_c:var(--ma)">♂ Ma مریخ</span>
+          <span class="legend-item" style="--_c:var(--me)">☿ Me عطارد</span>
+          <span class="legend-item" style="--_c:var(--ju)">♃ Ju مشتری</span>
+          <span class="legend-item" style="--_c:var(--ve)">♀ Ve زہرہ</span>
+          <span class="legend-item" style="--_c:var(--sa)">♄ Sa زحل</span>
+          <span class="legend-item" style="--_c:var(--ra)">☊ Ra راہو</span>
+          <span class="legend-item" style="--_c:var(--ke)">☋ Ke کیتو</span>
+        </div>
+        <p class="sub" id="hora-ascendant-line" style="margin-top:.8rem;"></p>
       </div>
 
       <div class="phone" id="phone-western">
@@ -1262,6 +1294,8 @@
       yogasSub: 'آپ کی کنڈلی میں پائے جانے والے کلاسیکی گرہ-امتزاج (یوگ)',
       tabNavamsa: 'نومانش (D9)',
       navamsaSub: 'شادی، دھرم اور گرہوں کی اصل (گہری) طاقت کے لیے D1 کے بعد سب سے اہم چارٹ',
+      tabHora: 'ہورا (D2)',
+      horaSub: 'دولت/مالی حیثیت دیکھنے کا چارٹ — صرف سورج یا چاند کی "ہورا" ہوتی ہے، اس لیے زیادہ تر گرہ صرف 2 گھروں میں جمع نظر آئیں گے (یہ کلاسیکی طرزِ عمل ہے)',
       tabPlanets: 'گرہوں کی تفصیل',
       planetsSub: 'ہر گرہ کا مکمل پروفائل — راشی، گھر، نچھتر، حاکمِ نچھتر اور حالت',
       tabGrahaBala: 'قوتِ گرہ',
@@ -1497,6 +1531,8 @@
       yogasSub: 'Classical planetary combinations (yogas) found in your chart',
       tabNavamsa: 'Navamsa (D9)',
       navamsaSub: 'The most important chart after D1 — for marriage, dharma, and the true (deeper) strength of planets',
+      tabHora: 'Hora (D2)',
+      horaSub: 'Chart for wealth/financial standing — only the Sun or the Moon can "own" a Hora, so most planets cluster into just 2 houses (this is classical, expected behaviour)',
       tabPlanets: 'Planet Profiles',
       planetsSub: 'Full profile for each planet — sign, house, nakshatra, nakshatra lord and condition',
       tabGrahaBala: 'Planet Strength',
@@ -1732,6 +1768,8 @@
       yogasSub: 'आपकी कुंडली में पाए जाने वाले शास्त्रीय ग्रह-संयोग (योग)',
       tabNavamsa: 'नवांश (D9)',
       navamsaSub: 'विवाह, धर्म और ग्रहों की असली (गहरी) शक्ति के लिए D1 के बाद सबसे अहम चार्ट',
+      tabHora: 'होरा (D2)',
+      horaSub: 'धन/आर्थिक स्थिति देखने का चार्ट — सिर्फ सूर्य या चंद्रमा की "होरा" होती है, इसलिए ज़्यादातर ग्रह सिर्फ 2 घरों में जमा दिखेंगे (यह क्लासिकल तरीका है)',
       tabPlanets: 'ग्रहों का विवरण',
       planetsSub: 'हर ग्रह की पूरी प्रोफाइल — राशि, घर, नक्षत्र, नक्षत्र स्वामी और स्थिति',
       tabGrahaBala: 'ग्रह बल',
@@ -2280,6 +2318,50 @@
       } else {
         vEl.textContent = '';
       }
+    }
+  }
+
+  // Hora (D2) — teacher feedback (session 6, 2026-09-25) par banaya gaya
+  // mukammal chart-diagram, bilkul renderNavamsaChart() jaisa (bas
+  // data.hora.houses se — backend lib/hora.js pehle se isi shape mein
+  // banata hai). Subhead ka static "classical behaviour" wala matn overwrite
+  // NAHI hota (navamsa ke ulat) — Hora Ascendant alag line mein dikhta hai,
+  // taake "sirf 2 ghar bharay honge" wali zaroori tashreeh hamesha nazar aaye.
+  function renderHoraChart(data){
+    var hora = data.hora;
+    var signG = document.getElementById('hora-sign-numbers');
+    var planetG = document.getElementById('hora-planet-chips');
+    if (!signG || !planetG) return;
+    signG.innerHTML = '';
+    planetG.innerHTML = '';
+    if (!hora || !hora.houses) return;
+
+    for (var h = 1; h <= 12; h++){
+      var geo = HOUSE_GEOMETRY[h];
+      var house = hora.houses[h - 1];
+      if (!house) continue;
+
+      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', geo.signPos.x); t.setAttribute('y', geo.signPos.y);
+      t.textContent = house.signId + 1;
+      signG.appendChild(t);
+
+      house.planets.forEach(function(p, i){
+        var slot = geo.slots[Math.min(i, geo.slots.length - 1)];
+        var pt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        pt.setAttribute('x', slot.x);
+        pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
+        pt.style.fill = p.color;
+        pt.textContent = p.abbr;
+        planetG.appendChild(pt);
+      });
+    }
+
+    var ascEl = document.getElementById('hora-ascendant-line');
+    if (ascEl) {
+      var horaAscLabel = currentLang === 'ur' ? 'ہورا طالع: ' : 'Hora Ascendant: ';
+      var horaAscVal = currentLang === 'ur' ? hora.ascendantSignName : hora.ascendantSignLatin;
+      ascEl.textContent = horaAscLabel + horaAscVal;
     }
   }
 
@@ -4443,6 +4525,7 @@
     renderDashaTree(data);
     renderYogas(data);
     renderNavamsaChart(data);
+    renderHoraChart(data);
     renderPlanetProfiles(data);
     renderGrahaBala(data);
     renderBhavaBala(data);
@@ -4650,7 +4733,7 @@
     'screen-welcome', 'phone-entry', 'phone-chart', 'phone-houses', 'phone-predictions', 'phone-profile',
     // Predictions/Daily hub ke shortcut icons yahan khulte hain (apni
     // ALAG screen, AstroMatrix ke Birth Report/Weekly/Monthly/... jaisa).
-    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-planets', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-moonphases', 'phone-aspects', 'phone-kp', 'phone-western', 'phone-arabianparts', 'phone-yoginidasha', 'phone-charadasha', 'phone-charakaraka', 'phone-pdfreport', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly', 'phone-prasna', 'phone-milan',
+    'phone-dasha', 'phone-monthly', 'phone-yearly', 'phone-remedies', 'phone-yogas', 'phone-navamsa', 'phone-hora', 'phone-planets', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-moonphases', 'phone-aspects', 'phone-kp', 'phone-western', 'phone-arabianparts', 'phone-yoginidasha', 'phone-charadasha', 'phone-charakaraka', 'phone-pdfreport', 'phone-panchang', 'phone-ashtakavarga', 'phone-weekly', 'phone-prasna', 'phone-milan',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
