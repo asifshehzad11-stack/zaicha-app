@@ -33,7 +33,10 @@ const prokerala = process.env.ASTRO_PROVIDER === 'prokerala'
 const db = require('./lib/db');
 const auth = require('./lib/auth');
 const safepay = require('./lib/safepay-client');
-const { buildZaichaData, normalizePanchang, buildForwardCalendar, indexPlanets } = require('./lib/astro-engine');
+const { buildZaichaData, normalizePanchang, buildForwardCalendar, indexPlanets, RASI_NAMES_LATIN } = require('./lib/astro-engine');
+// Rahu/Ketu True Node feature (session 6, 2026-09-25) — poori tafseel
+// lib/true-node.js ke header comment mein.
+const { computeTrueNodeSiderealLongitude, rasiFromSiderealLongitude } = require('./lib/true-node');
 const { buildPanchangCalendar } = require('./lib/panchang-calendar');
 const {
   generateNarrativeViaLLM,
@@ -60,7 +63,7 @@ const { buildMoonPhases } = require('./lib/moon-phases');
 const { buildNatalAspects } = require('./lib/natal-aspects');
 const { buildKpInfo } = require('./lib/kp-system');
 const { buildKpCuspal } = require('./lib/kp-cuspal');
-const { buildWesternChart } = require('./lib/western-chart');
+const { buildWesternChart, ayanamsaValueForDate } = require('./lib/western-chart');
 const { buildArabianParts } = require('./lib/arabian-parts');
 const { buildPrasnaJudgment, CATEGORY_HOUSES } = require('./lib/prasna');
 const { buildKundliMilan } = require('./lib/kundli-milan');
@@ -164,6 +167,75 @@ function reasonMessage(reason) {
 }
 
 /**
+ * shiftDatetimeByHours — "1995-01-15T09:30:00+05:00" jaisi ISO-with-offset
+ * string ko N ghantay aage badha kar WAPAS USI offset mein deta hai (True
+ * Node ke doosre time-sample T2 ke liye — lib/true-node.js dekhein).
+ * Din/mahine ki roll-over (jaise raat 11 baje +3 ghante = agle din 2 baje)
+ * khud Date object ki absolute-time math se sahi handle ho jati hai.
+ */
+function shiftDatetimeByHours(isoDatetime, hours) {
+  const m = /^(.+?)(Z|[+-]\d{2}:\d{2})$/i.exec(String(isoDatetime));
+  if (!m) throw new Error(`shiftDatetimeByHours: format samajh nahi aaya: ${isoDatetime}`);
+  const [, base, rawOffset] = m;
+  const isUtcZ = rawOffset.toUpperCase() === 'Z';
+  const offset = isUtcZ ? '+00:00' : rawOffset;
+  const instant = new Date(`${base}${offset}`);
+  instant.setTime(instant.getTime() + hours * 3600 * 1000);
+  const offsetSign = offset[0] === '-' ? -1 : 1;
+  const [offH, offM] = offset.slice(1).split(':').map(Number);
+  const offsetMinutes = offsetSign * (offH * 60 + offM);
+  const local = new Date(instant.getTime() + offsetMinutes * 60000);
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())}T${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}:${pad(local.getUTCSeconds())}`;
+  return `${stamp}${isUtcZ ? 'Z' : offset}`;
+}
+
+/**
+ * computeTrueNodeForPerson — `person` ({datetime, coordinates, ayanamsa})
+ * ke liye True (osculating) Rahu/Ketu nikalta hai. 2 halke Moon-only
+ * VedAstro calls lagti hain (T1 = person.datetime, T2 = T1+3 ghante) — sirf
+ * VedAstro provider hi is ke liye zaroori `getMoonTropicalSnapshot` deta
+ * hai (Prokerala nahi — dono providers ki research ROADMAP.md mein hai).
+ * Poora tariqa/AKSRA-verification lib/true-node.js ke header comment mein.
+ */
+async function computeTrueNodeForPerson(person) {
+  const t2Datetime = shiftDatetimeByHours(person.datetime, 3);
+  const [sample1, sample2] = await Promise.all([
+    prokerala.getMoonTropicalSnapshot(person),
+    prokerala.getMoonTropicalSnapshot({ ...person, datetime: t2Datetime }),
+  ]);
+  const birthDate = new Date(person.datetime);
+  const ayanamsaDeg = ayanamsaValueForDate(birthDate);
+  const trueNodeLon = computeTrueNodeSiderealLongitude(sample1, sample2, ayanamsaDeg);
+  const { rasiId: rahuRasiId, degree: rahuDegree } = rasiFromSiderealLongitude(trueNodeLon);
+  const ketuRasiId = (rahuRasiId + 6) % 12;
+  return {
+    Rahu: { rasiId: rahuRasiId, rasiName: RASI_NAMES_LATIN[rahuRasiId], degree: rahuDegree },
+    Ketu: { rasiId: ketuRasiId, rasiName: RASI_NAMES_LATIN[ketuRasiId], degree: rahuDegree },
+  };
+}
+
+/**
+ * applyNodeOverride — natalPlanetPosition.data.planet_position ke andar
+ * Rahu/Ketu entries ko naye (True Node se nikले) rasi/degree se seedha
+ * OVERWRITE kar deta hai — is ke baad buildZaichaData() aur us ke baad
+ * chalne wali HAR cheez (houses, Navamsa, Hora, Vimshopak, Yogas, Chara
+ * Karaka waghera) khud-ba-khud nayi value istemal karti hai, kyunke wo sab
+ * generic tor par `data.natal.planets` se hi Rahu/Ketu ki position parhtay
+ * hain — kahin aur koi tabdeeli karne ki zaroorat nahi.
+ */
+function applyNodeOverride(natalPlanetPosition, trueNode) {
+  const list = natalPlanetPosition.data.planet_position;
+  for (const p of list) {
+    if (p.name === 'Rahu' || p.name === 'Ketu') {
+      const n = trueNode[p.name];
+      p.rasi = { id: n.rasiId, name: n.rasiName };
+      p.degree = n.degree;
+    }
+  }
+}
+
+/**
  * fetchNatalBundle — un 5 Prokerala calls ko ek sath karta hai jo kisi bhi
  * shakhs ke liye HAMESHA same result dete hain (sirf pedaishi tafseelat
  * par mabni, waqt guzarne se nahi badalte): kundli/advanced, natal
@@ -263,7 +335,38 @@ app.post('/api/kundli', async (req, res) => {
     } else {
       natalBundle = await fetchNatalBundle(person);
     }
-    const { kundliAdvanced, natalPlanetPosition, kaalSarp, birthPanchangResult, ashtakavargaResult } = natalBundle;
+    const { kundliAdvanced, kaalSarp, birthPanchangResult, ashtakavargaResult } = natalBundle;
+
+    // ---- Rahu/Ketu Node Type: MEAN (default — VedAstro/Prokerala khud jo
+    // deti hain) ya TRUE (is app ke andar khud calculate hota hai, koi API
+    // ye option nahi deti — ROADMAP.md "Rahu/Ketu node type" section mein
+    // poori tehqeeq hai). `natalBundle.natalPlanetPosition` (jo cache bhi ho
+    // sakta hai) ko CLONE kar ke hi badla jata hai — taake ORIGINAL cached
+    // Mean-node data kabhi corrupt na ho (agli baar koi Mean Node maange to
+    // wapas sahi mile).
+    const nodeTypeRequested = req.body.nodeType === 'true' ? 'true' : 'mean';
+    let nodeTypeApplied = 'mean';
+    let nodeTypeNote = null;
+    let natalPlanetPosition = natalBundle.natalPlanetPosition;
+    if (nodeTypeRequested === 'true') {
+      if (typeof prokerala.getMoonTropicalSnapshot !== 'function') {
+        nodeTypeNote = 'is waqt ka calculation engine (Prokerala) True Node support nahi karta — Mean Node dikhaya ja raha hai.';
+      } else {
+        try {
+          const trueNode = await computeTrueNodeForPerson(person);
+          natalPlanetPosition = {
+            data: {
+              planet_position: natalBundle.natalPlanetPosition.data.planet_position.map((p) => ({ ...p, rasi: { ...p.rasi } })),
+            },
+          };
+          applyNodeOverride(natalPlanetPosition, trueNode);
+          nodeTypeApplied = 'true';
+        } catch (nodeErr) {
+          console.error('True Node calculation fail hui, Mean Node par fallback:', nodeErr.message);
+          nodeTypeNote = 'True Node calculate nahi ho saka (engine se data nahi mila) — Mean Node dikhaya ja raha hai.';
+        }
+      }
+    }
 
     // ---- Agar naya profile save karna ho, to yahan save kar ke, saath hi
     // natal bundle cache kar dete hain — is se agli baar isi profile ke
@@ -493,6 +596,11 @@ app.post('/api/kundli', async (req, res) => {
       asOfDate: now.toISOString().slice(0, 10),
       profileId: savedProfileId,
       usedNatalCache: usedCache,
+      // Rahu/Ketu Node Type — frontend ko batata hai ke asal mein kaunsa
+      // node type istemal hua (agar True maanga gaya ho magar fail/
+      // unsupported ho jaye to yahan saaf pata chalega, silently Mean par
+      // fallback nahi hoga bina bataye).
+      nodeType: { requested: nodeTypeRequested, applied: nodeTypeApplied, note: nodeTypeNote },
       // Frontend ko ye chahiye taake baad mein (jab user "ہفتہ وار کیلنڈر"
       // shortcut dabaye) /api/forward-calendar ko call karte waqt poori
       // pedaishi tafseelat dobara bheجne ki zaroorat na pare.
