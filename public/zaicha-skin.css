@@ -501,3 +501,11 @@ body.lang-ur .phouse-text{ line-height:2.3; }
 .ayah-card .ayah-tr{display:block}
 .ayah-card .ayah-ref{display:block;margin-top:.35rem;font-size:.72rem;opacity:.6;letter-spacing:.03em}
 body.lang-ur .ayah-card figcaption{font-family:"Noto Nastaliq Urdu",serif;line-height:2.3;font-size:.95rem}
+
+/* Session 9b: Tehzeeb-ul-Ilm watermark (selected language) + founder line */
+.tehzeeb-wm{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:.45rem;pointer-events:none;user-select:none;color:#e6c47a;opacity:.3;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-shadow:0 0 12px rgba(0,0,0,.6)}
+body.lang-ur .tehzeeb-wm,body.lang-ar .tehzeeb-wm{letter-spacing:0;font-size:1rem;font-family:"Noto Nastaliq Urdu","Amiri",serif;line-height:1.9}
+body.lang-ar .tehzeeb-wm{font-family:"Amiri","Noto Naskh Arabic",serif}
+@media (max-width:860px){body.app-mode .tehzeeb-wm{bottom:calc(74px + env(safe-area-inset-bottom))}}
+@media print{.tehzeeb-wm{display:none}}
+footer .founder-line{opacity:.75}

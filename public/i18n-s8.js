@@ -1023,3 +1023,16 @@ window.I18N_S8 = {
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
 })();
+
+/* Session 9b: Tehzeeb-ul-Ilm watermark + founder line (Asif Shehzad Mughal) */
+(function(){
+  var add = {
+    en: { wmName: 'Tehzeeb-ul-Ilm', founderLine: 'Presented by Tehzeeb-ul-Ilm · Founder: Asif Shehzad Mughal' },
+    ur: { wmName: 'تہذیب العلم', founderLine: 'پیشکش: تہذیب العلم · بانی: آصف شہزاد مغل' },
+    hi: { wmName: 'तहज़ीब-उल-इल्म', founderLine: 'प्रस्तुति: तहज़ीब-उल-इल्म · संस्थापक: आसिफ़ शहज़ाद मुग़ल' },
+    ar: { wmName: 'تهذيب العلم', founderLine: 'تقديم: تهذيب العلم · المؤسس: آصف شهزاد مغل' },
+    zh: { wmName: 'Tehzeeb-ul-Ilm · 学识修养', founderLine: '出品：Tehzeeb-ul-Ilm（学识修养）· 创始人：Asif Shehzad Mughal' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();
