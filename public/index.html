@@ -539,7 +539,13 @@
 
   <!-- Asif ki hidayat (2026-09-25): "sab se uper Bismillah poori likho" —
        har zaban mein, hamesha Arabi mein, har screen ke sab se upar. -->
-  <div class="bismillah" lang="ar" dir="rtl">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+  <!-- Session 9 (Asif): Bismillah ke neeche Al-Baqarah 2:163 poori — Nastaliq mein, dilkash kitaba.
+       Matn: tanzil "quran-simple" (quran.com se milaya). -->
+  <div class="kitaba" lang="ar" dir="rtl">
+    <div class="bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    <p class="kitaba-ayah"><span class="kitaba-orn" aria-hidden="true"></span><span>وَإِلَٰهُكُمْ إِلَٰهٌ وَاحِدٌ <span class="waqf">ۖ</span> لَا إِلَٰهَ إِلَّا هُوَ الرَّحْمَٰنُ الرَّحِيمُ</span><span class="kitaba-orn" aria-hidden="true"></span></p>
+    <p class="kitaba-ref">سورة البقرة · الآية ١٦٣</p>
+  </div>
 
   <header class="topbar">
     <div class="brand">
@@ -595,6 +601,11 @@
       </div>
       <div class="hero-wheel" id="hero-wheel" aria-hidden="true"></div>
     </div>
+    <!-- Session 9 (Asif: "chand sitaron ki gardish be sabab nahi wo ayat lagao tarjumay k sath") — Yunus 10:5 -->
+    <figure class="ayah-card" id="ayah-yunus">
+      <blockquote class="ayah-ar" lang="ar" dir="rtl">هُوَ الَّذِي جَعَلَ الشَّمْسَ ضِيَاءً وَالْقَمَرَ نُورًا وَقَدَّرَهُ مَنَازِلَ لِتَعْلَمُوا عَدَدَ السِّنِينَ وَالْحِسَابَ <span class="waqf">ۚ</span> مَا خَلَقَ اللَّهُ ذَٰلِكَ إِلَّا بِالْحَقِّ <span class="waqf">ۚ</span> يُفَصِّلُ الْآيَاتِ لِقَوْمٍ يَعْلَمُونَ</blockquote>
+      <figcaption><span class="ayah-tr" data-i18n="ayahYunusTr">He it is Who appointed the sun a splendour and the moon a light, and measured for her stages, that ye might know the number of the years, and the reckoning. Allah created not (all) that save in truth. He detaileth the revelations for people who have knowledge.</span><span class="ayah-ref" data-i18n="ayahYunusRef">Surah Yunus 10:5 — translation: Pickthall</span></figcaption>
+    </figure>
     <div class="hero-cols">
       <div class="hero-col"><div class="n">01</div><h4 data-i18n="heroC1t">Parashari</h4><p data-i18n="heroC1d">Classical birth chart, houses, yogas, strengths and dashas.</p></div>
       <div class="hero-col"><div class="n">02</div><h4 data-i18n="heroC2t">KP &amp; Jaimini</h4><p data-i18n="heroC2d">Star lords, sub lords, cuspal significators, Arudha and Chara dasha.</p></div>
@@ -3786,8 +3797,11 @@
     if (!routine) { note.textContent = ''; box.innerHTML = ''; return; }
     var wd = routine.weekday;
     note.textContent = wd ? tr('weekdayLine', { day: weekdayName(wd.name), planet: (PLANET_EMOJI[wd.planet] || '') + ' ' + PN(wd.planet), color: wd.color }) : '';
-    box.innerHTML = (routine.categories || []).map(function(c){
-      return '<div class="pred-card icon-card"><span class="icon-card-badge">' + (CATEGORY_EMOJI[c.key] || '✦') + '</span><div class="icon-card-body"><span class="tag">' + esc(c.label) + '</span><p>' + esc(c.text) + '</p></div></div>';
+    // Session 9: chaand ka mahaul sirf EK dafa (pehle har card mein dohraya jata tha);
+    // har card ke neeche chhoti "dalil" line (astrologer ke liye).
+    var moodHtml = routine.mood ? '<div class="pred-card icon-card daily-mood"><span class="icon-card-badge">🌙</span><div class="icon-card-body"><span class="tag">' + esc(tr('dailyMoodTag', { n: routine.mood.house })) + '</span><p>' + esc(routine.mood.text) + '</p></div></div>' : '';
+    box.innerHTML = moodHtml + (routine.categories || []).map(function(c){
+      return '<div class="pred-card icon-card"><span class="icon-card-badge">' + (CATEGORY_EMOJI[c.key] || '✦') + '</span><div class="icon-card-body"><span class="tag">' + esc(c.label) + '</span><p>' + esc(c.text) + '</p>' + (c.basis ? '<p class="daily-basis">' + esc(c.basis) + '</p>' : '') + '</div></div>';
     }).join('');
   }
 

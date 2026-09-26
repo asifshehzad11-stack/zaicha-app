@@ -1009,3 +1009,17 @@ window.I18N_S8 = {
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
 })();
+
+/* Session 9b: daily mood tag + Yunus 10:5 translation (ur: Fateh Muhammad Jalandhari; en/hi/zh: Pickthall) */
+(function(){
+  var PICK = 'He it is Who appointed the sun a splendour and the moon a light, and measured for her stages, that ye might know the number of the years, and the reckoning. Allah created not (all) that save in truth. He detaileth the revelations for people who have knowledge.';
+  var add = {
+    en: { dailyMoodTag: 'Today’s overall mood · Moon in house {n}', ayahYunusTr: PICK, ayahYunusRef: 'Surah Yunus 10:5 — translation: Marmaduke Pickthall' },
+    ur: { dailyMoodTag: 'آج کا مجموعی ماحول · چاند گھر نمبر {n} میں', ayahYunusTr: 'وہی تو ہے جس نے سورج کو روشن اور چاند کو منور بنایا اور چاند کی منزلیں مقرر کیں تاکہ تم برسوں کا شمار اور (کاموں کا) حساب معلوم کرو۔ یہ (سب کچھ) خدا نے تدبیر سے پیدا کیا ہے۔ سمجھنے والوں کے لیے وہ اپنی آیاتیں کھول کھول کر بیان فرماتا ہے', ayahYunusRef: 'سورۂ یونس، آیت ۵ — ترجمہ: مولانا فتح محمد جالندھری' },
+    hi: { dailyMoodTag: 'आज का कुल माहौल · चंद्र {n} भाव में', ayahYunusTr: PICK, ayahYunusRef: 'सूरह यूनुस 10:5 — अनुवाद (अंग्रेज़ी): पिकथॉल' },
+    ar: { dailyMoodTag: 'الجوّ العام لليوم · القمر في البيت {n}', ayahYunusTr: ' ', ayahYunusRef: 'سورة يونس · الآية ٥' },
+    zh: { dailyMoodTag: '今日整体氛围 · 月亮在第{n}宫', ayahYunusTr: PICK, ayahYunusRef: '《古兰经》优努斯章 10:5 — 英译：皮克索尔' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();
