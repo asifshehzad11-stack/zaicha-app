@@ -1,0 +1,10 @@
+{
+  "name": "Zaicha — Aik Maha Sagar",
+  "short_name": "Zaicha",
+  "description": "Vedic birth chart (kundli) and predictions in Urdu, English, Hindi, Arabic and Chinese.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b1f",
+  "theme_color": "#070b1f",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
