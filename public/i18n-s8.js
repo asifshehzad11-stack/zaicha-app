@@ -931,3 +931,81 @@ window.I18N_S8 = {
   "phSources": "参考来源"
  }
 };
+
+/* Session 9 (2026-09-26): Lal Kitab 3D sky + mini-map keys */
+(function(){
+  var add = {
+    en: {
+      lk3dTitle: '3D sky of this zaicha',
+      lk3dOpen: 'Open full screen',
+      lk3dMap: 'Lal Kitab chart',
+      lk3dHide: 'Hide',
+      lk3dShow: 'Show map',
+      lk3dLoading: 'Loading the 3D sky…',
+      lk3dHint: 'Drag to rotate · scroll or pinch to zoom · tap a planet or a house. The small map is your Lal Kitab chart — tap a planet or house there to find the same one in 3D.',
+      lk3dNote: 'The 3D scene does not calculate anything: it only draws this zaicha’s own positions (same ayanamsa and Rahu type as the app). The 3D ring shows the real sky signs; Lal Kitab’s fixed house numbers are in the map. Distances are schematic; motion after Play is only an illustration and the houses stay as at birth. Buttons inside the 3D view are in English.',
+      lk3dMatch: 'Check passed: every planet is in the same house in 3D as in the Lal Kitab chart.',
+      lk3dMismatch: 'Check failed — the house differs for: {list}. The Lal Kitab chart is the reference; please report this.',
+      lk3dHouseOnly: 'Exact degrees were not available, so planets are drawn inside their house, not at an exact degree.',
+      lk3dFallback: 'This device cannot show the 3D view (WebGL is not available), so the 2D chart is shown.'
+    },
+    ur: {
+      lk3dTitle: 'اس زائچے کا تھری ڈی آسمان',
+      lk3dOpen: 'پوری اسکرین پر کھولیں',
+      lk3dMap: 'لال کتاب زائچہ',
+      lk3dHide: 'چھپائیں',
+      lk3dShow: 'نقشہ دکھائیں',
+      lk3dLoading: 'تھری ڈی آسمان لوڈ ہو رہا ہے…',
+      lk3dHint: 'گھمانے کے لیے ڈریگ کریں · زوم کے لیے اسکرول یا دو انگلیوں سے چٹکی · کسی سیارے یا گھر پر ٹیپ کریں۔ چھوٹا نقشہ آپ کا لال کتاب زائچہ ہے — اس میں کسی سیارے یا گھر پر ٹیپ کریں تو وہی تھری ڈی میں نمایاں ہو جائے گا۔',
+      lk3dNote: 'تھری ڈی منظر خود کوئی حساب نہیں کرتا: یہ صرف اسی زائچے کی اپنی پوزیشنیں دکھاتا ہے (وہی اَیَنامشا اور راہو کی وہی قسم جو ایپ میں ہے)۔ تھری ڈی دائرے پر آسمان کے اصل برج ہیں؛ لال کتاب کے مقررہ گھروں کے نمبر نقشے میں ہیں۔ فاصلے علامتی ہیں؛ پلے کے بعد کی حرکت صرف سمجھانے کے لیے ہے اور گھر پیدائش والے ہی رہتے ہیں۔ تھری ڈی کے اندر کے بٹن انگریزی میں ہیں۔',
+      lk3dMatch: 'جانچ درست: ہر سیارہ تھری ڈی میں بھی اسی گھر میں ہے جس میں لال کتاب زائچے میں ہے۔',
+      lk3dMismatch: 'جانچ میں فرق — ان کا گھر مختلف ہے: {list}۔ اصل حوالہ لال کتاب زائچہ ہے؛ براہِ کرم اس کی اطلاع دیں۔',
+      lk3dHouseOnly: 'درست ڈگریاں دستیاب نہیں تھیں، اس لیے سیارے اپنے گھر کے اندر دکھائے گئے ہیں، کسی خاص ڈگری پر نہیں۔',
+      lk3dFallback: 'یہ ڈیوائس تھری ڈی منظر نہیں دکھا سکتی (WebGL دستیاب نہیں)، اس لیے ٹو ڈی زائچہ دکھایا جا رہا ہے۔'
+    },
+    hi: {
+      lk3dTitle: 'इस कुंडली का 3D आकाश',
+      lk3dOpen: 'पूरी स्क्रीन पर खोलें',
+      lk3dMap: 'लाल किताब कुंडली',
+      lk3dHide: 'छिपाएँ',
+      lk3dShow: 'नक्शा दिखाएँ',
+      lk3dLoading: '3D आकाश लोड हो रहा है…',
+      lk3dHint: 'घुमाने के लिए ड्रैग करें · ज़ूम के लिए स्क्रॉल या पिंच करें · किसी ग्रह या भाव पर टैप करें। छोटा नक्शा आपकी लाल किताब कुंडली है — उसमें किसी ग्रह या भाव पर टैप करें तो वही 3D में दिखेगा।',
+      lk3dNote: '3D दृश्य स्वयं कोई गणना नहीं करता: यह केवल इसी कुंडली की अपनी स्थितियाँ दिखाता है (वही अयनांश और राहु का वही प्रकार जो ऐप में है)। 3D घेरे पर आकाश की असली राशियाँ हैं; लाल किताब के स्थिर भाव-अंक नक्शे में हैं। दूरियाँ प्रतीकात्मक हैं; Play के बाद की गति केवल समझाने के लिए है और भाव जन्म वाले ही रहते हैं। 3D के अंदर के बटन अंग्रेज़ी में हैं।',
+      lk3dMatch: 'जाँच सही: हर ग्रह 3D में भी उसी भाव में है जिसमें लाल किताब कुंडली में है।',
+      lk3dMismatch: 'जाँच में अंतर — इनका भाव अलग है: {list}। मूल संदर्भ लाल किताब कुंडली है; कृपया इसकी सूचना दें।',
+      lk3dHouseOnly: 'सटीक अंश उपलब्ध नहीं थे, इसलिए ग्रह अपने भाव के भीतर दिखाए गए हैं, किसी सटीक अंश पर नहीं।',
+      lk3dFallback: 'यह डिवाइस 3D दृश्य नहीं दिखा सकता (WebGL उपलब्ध नहीं), इसलिए 2D कुंडली दिखाई जा रही है।'
+    },
+    ar: {
+      lk3dTitle: 'سماء هذا الطالع ثلاثية الأبعاد',
+      lk3dOpen: 'فتح بملء الشاشة',
+      lk3dMap: 'خريطة لال كتاب',
+      lk3dHide: 'إخفاء',
+      lk3dShow: 'إظهار الخريطة',
+      lk3dLoading: 'جارٍ تحميل السماء ثلاثية الأبعاد…',
+      lk3dHint: 'اسحب للتدوير · مرّر أو اقرص للتكبير · انقر على كوكب أو بيت. الخريطة الصغيرة هي خريطة لال كتاب — انقر فيها على كوكب أو بيت لتجده نفسه في المشهد ثلاثي الأبعاد.',
+      lk3dNote: 'المشهد ثلاثي الأبعاد لا يحسب شيئًا: إنه يرسم فقط مواضع هذا الطالع نفسها (بنفس الأيانامشا ونوع العقدة المستخدمين في التطبيق). تُظهر الحلقة ثلاثية الأبعاد البروج الحقيقية في السماء، أما أرقام بيوت لال كتاب الثابتة فهي في الخريطة. المسافات رمزية، والحركة بعد التشغيل للتوضيح فقط وتبقى البيوت كما عند الولادة. أزرار المشهد ثلاثي الأبعاد باللغة الإنجليزية.',
+      lk3dMatch: 'التحقق ناجح: كل كوكب في المشهد ثلاثي الأبعاد في البيت نفسه كما في خريطة لال كتاب.',
+      lk3dMismatch: 'اختلاف في التحقق — البيت مختلف لـ: {list}. المرجع هو خريطة لال كتاب؛ يرجى الإبلاغ عن ذلك.',
+      lk3dHouseOnly: 'لم تتوفر الدرجات الدقيقة، لذلك رُسمت الكواكب داخل بيوتها لا عند درجة محددة.',
+      lk3dFallback: 'هذا الجهاز لا يستطيع عرض المشهد ثلاثي الأبعاد (WebGL غير متاح)، لذلك تُعرض الخريطة الثنائية الأبعاد.'
+    },
+    zh: {
+      lk3dTitle: '本命盘的三维星空',
+      lk3dOpen: '全屏打开',
+      lk3dMap: 'Lal Kitab 星盘',
+      lk3dHide: '隐藏',
+      lk3dShow: '显示小图',
+      lk3dLoading: '正在加载三维星空…',
+      lk3dHint: '拖动旋转 · 滚轮或双指缩放 · 点击行星或宫位。小图是您的 Lal Kitab 星盘——点击其中的行星或宫位，即可在三维中找到同一个。',
+      lk3dNote: '三维场景本身不做任何计算：它只绘制本命盘自己的位置（与应用相同的岁差值和罗睺类型）。三维圆环显示天空中真实的星座；Lal Kitab 固定的宫位编号在小图中。距离为示意；播放后的运动仅作演示，宫位保持出生时的状态。三维视图内的按钮为英文。',
+      lk3dMatch: '校验通过：每颗行星在三维中与 Lal Kitab 星盘位于同一宫。',
+      lk3dMismatch: '校验不一致——以下宫位不同：{list}。以 Lal Kitab 星盘为准，请反馈此问题。',
+      lk3dHouseOnly: '没有精确度数，因此行星画在所属宫位之内，而不是某个精确度数上。',
+      lk3dFallback: '此设备无法显示三维视图（WebGL 不可用），因此显示二维星盘。'
+    }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();

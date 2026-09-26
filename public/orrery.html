@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Solar System — Orrery</title>
+<!-- Zaicha (Session 9, 2026-09-26): based on Asif's "solar-system-realistic.html".
+     Kept from his file: page CSS, page HTML, body data, astrological reference panel, inspector.
+     Re-written for Zaicha: the 3D engine (textures, scene, houses ring, influence, report, API),
+     because the rest of the original script text was not available in this session.
+     Runs inside the Lal Kitab tab as an iframe (?embed=1&mini=0). postMessage only to/from the
+     same origin. three.js r128 is self-hosted (/vendor). No horoscope calculation happens here. -->
+<script src="/vendor/three.r128.min.js"></script>
+<style>
+:root{
+  --background:#090a0d; --foreground:#f2eee7; --muted:#8b8984;
+  --line:rgba(221,214,198,0.13); --line-strong:rgba(221,214,198,0.23);
+  --warm:#d6aa70; --warm-bright:#f6d39b; --ease-out:cubic-bezier(0.23,1,0.32,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--background);color:var(--foreground);min-height:100%;
+  font-family:'DM Sans',-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);overflow-x:hidden}
+button,a{font:inherit;color:inherit}
+button:not(:disabled){cursor:pointer}
+button{background:transparent;border:0}
+button:focus-visible,a:focus-visible{outline:1px solid var(--warm-bright);outline-offset:3px}
+
+.app-shell{position:relative;min-height:100vh;overflow:hidden;
+  background:radial-gradient(ellipse at 12% 9%,rgba(78,70,56,.14),transparent 34%),
+             radial-gradient(ellipse at 78% 58%,rgba(43,48,64,.16),transparent 43%),#090a0d}
+.grain{position:fixed;inset:0;z-index:20;pointer-events:none;opacity:.035;mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E")}
+
+.topbar,.intro,.workspace,.footer-bar{width:min(1420px,calc(100% - 48px));margin-inline:auto}
+.topbar{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none}
+.brand-mark{display:grid;place-items:center;width:30px;height:30px;border:1px solid rgba(246,211,155,.54);border-radius:50%;color:var(--warm-bright);font-size:13px}
+.brand strong,.brand small{display:block;line-height:1;letter-spacing:.18em}
+.brand strong{font-size:12px;font-weight:700}
+.brand small{margin-top:5px;color:var(--muted);font-size:8px;letter-spacing:.3em}
+.topbar-meta{display:flex;align-items:center;gap:11px;color:#69696a;font-size:9px;letter-spacing:.16em}
+.pulse-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#a8d9b8;box-shadow:0 0 12px #a8d9b8}
+.meta-divider{width:1px;height:11px;background:var(--line)}
+.mono{font-family:'SFMono-Regular',Consolas,monospace;letter-spacing:.06em}
+
+.intro{display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:20px;padding:56px 0 44px}
+.eyebrow{margin:0;color:var(--warm);font-size:10px;letter-spacing:.22em;font-weight:600}
+.eyebrow span{margin-right:12px;color:#73706b}
+h1{margin:16px 0 0;font-weight:300;font-size:clamp(42px,6.4vw,92px);letter-spacing:-.06em;line-height:.9;color:#f4f0e8}
+h1 em{color:var(--warm-bright);font-style:normal;font-family:Georgia,'Cormorant Garamond',serif;font-size:1.1em}
+.intro-copy{max-width:300px;padding-bottom:4px;color:#96938d;font-size:13px;line-height:1.7}
+
+.workspace{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(310px,.7fr);gap:20px;align-items:start;padding-bottom:56px}
+.scene-panel{position:sticky;top:16px}
+.scene-panel,.inspector-panel{min-width:0;border:1px solid var(--line);background:linear-gradient(142deg,rgba(27,27,28,.7),rgba(12,13,16,.84))}
+.scene-panel{overflow:hidden}
+.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.section-kicker{display:flex;align-items:center;gap:7px;margin:0;color:#88847c;font-size:9px;letter-spacing:.16em}
+.kicker-dot{width:5px;height:5px;border-radius:50%;background:var(--warm);box-shadow:0 0 10px rgba(214,170,112,.7)}
+.panel-heading h2{margin:8px 0 0;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:26px;letter-spacing:-.03em;color:#ebe5da}
+.view-toggle{display:flex;gap:3px;padding:3px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:3px}
+.view-toggle button{padding:7px 10px;font-size:9px;letter-spacing:.1em;color:#707073;border-radius:2px;transition:180ms var(--ease-out)}
+.view-toggle button.active{background:rgba(214,170,112,.16);color:var(--warm-bright)}
+
+.scene-viewport{position:relative;height:600px;overflow:hidden;cursor:grab;touch-action:none;background:#0a0b0f}
+.scene-viewport.dragging{cursor:grabbing}
+.scene-viewport canvas{display:block;width:100%;height:100%}
+.scene-vignette{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse,transparent 43%,rgba(5,6,9,.66) 100%)}
+.scene-scale,.scene-corner{position:absolute;z-index:5;color:#6c6c6c;font-family:monospace;font-size:8px;letter-spacing:.1em}
+.scene-scale{left:22px;bottom:20px;display:flex;align-items:center;gap:8px}
+.scale-line{width:42px;height:1px;background:#78736b}
+.scene-corner{opacity:.65}
+.scene-corner span{display:inline-block;width:13px;height:1px;margin:0 5px;background:var(--warm);vertical-align:middle}
+.scene-corner-tl{top:20px;left:22px}
+.scene-corner-br{right:22px;bottom:20px;text-align:right}
+.drag-hint{position:absolute;left:50%;top:20px;transform:translateX(-50%);z-index:5;color:#6c6c6c;font-size:8px;
+  letter-spacing:.14em;pointer-events:none;transition:opacity 400ms ease}
+.drag-hint.hide{opacity:0}
+
+.scene-controls{min-height:60px;display:flex;flex-wrap:wrap;align-items:center;gap:20px;padding:12px 22px;border-top:1px solid var(--line)}
+.control-button{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.06em;color:#d9d4cc;transition:color 180ms ease}
+.control-button:hover{color:var(--warm-bright)}
+.control-label{font-size:9px;letter-spacing:.12em;color:#737274}
+.speed-options{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:3px}
+.speed-options button{min-width:26px;padding:5px 4px;font-family:monospace;font-size:9px;color:#707073;border-radius:2px;transition:180ms var(--ease-out)}
+.speed-options button.active{background:rgba(214,170,112,.16);color:var(--warm-bright)}
+.zoom-row{display:flex;align-items:center;gap:8px}
+.zoom-row input[type=range]{width:80px;accent-color:var(--warm)}
+.elapsed{display:inline-flex;align-items:center;gap:8px;margin-left:auto;color:#6a6968;font-family:monospace;font-size:9px}
+.elapsed-dot{width:4px;height:4px;border-radius:50%;background:var(--warm)}
+
+.inspector-panel{padding:22px 22px 16px}
+.inspector-topline{display:flex;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--line);color:#727172;font-size:9px;letter-spacing:.14em}
+.selected-object{display:flex;align-items:center;gap:15px;padding:20px 0 16px}
+.object-orb{position:relative;display:grid;place-items:center;width:50px;height:50px;border:1px solid var(--line-strong);border-radius:50%;background:rgba(255,255,255,.035)}
+.mini-sun{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff0a5,#f48e1f 62%,#8c2516);box-shadow:0 0 17px rgba(245,159,38,.48)}
+.mini-planet{width:21px;height:21px;border-radius:50%;background:radial-gradient(circle at 32% 24%,var(--planet-accent),var(--planet-color) 58%,#1b1c20);box-shadow:inset -3px -3px 4px rgba(0,0,0,.42)}
+.object-title{flex:1;min-width:0}
+.object-title p{margin:0;color:var(--warm);font-size:8px;font-weight:600;letter-spacing:.16em}
+.object-title h2{margin:4px 0 0;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:32px;letter-spacing:-.03em;color:#f0ece4;line-height:1}
+.icon-button{display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--line);border-radius:50%;color:#777;transition:180ms ease}
+.icon-button:hover{color:var(--warm-bright);border-color:rgba(246,211,155,.45);transform:rotate(45deg)}
+.object-description{min-height:40px;color:#9a9893;font-size:12px;line-height:1.65}
+.focus-note{display:flex;align-items:center;gap:7px;margin-top:14px;color:#c19d68;font-size:10px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:20px;border:1px solid var(--line);background:var(--line)}
+.stats-grid>div{min-height:64px;padding:12px 11px 9px;background:rgba(19,20,23,.9)}
+.stats-grid span{display:block;color:#66666a;font-size:8px;letter-spacing:.12em}
+.stats-grid strong{display:block;margin-top:9px;color:#ddd8d0;font-family:monospace;font-size:11px;font-weight:400}
+.bodies-header{display:flex;justify-content:space-between;margin-top:24px;padding-bottom:11px;border-bottom:1px solid var(--line);color:#727172;font-size:9px;letter-spacing:.14em}
+.body-row{display:flex;width:100%;align-items:center;gap:10px;min-height:36px;padding:5px 4px;border:0;border-bottom:1px solid rgba(221,214,198,.08);background:transparent;text-align:left;transition:160ms ease}
+.body-row:hover,.body-row.active{background:rgba(255,255,255,.045)}
+.row-orb{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--row-color);box-shadow:0 0 7px color-mix(in srgb,var(--row-color) 55%,transparent)}
+.row-name{flex:1;min-width:0}
+.row-name strong{display:block;color:#c8c4bd;font-size:10px;font-weight:500}
+.row-name small{display:block;margin-top:2px;color:#626267;font-size:7px;letter-spacing:.1em}
+.row-distance{color:#66666a;font-family:monospace;font-size:9px}
+.inspector-footer{display:flex;align-items:center;gap:7px;margin-top:16px;color:#68676a;font-size:8px;letter-spacing:.1em;white-space:nowrap}
+.footer-line{height:1px;flex:1;background:var(--line)}
+
+.footer-bar{display:flex;justify-content:space-between;align-items:center;min-height:64px;color:#626164;font-size:8px;letter-spacing:.14em;flex-wrap:wrap;gap:8px}
+.footer-status{display:flex;align-items:center;gap:8px;color:#9dbba6}
+.footer-status i{width:5px;height:5px;border-radius:50%;background:#9dbba6;box-shadow:0 0 8px #9dbba6;font-style:normal}
+.footer-center{color:#48484c}
+
+@media (max-width:1120px){
+  .workspace{grid-template-columns:1fr}
+  .scene-panel{position:static}
+  .inspector-panel{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+  .chart-mini,.inspector-topline,.selected-object,.object-description,.focus-note,.inspector-footer,.astro,.infl{grid-column:1/-1}
+}
+@media (max-width:680px){
+  .topbar-meta{display:none}
+  .scene-viewport{height:420px}
+  .inspector-panel{display:block}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+
+/* ---------- astrological profile ---------- */
+.ur{font-style:normal;font-family:'Noto Naskh Arabic','Segoe UI','Tahoma',serif;unicode-bidi:isolate;margin:0 0 0 8px;color:#b9b4aa;font-size:12px}
+.astro{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.astro-head{display:flex;align-items:center;gap:14px}
+.astro-glyph{flex:0 0 auto;display:grid;place-items:center;width:64px;height:64px;border:1px solid rgba(246,211,155,.4);border-radius:50%;color:var(--warm-bright);background:radial-gradient(circle at 50% 35%,rgba(214,170,112,.14),transparent 70%)}
+.astro-id{min-width:0}
+.astro-kicker{margin:0;display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:#88847c;font-size:8px;letter-spacing:.16em}
+.tbadge{padding:2px 6px;border:1px solid rgba(157,187,166,.4);border-radius:2px;color:#9dbba6;font-size:7px;letter-spacing:.14em;text-transform:uppercase}
+.tbadge.modern{border-color:rgba(214,170,112,.45);color:var(--warm)}
+.astro-id h3{margin:5px 0 0;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:28px;letter-spacing:-.03em;color:#f0ece4;line-height:1}
+.astro-names{margin:6px 0 0;color:#96938d;font-size:11px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.astro-names .dot{color:#55545a}
+.ur-name{font-family:'Noto Naskh Arabic','Segoe UI','Tahoma',serif;font-size:14px;color:#d9d4cc}
+.astro-title{margin:14px 0 4px;color:var(--warm-bright);font-size:12px;letter-spacing:.02em}
+.astro-title .ur{color:var(--warm);font-size:14px}
+.astro-terms{margin:8px 0 0;padding:0;border:1px solid var(--line)}
+.astro-row{display:grid;grid-template-columns:104px 1fr;gap:10px;align-items:baseline;padding:8px 10px;border-bottom:1px solid rgba(221,214,198,.08);background:rgba(19,20,23,.6)}
+.astro-row:last-child{border-bottom:0}
+.astro-row dt{display:flex;flex-direction:column;gap:2px;color:#77767a;font-size:8px;letter-spacing:.12em;text-transform:uppercase}
+.astro-row dt .ur{margin:0;align-self:flex-start;font-size:11px;letter-spacing:0;text-transform:none;color:#8c8a88}
+.astro-row dd{margin:0;color:#d5d0c8;font-size:11px;line-height:1.55}
+.astro-row dd .ur{color:#c8b28c}
+.astro-label{margin:16px 0 8px;color:#727172;font-size:9px;letter-spacing:.14em}
+.astro-label .ur{margin-left:8px;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;margin:0 6px 4px 0;padding:3px 8px;border:1px solid var(--line-strong);border-radius:2px;background:rgba(255,255,255,.03);color:#d5d0c8;font-size:10px;line-height:1.4}
+.astro-row dd .chip{margin-bottom:0}
+.chips .chip{margin:0}
+.chip .sg{color:var(--warm-bright);font-weight:400;font-size:12px}
+.chip em{font-style:normal;color:#8c8a88;font-family:monospace;font-size:9px}
+.chip .ur{margin:0 0 0 2px;font-size:11px}
+.chip.plain{color:#c8c4bd}
+.astro-note{margin:12px 0 0;padding:8px 10px;border-left:2px solid rgba(214,170,112,.55);background:rgba(214,170,112,.06);color:#b3ac9f;font-size:10px;line-height:1.6}
+.astro-foot{margin:14px 0 0;color:#5f5e62;font-size:8px;line-height:1.7;letter-spacing:.04em}
+
+.astro-chip{position:absolute;right:16px;top:16px;z-index:6;display:flex;align-items:center;gap:10px;max-width:calc(100% - 32px);padding:8px 14px 8px 8px;border:1px solid var(--line-strong);border-radius:4px;background:rgba(10,11,15,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity 220ms var(--ease-out),transform 220ms var(--ease-out)}
+.astro-chip.show{opacity:1;transform:none}
+.astro-chip-glyph{display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(246,211,155,.4);border-radius:50%;color:var(--warm-bright)}
+.astro-chip-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.astro-chip-text strong{color:#f0ece4;font-size:13px;font-weight:600;letter-spacing:.02em}
+.astro-chip-text strong .ur{color:var(--warm-bright);font-size:14px}
+.astro-chip-text small{color:#8c8a88;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+@media (max-width:680px){ .astro-row{grid-template-columns:92px 1fr} .drag-hint{display:none} }
+
+/* ---------- influence lines UI ---------- */
+.seg-options{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:3px}
+.seg-options button{padding:5px 9px;font-family:monospace;font-size:9px;letter-spacing:.06em;color:#707073;border-radius:2px;transition:180ms var(--ease-out)}
+.seg-options button.active{background:rgba(214,170,112,.16);color:var(--warm-bright)}
+.inf-labels{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.inf-label{position:absolute;transform:translate(-50%,-50%);padding:2px 7px;border:1px solid var(--line-strong);border-left:2px solid var(--c,#f6d39b);border-radius:2px;background:rgba(10,11,15,.74);color:#e8e2d6;font:9px monospace;letter-spacing:.05em;white-space:nowrap}
+.infl{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.infl-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;color:#727172;font-size:9px;letter-spacing:.14em}
+.infl-head b{font-weight:500;color:var(--warm)}
+.infl-row{display:grid;grid-template-columns:86px minmax(0,1fr) 46px 18px;gap:8px;align-items:center;padding:6px 2px;border-bottom:1px solid rgba(221,214,198,.08);font-size:10px;color:#d5d0c8}
+.infl-row.dim{opacity:.38}
+.infl-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.infl-row .how{color:#96938d;font-family:monospace;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.infl-row .bar{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.infl-row .bar i{display:block;height:100%;border-radius:2px}
+.infl-row .ln{text-align:right;font-family:monospace;color:var(--warm-bright)}
+.infl-empty{margin:0;padding:8px 0;color:#8c8a88;font-size:11px;line-height:1.6}
+.infl-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;color:#96938d;font-size:9px}
+.infl-legend span{display:inline-flex;align-items:center;gap:6px}
+.infl-legend i{width:14px;height:2px;border-radius:1px}
+
+/* ---------- influence report dialog ---------- */
+.mini-btn{margin-top:14px;padding:7px 12px;border:1px solid rgba(246,211,155,.4);border-radius:3px;color:var(--warm-bright);font-family:monospace;font-size:9px;letter-spacing:.12em;transition:180ms var(--ease-out)}
+.mini-btn:hover{background:rgba(214,170,112,.14)}
+.rep-backdrop{position:fixed;inset:0;z-index:50;display:none;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow:auto;background:rgba(5,6,9,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.rep-backdrop.open{display:flex}
+.rep{width:min(1060px,100%);border:1px solid var(--line-strong);background:linear-gradient(142deg,#17181b,#0c0d10);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.rep:focus{outline:none}
+.rep-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.rep-head h2{margin:8px 0 0;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:26px;letter-spacing:-.03em;color:#ebe5da}
+.rep-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid var(--line)}
+.rep-btn{padding:7px 11px;border:1px solid var(--line-strong);border-radius:3px;color:#c8c4bd;font-family:monospace;font-size:9px;letter-spacing:.1em;transition:180ms var(--ease-out)}
+.rep-btn:hover{color:var(--warm-bright);border-color:rgba(246,211,155,.45)}
+.rep-btn.on{background:rgba(214,170,112,.16);color:var(--warm-bright)}
+.rep-snap{margin-left:auto;color:#7d7b78;font-size:9px;letter-spacing:.12em}
+.rep-chips{display:flex;flex-wrap:wrap;gap:6px;padding:14px 22px 4px}
+.rchip{display:inline-flex;align-items:center;gap:7px;padding:6px 11px 6px 8px;border:1px solid var(--line);border-radius:3px;color:#a8a49c;font-size:11px;transition:180ms var(--ease-out)}
+.rchip:hover{color:#e8e2d6;border-color:var(--line-strong)}
+.rchip.active{border-color:rgba(246,211,155,.55);background:rgba(214,170,112,.14);color:var(--warm-bright)}
+#repBody{padding:8px 22px 24px}
+.rep-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:14px 0 6px;border:1px solid var(--line);background:var(--line)}
+.rep-cards>div{padding:12px 12px 10px;background:rgba(19,20,23,.92);min-width:0}
+.rep-cards span{display:block;color:#66666a;font-size:8px;letter-spacing:.12em}
+.rep-cards strong{display:block;margin-top:8px;color:#ddd8d0;font-size:12px;font-weight:500;overflow-wrap:anywhere}
+.rep-cards small{display:block;margin-top:5px;color:#7d7b78;font-size:9px}
+.rep-h{margin:22px 0 8px;color:#ebe5da;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:18px;letter-spacing:-.02em}
+.rep-h small{margin-left:8px;color:#727172;font-family:'DM Sans',-apple-system,Segoe UI,sans-serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.rep-scroll{overflow-x:auto;border:1px solid var(--line)}
+.rep-table,.rep-matrix{width:100%;border-collapse:collapse;font-size:11px;color:#d5d0c8}
+.rep-table th{padding:8px 10px;text-align:left;background:rgba(255,255,255,.03);color:#77767a;font-size:8px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.rep-table td{padding:8px 10px;border-top:1px solid rgba(221,214,198,.08);white-space:nowrap}
+.rep-table tr.dim td{opacity:.42}
+.rep-table .num{font-family:monospace;font-size:10px;color:#c8c4bd}
+.rep-table .strong{color:var(--warm-bright);font-size:12px}
+.rep-table .muted,.muted{color:#77767a}
+.rep-table .barcell{min-width:130px}
+.rep-table .bar{display:inline-block;width:70px;height:4px;margin-right:8px;vertical-align:middle;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.rep-table .bar i{display:block;height:100%;border-radius:2px}
+.rep-table .pc{font-family:monospace;font-size:10px;color:#c8c4bd}
+.rb{display:inline-flex;align-items:center;gap:7px;color:#e8e2d6}
+.rb svg{color:var(--warm-bright);flex:0 0 auto}
+.dot{display:inline-block;width:7px;height:7px;margin-right:7px;border-radius:50%}
+.rep-matrix th,.rep-matrix td{padding:0;border:1px solid rgba(221,214,198,.08);text-align:center}
+.rep-matrix thead th{padding:8px 4px;color:#88847c;font-size:8px;font-weight:500;letter-spacing:.08em;cursor:pointer}
+.rep-matrix thead th span{display:block;margin-top:3px}
+.rep-matrix thead th svg{color:var(--warm-bright)}
+.rep-matrix .colh.sel,.rep-matrix tr.sel .rowh{background:rgba(214,170,112,.12)}
+.rep-matrix .rowh{padding:6px 10px;text-align:left;cursor:pointer;white-space:nowrap;font-weight:400}
+.rep-matrix .self{color:#3d3d40;padding:6px}
+.rep-matrix .mc{position:relative;min-width:40px;height:34px;cursor:pointer}
+.rep-matrix .mc::before{content:'';position:absolute;inset:0;background:var(--c);opacity:var(--a)}
+.rep-matrix .mc b{position:relative;font-family:monospace;font-size:11px;font-weight:500;color:#fff}
+.rep-matrix .mc.selc{box-shadow:inset 0 0 0 1px rgba(246,211,155,.5)}
+.rep-matrix tr.sel .mc{box-shadow:inset 0 0 0 1px rgba(246,211,155,.35)}
+@media (max-width:820px){ .rep-cards{grid-template-columns:repeat(2,minmax(0,1fr))} .rep-snap{margin-left:0} }
+
+/* ---------- houses ring + chart overlay ---------- */
+.ring-labels{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.hn,.sn,.ps{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap}
+.hn{pointer-events:auto;min-width:19px;height:19px;padding:0 4px;border:1px solid rgba(246,211,155,.38);border-radius:50%;background:rgba(10,11,15,.62);color:#d9c9a4;font:10px monospace;line-height:17px;text-align:center}
+.hn:hover,.hn.sel{background:rgba(214,170,112,.34);color:#fff;border-color:rgba(246,211,155,.85)}
+.sn{pointer-events:none;color:#b9a982;font-family:'Noto Naskh Arabic','Segoe UI',Tahoma,serif;font-size:12px;opacity:.85}
+.ps{pointer-events:auto;display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 4px;border:1px solid var(--c);border-radius:10px;background:rgba(10,11,15,.74);color:var(--c);font:600 10px 'DM Sans',-apple-system,Segoe UI,sans-serif;line-height:1.2}
+.ps svg{flex:0 0 auto}
+.ps:hover{background:rgba(255,255,255,.1)}
+.ps.sel{background:var(--c);color:#0a0b0f;box-shadow:0 0 12px var(--c)}
+.chart-mini{margin:0 0 20px;padding:0 0 16px;border-bottom:1px solid var(--line)}
+.chart-mini.float{position:absolute;left:14px;top:54px;z-index:6;width:210px;margin:0;padding:8px 8px 6px;border:1px solid var(--line-strong);border-radius:4px;background:rgba(10,13,12,.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.chart-mini svg{max-width:360px;margin:0 auto}
+.cm-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;font:9px monospace;letter-spacing:.1em;color:#8a8f88}
+.cm-head #chartTitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9d4cc}
+.cm-state{color:var(--warm);white-space:nowrap}
+.cm-head button{padding:2px 6px;border:1px solid var(--line-strong);border-radius:2px;color:#b8b4ac;font:8px monospace;letter-spacing:.1em}
+.cm-head button:hover{color:var(--warm-bright);border-color:rgba(246,211,155,.45)}
+.chart-mini svg{display:block;width:100%;height:auto;background:radial-gradient(circle at 50% 50%,rgba(40,90,55,.3),transparent 64%)}
+.chart-mini .gl{fill:none;stroke:rgba(200,170,110,.62);stroke-width:1}
+.chart-mini .hp{fill:transparent;cursor:pointer}
+.chart-mini .hp:hover{fill:rgba(214,170,112,.09)}
+.chart-mini .hp.sel{fill:rgba(214,170,112,.22)}
+.chart-mini .hnum{fill:#6c7169;font:9px monospace;text-anchor:middle;dominant-baseline:central;cursor:pointer}
+.chart-mini .pt{font:600 12px 'DM Sans',-apple-system,Segoe UI,sans-serif;text-anchor:middle;dominant-baseline:central;cursor:pointer}
+.chart-mini .pbox{fill:rgba(255,255,255,.08);stroke-width:1;pointer-events:none}
+.cm-info{margin:6px 0 0;min-height:28px;color:#a9a59d;font-size:10px;line-height:1.5}
+@media (max-width:680px){ .chart-mini.float{width:160px} }
+/* embed mode: only the scene, so it can replace a chart tile inside the host app (?embed=1 or inside an iframe) */
+body.embed .topbar,body.embed .intro,body.embed .footer-bar,body.embed .inspector-panel,body.embed .panel-heading,body.embed .grain,body.embed .scene-corner,body.embed .drag-hint{display:none}
+body.embed .float-mode{position:absolute;left:14px;top:14px;z-index:6}
+body.embed .app-shell{min-height:0}
+body.embed .workspace{display:block;width:100%;padding:0}
+body.embed .scene-panel{position:static;border:0}
+body.embed .scene-viewport{height:calc(100vh - 64px);min-height:320px}
+
+/* ---------- clearer layout: view switch, two control rows, hints ---------- */
+.head-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.seg-options.big button{padding:8px 12px;font-size:10px}
+.scene-controls.layers{min-height:0;gap:14px 22px;padding:10px 22px 14px;border-top:1px dashed var(--line)}
+.only-embed{display:none}
+body.embed .only-embed{display:inline-block}
+.scene-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;width:min(78%,560px);margin:0;text-align:center;color:#7d7b78;font-size:9px;line-height:1.7;letter-spacing:.1em;text-transform:uppercase;pointer-events:none}
+body.view-wheel .scene-scale{display:none}
+.ps{z-index:1}.ps.sel{z-index:5}
+@media (max-width:680px){ .scene-hint{display:none} }
+/* ---------- zaicha loader + guide ---------- */
+.selring{position:absolute;left:0;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;border:1.5px solid var(--warm-bright);border-radius:50%;pointer-events:none;box-shadow:0 0 14px rgba(246,211,155,.55);animation:selpulse 1.6s ease-in-out infinite}
+@keyframes selpulse{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.25);opacity:.45}}
+.cm-head #zBtn{color:var(--warm-bright);border-color:rgba(246,211,155,.4)}
+.z-body{padding:8px 22px 26px;color:#c8c4bd;font-size:12px;line-height:1.7}
+.z-body h3{margin:22px 0 6px;color:#ebe5da;font-family:Georgia,'Cormorant Garamond',serif;font-weight:400;font-size:18px}
+.z-body code,.z-body pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px}
+.z-body pre{margin:8px 0;padding:12px;overflow:auto;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#d9d4cc;white-space:pre}
+.z-body code{padding:1px 4px;background:rgba(255,255,255,.06)}
+.z-body table{width:100%;border-collapse:collapse;margin:8px 0}
+.z-body td,.z-body th{padding:6px 8px;border:1px solid rgba(221,214,198,.1);text-align:left;vertical-align:top;font-size:11px}
+.z-body th{color:#8a8f88;font-weight:500;letter-spacing:.08em;font-size:9px}
+.z-body ol,.z-body ul{margin:6px 0 6px 18px;padding:0}
+.z-load textarea{width:100%;min-height:150px;padding:10px;border:1px solid var(--line-strong);border-radius:3px;background:rgba(0,0,0,.35);color:#e8e2d6;font:11px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical;box-sizing:border-box}
+.z-load .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.z-status{margin-top:8px;padding:8px 10px;border-left:2px solid var(--warm);background:rgba(214,170,112,.08);font-size:11px;white-space:pre-wrap;min-height:18px}
+.z-status.bad{border-color:#e0685f;background:rgba(224,104,95,.1)}
+.z-warn{color:#e8b86b}
+/* Zaicha host: app ka apna mini-map istemal hota hai */
+body.no-mini #chartMini{display:none !important}
+
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <div class="grain"></div>
+
+  <div class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">✦</span>
+      <span><strong>ORRERY</strong><small>SOLAR&nbsp;SYSTEM</small></span>
+    </a>
+    <div class="topbar-meta mono">
+      <span class="pulse-dot"></span><span>LIVE SIM · WEBGL</span>
+      <span class="meta-divider"></span><span>8 BODIES</span>
+      <span class="meta-divider"></span><span>DRAG TO ROTATE</span>
+    </div>
+  </div>
+
+  <div class="intro">
+    <div>
+      <p class="eyebrow"><span>001</span>Interactive orrery</p>
+      <h1>The <em>Solar</em><br>System</h1>
+    </div>
+    <p class="intro-copy">Real spheres in real 3D space — drag to orbit the camera, scroll to zoom, and watch each planet spin as it turns. Click any body for its vitals.</p>
+  </div>
+
+  <div class="workspace">
+    <section class="scene-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-kicker"><span class="kicker-dot"></span>SCENE</p>
+          <h2 id="sceneTitle">Chart wheel</h2>
+        </div>
+        <div class="head-tools">
+          <div class="seg-options big" id="viewMode" role="group" aria-label="Choose a view">
+            <button type="button" data-view="wheel" class="active">CHART WHEEL</button>
+            <button type="button" data-view="solar">SOLAR SYSTEM</button>
+          </div>
+          <div class="view-toggle" role="group" aria-label="Camera angle">
+            <button type="button" data-tilt="1.45" class="active">TOP</button>
+            <button type="button" data-tilt="0.55">TILTED</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="scene-viewport" id="viewport">
+        <div class="drag-hint mono" id="dragHint">CLICK + DRAG TO ORBIT · SCROLL TO ZOOM</div>
+        <div class="scene-vignette"></div>
+        <div class="astro-chip" id="astroChip"></div>
+        <div class="inf-labels" id="infLabels"></div>
+        <div class="ring-labels" id="ringLabels"></div>
+        <p class="scene-hint" id="sceneHint"></p>
+        <div class="scene-scale mono"><span class="scale-line"></span>1 AU ≈ 46 units</div>
+        <div class="scene-corner scene-corner-tl mono"><span></span>ORBIT.CAM</div>
+        <div class="scene-corner scene-corner-br mono">SIM.T=<span id="simTime">0</span>d<span></span></div>
+      </div>
+
+      <div class="scene-controls">
+        <button class="control-button" id="playBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+          <span class="control-label" id="playLabel">PAUSE</span>
+        </button>
+        <div class="speed-control">
+          <span class="control-label">SPEED</span>
+          <div class="speed-options">
+            <button type="button" data-speed="0.3">0.3×</button>
+            <button type="button" data-speed="1" class="active">1×</button>
+            <button type="button" data-speed="3">3×</button>
+            <button type="button" data-speed="8">8×</button>
+          </div>
+        </div>
+        <button class="control-button" id="orbitsBtn">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+          <span class="control-label" id="orbitsLabel">ORBITS ON</span>
+        </button>
+        <div class="zoom-row">
+          <span class="control-label">ZOOM</span>
+          <input type="range" id="zoomRange" min="12" max="900" step="10" value="620">
+        </div>
+        <div class="elapsed mono"><span class="elapsed-dot"></span><span id="elapsedTxt">t + 0.0 yr</span></div>
+      </div>
+
+      <div class="scene-controls layers">
+        <div class="speed-control">
+          <span class="control-label">INFLUENCE</span>
+          <div class="seg-options" id="infMode" role="group" aria-label="Influence model">
+            <button type="button" data-mode="off" class="active">OFF</button>
+            <button type="button" data-mode="astro">ASTRO</button>
+            <button type="button" data-mode="gravity">GRAVITY</button>
+          </div>
+        </div>
+        <div class="speed-control">
+          <span class="control-label">DIRECTION</span>
+          <div class="seg-options" id="infDir" role="group" aria-label="Influence direction">
+            <button type="button" data-dir="out" class="active">OUT</button>
+            <button type="button" data-dir="in">IN</button>
+            <button type="button" data-dir="all">ALL</button>
+          </div>
+        </div>
+        <div class="speed-control">
+          <span class="control-label">SHOW</span>
+          <div class="seg-options" id="ovl" role="group" aria-label="Overlays">
+            <button type="button" data-ovl="houses" class="active">HOUSES</button>
+            <button type="button" data-ovl="tags" class="active">LABELS</button>
+            <button type="button" data-ovl="chart" class="only-embed active">CHART</button>
+          </div>
+        </div>
+        <button class="control-button" id="repBtn" aria-haspopup="dialog">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 10h18M9 4v16"/></svg>
+          <span class="control-label">INFLUENCE REPORT</span>
+        </button>
+      </div>
+    </section>
+
+    <aside class="inspector-panel">
+      <section class="chart-mini" id="chartMini" aria-label="Chart">
+        <div class="cm-head"><span id="chartTitle">Chart</span><span class="cm-state" id="chartState"></span><button type="button" id="zBtn" title="Load a new zaicha / how to connect your app">ZAICHA</button><button type="button" id="chartReset" title="Put every body back at the chart’s positions">RESET</button></div>
+        <div id="chartSvg"></div>
+        <p class="cm-info" id="chartInfo"></p>
+      </section>
+
+      <div class="inspector-topline">
+        <span>INSPECTOR</span><span id="inspIndex">00 / 09</span>
+      </div>
+
+      <div class="selected-object">
+        <div class="object-orb" id="objOrb"><div class="mini-sun"></div></div>
+        <div class="object-title">
+          <p id="objKicker">STAR · G-TYPE</p>
+          <h2 id="objName">Sun</h2>
+        </div>
+        <button class="icon-button" id="closeFocus" aria-label="Reset view">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+        </button>
+      </div>
+
+      <p class="object-description" id="objDesc">Our star. A near-perfect sphere of hot plasma, powered by nuclear fusion, holding the whole system in orbit.</p>
+      <p class="focus-note" id="focusNote" style="display:none">◆ Focused — tap another body to compare</p>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <section class="astro" id="astroPanel" aria-live="polite"></section>
+
+      <section class="infl" id="inflPanel">
+        <div class="infl-head"><span>INFLUENCE LINES</span><span id="inflMeta" style="color:var(--warm)"></span></div>
+        <div id="inflRows"></div>
+        <div class="infl-legend" id="inflLegend"></div>
+        <p class="astro-note" id="inflNote"></p>
+        <button type="button" class="mini-btn" id="repBtn2" aria-haspopup="dialog">OPEN INFLUENCE REPORT ↗</button>
+      </section>
+
+      <div class="bodies-header"><span>ALL BODIES</span><span>DIST · AU</span></div>
+      <div class="body-list" id="bodyList"></div>
+
+      <div class="inspector-footer"><span class="footer-line"></span><span>ORRERY v3</span><span class="footer-line"></span></div>
+    </aside>
+  </div>
+
+  <div class="rep-backdrop" id="zBackdrop" aria-hidden="true">
+    <div class="rep" role="dialog" aria-modal="true" aria-labelledby="zTitle" tabindex="-1">
+      <div class="rep-head">
+        <div><p class="eyebrow" style="margin:0;color:#8a8f88;font:9px monospace;letter-spacing:.14em">ZAICHA · GUIDE</p><h2 id="zTitle">Zaicha integration</h2></div>
+        <button type="button" class="rep-btn" id="zClose">CLOSE ✕</button>
+      </div>
+      <div class="z-body">
+        <h3>1 · The one rule</h3>
+        <p>This orrery <b>does not calculate</b> a horoscope. It <b>draws whatever your app’s zaicha says</b>. Your app (its ephemeris) stays the single source of truth; the orrery only receives the finished positions. Every time a new zaicha is made — new date of birth, time or place — send it again and the planets, houses, symbols and terms move to exactly the places the zaicha chart shows. Two separate calculators would slowly disagree, so the orrery never computes on its own.</p>
+
+        <h3>2 · Try it now</h3>
+        <div class="z-load">
+          <textarea id="zText" spellcheck="false" aria-label="Zaicha JSON"></textarea>
+          <div class="row">
+            <button type="button" class="rep-btn on" id="zApply">APPLY ZAICHA</button>
+            <button type="button" class="rep-btn" id="zSample1">SAMPLE · HOUSES (LAL KITAB)</button>
+            <button type="button" class="rep-btn" id="zSample2">SAMPLE · LONGITUDES + ASCENDANT</button>
+          </div>
+          <div class="z-status" id="zStatus">Paste a zaicha, press APPLY.</div>
+        </div>
+
+        <h3>3 · Data your app sends</h3>
+        <table>
+          <tr><th>FIELD</th><th>MEANING</th></tr>
+          <tr><td><code>title</code></td><td>Shown above the chart, e.g. name + date of birth.</td></tr>
+          <tr><td><code>birth</code></td><td>Optional record: <code>{date:"1990-05-14", time:"06:30", tz:"+05:00", place:"Lahore"}</code>. Only displayed and returned; never used for calculation.</td></tr>
+          <tr><td><code>zodiac</code></td><td><code>"sidereal"</code> or <code>"tropical"</code> — label only. The longitudes must already be in that zodiac.</td></tr>
+          <tr><td><code>houseMode</code></td><td><code>"fixed"</code> = house 1 is Aries (Lal Kitab). <code>"ascendant"</code> = whole-sign houses; needs <code>ascendant</code> (longitude 0–360). House 1 = the sign of the ascendant.</td></tr>
+          <tr><td><code>planets</code></td><td>Keys: <code>sun moon mars mercury jupiter venus saturn rahu ketu</code>. Each planet takes <b>one</b> of: <code>{lon:200.5}</code> (best, exact) · <code>{sign:"libra", deg:20.5}</code> · <code>{house:10}</code> (Lal Kitab — placed at the middle of the house). Ketu is optional (= Rahu + 180°).</td></tr>
+          <tr><td><code>houses</code></td><td>Alternative to <code>planets</code>: <code>{"10":["sun","jupiter"],"1":["moon"]}</code>.</td></tr>
+        </table>
+        <p>Longitudes: 0° = start of Aries, counted through 360°. Use the <b>same</b> longitudes your app uses to draw its chart (same ayanamsa, same node type — mean or true).</p>
+
+        <h3>4 · Three ways to deliver it</h3>
+        <ul>
+          <li><b>URL (works for an artifact opened by link)</b> — add <code>#zaicha=</code> + base64 of the JSON. A new link = a new zaicha. In JavaScript: <code>page + "#zaicha=" + btoa(unescape(encodeURIComponent(JSON.stringify(z))))</code>. Changing only the part after <code>#</code> updates the page without reloading.</li>
+          <li><b>iframe + postMessage (your app embeds the page)</b>:<pre>frame.contentWindow.postMessage({type:'orrery:setZaicha', zaicha:z}, '*');</pre>Listen for answers: <code>orrery:zaicha</code> (result, warnings, resulting houses), <code>orrery:select</code>, <code>orrery:houseselect</code>. Pin <code>ORRERY_ALLOWED_ORIGINS</code> in the script to your domain in production.</li>
+          <li><b>Same page (script)</b>: <code>Orrery.setZaicha(z)</code> → returns <code>{ok, warnings, houses}</code>.</li>
+        </ul>
+
+        <h3>5 · Example</h3>
+<pre>{
+  "title": "Asif · 14-05-1990 06:30 Lahore",
+  "birth": {"date":"1990-05-14","time":"06:30","tz":"+05:00","place":"Lahore"},
+  "zodiac": "sidereal",
+  "houseMode": "ascendant",
+  "ascendant": 100.4,
+  "planets": {
+    "sun":{"lon":29.8}, "moon":{"lon":195.2}, "mars":{"lon":101.0},
+    "mercury":{"lon":12.5}, "jupiter":{"lon":75.3}, "venus":{"lon":40.1},
+    "saturn":{"lon":301.7}, "rahu":{"lon":44.0}
+  }
+}</pre>
+
+        <h3>6 · What you can rely on</h3>
+        <ul>
+          <li>After APPLY the orrery re-reads every body’s position <i>from its own 3D scene</i> and reports the house it computed. If your data also carried a <code>house</code> that disagrees with the longitude, the status box shows a warning (it usually means a different house system or ayanamsa in the sending code).</li>
+          <li>Symbols, houses, the 2D chart and the astrological terms panel are all driven by that one placement, so they cannot disagree with each other.</li>
+          <li>A new zaicha pauses the simulation at the birth moment. Press PLAY to watch time move forward from it (the sky animation is illustrative, not an ephemeris).</li>
+          <li>Planet distances in the 3D scene are approximate. Angles seen from Earth (the zodiac position) are exact to the data sent, except when a planet’s stated elongation is impossible in the model (rare) — then the nearest reachable point is used and the longitude still matches.</li>
+        </ul>
+        <h3>7 · Checklist before trusting a chart</h3>
+        <ol>
+          <li>Sidereal vs tropical — same as the app’s chart?</li>
+          <li>Ayanamsa (e.g. Lahiri) already applied to the numbers?</li>
+          <li>Mean or true Rahu — same as the app’s chart?</li>
+          <li>Time zone and place converted to UT before your ephemeris ran?</li>
+          <li>Compare one planet by hand: house in the orrery = house in the app.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="rep-backdrop" id="repBackdrop" aria-hidden="true">
+    <div class="rep" role="dialog" aria-modal="true" aria-labelledby="repTitle" tabindex="-1">
+      <div class="rep-head">
+        <div>
+          <p class="section-kicker"><span class="kicker-dot"></span>MANUAL CHECK</p>
+          <h2 id="repTitle">Influence report</h2>
+        </div>
+        <button class="icon-button" id="repClose" aria-label="Close report">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </div>
+      <div class="rep-bar">
+        <div class="seg-options" id="repMode" role="group" aria-label="Report model">
+          <button type="button" data-rmode="astro">ASTRO</button>
+          <button type="button" data-rmode="gravity">GRAVITY</button>
+        </div>
+        <button type="button" class="rep-btn" id="repRefresh">REFRESH SNAPSHOT</button>
+        <button type="button" class="rep-btn" id="repLive">LIVE: OFF</button>
+        <button type="button" class="rep-btn" id="repPause">PAUSE SIM</button>
+        <button type="button" class="rep-btn" id="repShow">SHOW IN SCENE</button>
+        <span class="rep-snap mono" id="repSnap"></span>
+      </div>
+      <div class="rep-chips" id="repChips"></div>
+      <div id="repBody"></div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <div class="footer-status"><i></i>SIMULATION RUNNING</div>
+    <div class="footer-center mono">SCROLL · DRAG · CLICK TO EXPLORE</div>
+    <div class="footer-right mono">EARTH-REFERENCED SCALE</div>
+  </div>
+</div>
+
+<script>
+const PLANETS = [
+  {id:'mercury', name:'Mercury', kicker:'ROCKY · SMALLEST', color:0x8f877c, radius:70, size:6, period:0.24, spin:0.9, desc:'The closest planet to the Sun, scorched by day and frozen by night with almost no atmosphere to hold heat.', dist:'0.39', diam:'4,879 km', dayLen:'176 d', temp:'167°C', moons:'0'},
+  {id:'venus', name:'Venus', kicker:'ROCKY · HOTTEST', color:0xc88748, radius:95, size:8.4, period:0.62, spin:0.2, wind:0.03, desc:'Wrapped in a thick, toxic atmosphere that traps heat, making it the hottest planet despite being farther from the Sun than Mercury.', dist:'0.72', diam:'12,104 km', dayLen:'243 d', temp:'464°C', moons:'0'},
+  {id:'earth', name:'Earth', kicker:'ROCKY · HOME', color:0x3e86c4, radius:120, size:8.8, period:1, spin:1.4, desc:'The only known world with liquid water oceans, a breathable atmosphere, and life.', dist:'1.00', diam:'12,742 km', dayLen:'24 h', temp:'15°C', moons:'1'},
+  {id:'mars', name:'Mars', kicker:'ROCKY · THE RED PLANET', color:0xa64f3f, radius:148, size:7, period:1.88, spin:1.3, desc:'A cold desert world of rust-red iron oxide dust, home to the tallest volcano and deepest canyon in the solar system.', dist:'1.52', diam:'6,779 km', dayLen:'24.6 h', temp:'-65°C', moons:'2'},
+  {id:'jupiter', name:'Jupiter', kicker:'GAS GIANT · LARGEST', color:0xb97957, radius:200, size:17, period:11.86, spin:3.4, wind:0.14, desc:'A gas giant so massive it could swallow every other planet combined, marked by its centuries-old Great Red Spot storm.', dist:'5.20', diam:'139,820 km', dayLen:'9.9 h', temp:'-110°C', moons:'95'},
+  {id:'saturn', name:'Saturn', kicker:'GAS GIANT · RINGED', color:0xbf9d68, radius:245, size:14.5, period:29.46, spin:3.1, wind:0.1, desc:'Famous for its dazzling ring system of ice and rock, and light enough that it would float in water.', dist:'9.58', diam:'116,460 km', dayLen:'10.7 h', temp:'-140°C', moons:'146', ring:true},
+  {id:'uranus', name:'Uranus', kicker:'ICE GIANT · TILTED', color:0x71c3c9, radius:285, size:11.5, period:84.01, spin:2.2, wind:0.05, desc:'An ice giant tipped almost completely on its side, likely from an ancient collision, giving it extreme seasons.', dist:'19.2', diam:'50,724 km', dayLen:'17.2 h', temp:'-195°C', moons:'28'},
+  {id:'neptune', name:'Neptune', kicker:'ICE GIANT · WINDIEST', color:0x3d62b5, radius:320, size:11, period:164.8, spin:2.1, wind:0.2, desc:'The most distant planet, battered by the fastest winds in the solar system, reaching over 2,000 km/h.', dist:'30.05', diam:'49,244 km', dayLen:'16.1 h', temp:'-200°C', moons:'16'}
+];
+const SUN = {id:'sun', name:'Sun', kicker:'STAR · G-TYPE', desc:'Our star. A near-perfect sphere of hot plasma, powered by nuclear fusion, holding the whole system in orbit.', dist:'0', diam:'1,391,000 km', dayLen:'25–35 d', temp:'5,505°C', moons:'—'};
+const MOON = {id:'moon', name:'Moon', kicker:'NATURAL SATELLITE · EARTH', color:0x9b9a96, desc:'Earth\'s only natural satellite. Tidally locked, so the same face always points at us; its craters and dark lava plains (maria) preserve billions of years of impacts.', dist:'1.00', diam:'3,474 km', dayLen:'27.3 d', temp:'-20°C', moons:'—'};
+const ALL = [SUN, ...PLANETS, MOON];
+
+/* ---------- Inspector (DOM) ---------- */
+const bodyListEl = document.getElementById('bodyList');
+function rowHTML(b,isSun){
+  return `<button class="body-row" data-body="${b.id}">
+    <span class="row-orb" style="--row-color:${isSun?'#f6d39b':'#'+b.color.toString(16).padStart(6,'0')}"></span>
+    <span class="row-name"><strong>${b.name}</strong><small>${b.kicker}</small></span>
+    <span class="row-distance">${b.dist}</span>
+  </button>`;
+}
+bodyListEl.innerHTML = rowHTML(SUN,true) + PLANETS.map(p=>rowHTML(p,false)).join('') + rowHTML(MOON,false);
+
+const objOrb=document.getElementById('objOrb'), objKicker=document.getElementById('objKicker'),
+      objName=document.getElementById('objName'), objDesc=document.getElementById('objDesc'),
+      statsGrid=document.getElementById('statsGrid'), inspIndex=document.getElementById('inspIndex'),
+      focusNote=document.getElementById('focusNote');
+/* ---------- Astrological reference (Hellenistic → Medieval Islamic tradition) ---------- */
+const GLYPH_PATHS = {
+  sun:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>',
+  moon:'<path d="M14 3.5a9 9 0 1 0 0 17a12 12 0 0 1 0-17z" fill="currentColor" stroke="none"/>',
+  mercury:'<path d="M8 3a4 4 0 0 0 8 0"/><circle cx="12" cy="11" r="4"/><path d="M12 15v7M8.5 19h7"/>',
+  venus:'<circle cx="12" cy="9" r="5"/><path d="M12 14v8M8 18h8"/>',
+  earth:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>',
+  mars:'<circle cx="10" cy="14" r="5"/><path d="M13.6 10.4L20 4M14.5 4H20v5.5"/>',
+  jupiter:'<path d="M4 5.5C6 2.5 11 3.5 11 8c0 3-3 5.5-6.5 7.5"/><path d="M4 15.5h16M15.5 7v15"/>',
+  saturn:'<path d="M8 3v13M5 6h6"/><path d="M8 10c2-3 8-3 8 2.5 0 3-2.5 4-2.5 7 0 1.5 1 2.5 2.5 2.5"/>',
+  uranus:'<path d="M6 3v10M18 3v10M6 8h12M12 8v7"/><circle cx="12" cy="18.5" r="3"/>',
+  neptune:'<path d="M4 3v3c0 4 3.5 6 8 6s8-2 8-6V3M12 2v20M8 18h8M2 5l2-2 2 2M18 5l2-2 2 2M10 4l2-2 2 2"/>',
+  rahu:'<path d="M6.5 17C6.5 4.5 17.5 4.5 17.5 17"/><circle cx="6.5" cy="19" r="2.2"/><circle cx="17.5" cy="19" r="2.2"/>',
+  ketu:'<path d="M6.5 7C6.5 19.5 17.5 19.5 17.5 7"/><circle cx="6.5" cy="5" r="2.2"/><circle cx="17.5" cy="5" r="2.2"/>'
+};
+const glyphSVG=(k,px)=>`<svg viewBox="0 0 24 24" width="${px}" height="${px}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${GLYPH_PATHS[k]||''}</svg>`;
+
+const SIGNS = {
+  aries:['♈','Aries','حمل'], taurus:['♉','Taurus','ثور'], gemini:['♊','Gemini','جوزاء'], cancer:['♋','Cancer','سرطان'],
+  leo:['♌','Leo','اسد'], virgo:['♍','Virgo','سنبلہ'], libra:['♎','Libra','میزان'], scorpio:['♏','Scorpio','عقرب'],
+  sagittarius:['♐','Sagittarius','قوس'], capricorn:['♑','Capricorn','جدی'], aquarius:['♒','Aquarius','دلو'], pisces:['♓','Pisces','حوت']
+};
+const signChip=(k,deg)=>{ const s=SIGNS[k];
+  return `<span class="chip"><b class="sg">${s[0]}︎</b>${s[1]}${deg?` <em>${deg}°</em>`:''}<i class="ur" lang="ur" dir="rtl">${s[2]}</i></span>`; };
+const T=(en,ur)=> ur ? `${en}<i class="ur" lang="ur" dir="rtl">${ur}</i>` : en;
+
+const TRAD_SRC = 'Traditional · Hellenistic → Medieval Islamic';
+const trad=o=>({ tradition:'Traditional', ...o, rows:[
+  ['Domicile','بیت', o.dom.map(s=>signChip(s)).join('')],
+  ['Exaltation','شرف', signChip(o.ex[0],o.ex[1])],
+  ['Detriment','وبال', o.det.map(s=>signChip(s)).join('')],
+  ['Fall','ہبوط', signChip(o.fall[0],o.fall[1])],
+  ['Sect','حیز / نوبت', T(o.sect[0],o.sect[1])],
+  ['Benefic / Malefic','سعد / نحس', T(o.fortune[0],o.fortune[1])],
+  ['Nature','مزاج', T(o.nature[0],o.nature[1])],
+  ['Humor','خلط', T(o.humor[0],o.humor[1])],
+  ['Day','دن', T(o.day[0],o.day[1])],
+  ['Metal','دھات', T(o.metal[0],o.metal[1])],
+  ['Body','اعضاء', o.body]
+]});
+
+const ASTRO = {
+  sun: trad({ name:'Sun', glyph:'sun', greek:'Helios (Ἥλιος)', arabic:'الشمس · Shams', urdu:'شمس',
+    title:['Luminary of the day','نیّرِ اعظم'],
+    dom:['leo'], ex:['aries',19], det:['aquarius'], fall:['libra',19],
+    sect:['Diurnal','نہاری'], fortune:['Luminary — neither benefic nor malefic','نیّر'],
+    nature:['Hot & dry','گرم خشک'], humor:['Yellow bile (choler)','صفراء'],
+    day:['Sunday','اتوار'], metal:['Gold','سونا'],
+    body:'Heart, life-force, sight, the right side',
+    sig:['The soul & vitality','Father, authority','Kings, honour, fame','Clarity, visibility'] }),
+  moon: trad({ name:'Moon', glyph:'moon', greek:'Selene (Σελήνη)', arabic:'القمر · Qamar', urdu:'قمر',
+    title:['Luminary of the night','نیّرِ اصغر'],
+    dom:['cancer'], ex:['taurus',3], det:['capricorn'], fall:['scorpio',3],
+    sect:['Nocturnal','لیلی'], fortune:['Luminary — takes on the nature of what she contacts','نیّر'],
+    nature:['Cold & moist','سرد تر'], humor:['Phlegm','بلغم'],
+    day:['Monday','پیر'], metal:['Silver','چاندی'],
+    body:'Brain, stomach, bodily fluids, the left side',
+    sig:['Mother & the body','The public, common people','Daily life & rhythm','Change, the Lot of Fortune'] }),
+  mercury: trad({ name:'Mercury', glyph:'mercury', greek:'Hermes (Ἑρμῆς)', arabic:'عطارد · ʿUṭārid', urdu:'عطارد',
+    title:['The messenger — neutral, variable','متغیر'],
+    dom:['gemini','virgo'], ex:['virgo',15], det:['sagittarius','pisces'], fall:['pisces',15],
+    sect:['Variable — diurnal as morning star, nocturnal as evening star','متغیر'],
+    fortune:['Neutral — sides with the planets it touches',''],
+    nature:['Variable (Arabic sources often say cold & dry; Ptolemy: dry, at times moist)','متغیر'],
+    humor:['Mixed / variable',''],
+    day:['Wednesday','بدھ'], metal:['Quicksilver','پارہ'],
+    body:'Tongue, hands, nerves, the intellect',
+    sig:['Speech & writing','Commerce, trade, numbers','Learning & intellect','Messengers, youth'] }),
+  venus: trad({ name:'Venus', glyph:'venus', greek:'Aphrodite (Ἀφροδίτη)', arabic:'الزهرة · Zuhara', urdu:'زہرہ',
+    title:['Lesser benefic','سعدِ اصغر'],
+    dom:['taurus','libra'], ex:['pisces',27], det:['aries','scorpio'], fall:['virgo',27],
+    sect:['Nocturnal','لیلی'], fortune:['Lesser benefic','سعدِ اصغر'],
+    nature:['Cold & moist (Arabic / Unani); Ptolemy: temperately warm & moist','سرد تر'],
+    humor:['Phlegm (Arabic); blood in some sources','بلغم'],
+    day:['Friday','جمعہ'], metal:['Copper','تانبا'],
+    body:'Kidneys, throat, generative organs (sources vary)',
+    sig:['Love, pleasure, beauty','Marriage & women','Arts, music, adornment','Harmony, reconciliation'],
+    note:'Source difference: Ptolemy calls Venus warm & moist; Arabic and Unani authors usually call her cold & moist.' }),
+  earth: { name:'Earth', glyph:'earth', greek:'Gē (Γῆ)', arabic:'الأرض · Arḍ', urdu:'زمین', tradition:'Not a planet',
+    title:['Observer’s ground · element of Earth','عنصرِ خاک'],
+    rows:[
+      ['Role','', 'Not a planet in geocentric astrology — it is where the observer stands'],
+      ['Element','عنصر', T('Earth','خاک')],
+      ['Nature','مزاج', T('Cold & dry','سرد خشک')],
+      ['Humor','خلط', T('Black bile','سوداء')],
+      ['Earth triplicity','', signChip('taurus')+signChip('virgo')+signChip('capricorn')],
+      ['Astronomical glyph','', '⊕ — used in astronomy, not in astrology']
+    ],
+    sig:['Stability & matter','Body & material world','Practical, grounded things'],
+    note:'The Moon (selectable) is the body closest to Earth in the traditional planetary order.' },
+  mars: trad({ name:'Mars', glyph:'mars', greek:'Ares (Ἄρης)', arabic:'المريخ · Mirrīkh', urdu:'مریخ',
+    title:['Lesser malefic','نحسِ اصغر'],
+    dom:['aries','scorpio'], ex:['capricorn',28], det:['libra','taurus'], fall:['cancer',28],
+    sect:['Nocturnal — the malefic of the night sect','لیلی'], fortune:['Lesser malefic','نحسِ اصغر'],
+    nature:['Hot & dry','گرم خشک'], humor:['Yellow bile (choler)','صفراء'],
+    day:['Tuesday','منگل'], metal:['Iron','لوہا'],
+    body:'Blood, muscles, bile, generative organs',
+    sig:['War, conflict, courage','Fire, iron, weapons','Surgery, wounds, fevers','Drive & decisive action'] }),
+  jupiter: trad({ name:'Jupiter', glyph:'jupiter', greek:'Zeus (Ζεύς)', arabic:'المشتري · Mushtarī', urdu:'مشتری',
+    title:['Greater benefic','سعدِ اکبر'],
+    dom:['sagittarius','pisces'], ex:['cancer',15], det:['gemini','virgo'], fall:['capricorn',15],
+    sect:['Diurnal','نہاری'], fortune:['Greater benefic','سعدِ اکبر'],
+    nature:['Hot & moist (temperate)','گرم تر'], humor:['Blood (sanguine)','دم'],
+    day:['Thursday','جمعرات'], metal:['Tin','قلعی'],
+    body:'Liver, arteries, blood, thighs (sources vary)',
+    sig:['Wealth & abundance','Law, justice, religion','Wisdom, teachers, counsel','Growth & good fortune'] }),
+  saturn: trad({ name:'Saturn', glyph:'saturn', greek:'Kronos (Κρόνος)', arabic:'زحل · Zuḥal', urdu:'زحل',
+    title:['Greater malefic','نحسِ اکبر'],
+    dom:['capricorn','aquarius'], ex:['libra',21], det:['cancer','leo'], fall:['aries',21],
+    sect:['Diurnal — the malefic of the day sect','نہاری'], fortune:['Greater malefic','نحسِ اکبر'],
+    nature:['Cold & dry','سرد خشک'], humor:['Black bile (melancholic)','سوداء'],
+    day:['Saturday','ہفتہ'], metal:['Lead','سیسہ'],
+    body:'Spleen, bones, teeth, knees (sources vary)',
+    sig:['Time, limits, delay','Old age, grief, endurance','Land, structure, discipline','Death, isolation, the past'] }),
+  uranus: { name:'Uranus', glyph:'uranus', greek:'Ouranos (Οὐρανός)', arabic:'أورانوس · Uranūs', urdu:'یورینس', tradition:'Modern', modern:true,
+    title:['Modern outer planet','جدید سیارہ'],
+    rows:[
+      ['Discovered','', '1781 (William Herschel)'],
+      ['Status','', 'Not used in Hellenistic, traditional or Islamic astrology'],
+      ['Modern rulership','', signChip('aquarius')+' (co-ruler)'],
+      ['Traditional ruler of that sign','', 'Saturn ♄︎']
+    ],
+    sig:['Sudden change, upheaval','Invention & technology','Rebellion, liberation','The unexpected'],
+    note:'Modern attribution — kept separate from the traditional planets so systems are not mixed.' },
+  neptune: { name:'Neptune', glyph:'neptune', greek:'Poseidon (Ποσειδῶν)', arabic:'نبتون · Nabtūn', urdu:'نیپچون', tradition:'Modern', modern:true,
+    title:['Modern outer planet','جدید سیارہ'],
+    rows:[
+      ['Discovered','', '1846'],
+      ['Status','', 'Not used in Hellenistic, traditional or Islamic astrology'],
+      ['Modern rulership','', signChip('pisces')+' (co-ruler)'],
+      ['Traditional ruler of that sign','', 'Jupiter ♃︎']
+    ],
+    sig:['Dreams, imagination, illusion','Dissolution & mysticism','Compassion & escapism','Oceans, fog, inspiration'],
+    note:'Modern attribution — kept separate from the traditional planets so systems are not mixed.' },
+  rahu: { name:'Rahu', glyph:'rahu', greek:'Anabibazon (Ἀναβιβάζων)', arabic:'رأس التنين · Raʾs al-Tinnīn', urdu:'راہو', tradition:'Lunar node',
+    title:['Ascending node — the Dragon’s Head','رأس التنين'],
+    rows:[
+      ['Type','', 'A mathematical point where the Moon’s path crosses the ecliptic — not a body'],
+      ['Motion','', 'The mean node moves backward, ≈ 0.053° per day (about 19.3° a year)'],
+      ['Opposite point','', 'Ketu — always exactly 180° away'],
+      ['Vedic / Lal Kitab','', 'Shadow planet, treated as malefic'],
+      ['Medieval Arabic','', 'Head of the Dragon — Jupiter/Venus-like (fortunate)']
+    ],
+    sig:['Eclipses','Ambition & appetite','The foreign, the unusual'],
+    note:'Traditions differ on the nature of the nodes. For the Lal Kitab and Parashari tabs, the app’s own rules take precedence.' },
+  ketu: { name:'Ketu', glyph:'ketu', greek:'Katabibazon (Καταβιβάζων)', arabic:'ذنب التنين · Dhanab al-Tinnīn', urdu:'کیتو', tradition:'Lunar node',
+    title:['Descending node — the Dragon’s Tail','ذنب التنين'],
+    rows:[
+      ['Type','', 'A mathematical point, always opposite Rahu — not a body'],
+      ['Motion','', 'Moves with Rahu, backward ≈ 0.053° per day'],
+      ['Opposite point','', 'Rahu — always exactly 180° away'],
+      ['Vedic / Lal Kitab','', 'Shadow planet, treated as malefic'],
+      ['Medieval Arabic','', 'Tail of the Dragon — Saturn/Mars-like (unfortunate)']
+    ],
+    sig:['Eclipses','Detachment & loss','The past, the hidden'],
+    note:'Traditions differ on the nature of the nodes. For the Lal Kitab and Parashari tabs, the app’s own rules take precedence.' }
+};
+
+const astroPanel=document.getElementById('astroPanel'), astroChip=document.getElementById('astroChip');
+function renderAstro(id){
+  const a=ASTRO[id];
+  if(!a){ astroPanel.innerHTML=''; astroChip.innerHTML=''; astroChip.classList.remove('show'); return; }
+  const rows=a.rows.map(([label,ur,val])=>
+    `<div class="astro-row"><dt>${label}${ur?`<i class="ur" lang="ur" dir="rtl">${ur}</i>`:''}</dt><dd>${val}</dd></div>`).join('');
+  astroPanel.innerHTML=`
+    <div class="astro-head">
+      <div class="astro-glyph">${glyphSVG(a.glyph,44)}</div>
+      <div class="astro-id">
+        <p class="astro-kicker">ASTROLOGICAL PROFILE <span class="tbadge${a.modern?' modern':''}">${a.tradition}</span></p>
+        <h3>${a.name}</h3>
+        <p class="astro-names">${a.greek}<span class="dot">·</span><span class="ur-name" lang="ur" dir="rtl">${a.arabic}</span></p>
+      </div>
+    </div>
+    <p class="astro-title">${T(a.title[0],a.title[1])}</p>
+    <dl class="astro-terms">${rows}</dl>
+    <p class="astro-label">SIGNIFIES <i class="ur" lang="ur" dir="rtl">دلالات</i></p>
+    <div class="chips">${a.sig.map(x=>`<span class="chip plain">${x}</span>`).join('')}</div>
+    ${a.note?`<p class="astro-note">${a.note}</p>`:''}
+    <p class="astro-foot">Draft reference · ${TRAD_SRC}. Where authors differ it is noted. Verify against your primary sources before using it in AKSRA.</p>`;
+  astroChip.innerHTML=`<span class="astro-chip-glyph">${glyphSVG(a.glyph,30)}</span>
+    <span class="astro-chip-text"><strong>${a.name} <i class="ur" lang="ur" dir="rtl">${a.urdu}</i></strong><small>${a.title[0]}</small></span>`;
+  astroChip.classList.add('show');
+}
+
+let selectedId='sun';
+function selectBody(id){
+  selectedId=id;
+  renderAstro(id);
+  const b=ALL.find(x=>x.id===id)||SUN, idx=ALL.findIndex(x=>x.id===id);
+  objKicker.textContent=b.kicker; objName.textContent=b.name; objDesc.textContent=b.desc;
+  inspIndex.textContent=String(idx).padStart(2,'0')+' / 09';
+  focusNote.style.display = id==='sun' ? 'none':'flex';
+  objOrb.innerHTML = id==='sun' ? '<div class="mini-sun"></div>' :
+    `<div class="mini-planet" style="--planet-color:#${b.color.toString(16).padStart(6,'0')};--planet-accent:#${b.color.toString(16).padStart(6,'0')}"></div>`;
+  statsGrid.innerHTML = `<div><span>DISTANCE (AU)</span><strong>${b.dist}</strong></div>
+    <div><span>DIAMETER</span><strong>${b.diam}</strong></div>
+    <div><span>DAY LENGTH</span><strong>${b.dayLen}</strong></div>
+    <div><span>SURFACE TEMP</span><strong>${b.temp}</strong></div>`;
+  document.querySelectorAll('.body-row').forEach(el=>el.classList.toggle('active', el.dataset.body===id));
+}
+selectBody('sun');
+document.querySelectorAll('.body-row').forEach(el=>el.addEventListener('click', ()=>{ selectBody(el.dataset.body); focusOn(el.dataset.body); }));
+
+/* ---------- Three.js scene ---------- */
+const viewport = document.getElementById('viewport');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+viewport.insertBefore(renderer.domElement, viewport.firstChild);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 1, 6000);
+
+scene.add(new THREE.AmbientLight(0x304050, 0.55));
+const sunLight = new THREE.PointLight(0xffdca8, 3.4, 0, 1.6);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(1024,1024);
+sunLight.shadow.camera.near = 5; sunLight.shadow.camera.far = 700;
+scene.add(sunLight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+function atmosphereGlow(radius, color, power, opacity, seg){
+  const mat = new THREE.ShaderMaterial({
+    uniforms:{glowColor:{value:new THREE.Color(color)}, p:{value:power}, op:{value:opacity}},
+    vertexShader:`varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`varying vec3 vN; uniform vec3 glowColor; uniform float p; uniform float op; void main(){ float i=pow(0.7-dot(vN,vec3(0.0,0.0,1.0)),p); gl_FragColor=vec4(glowColor, clamp(i,0.0,1.0)*op); }`,
+    side:THREE.BackSide, blending:THREE.AdditiveBlending, transparent:true, depthWrite:false
+  });
+  return new THREE.Mesh(new THREE.SphereGeometry(radius, seg||32, seg||32), mat);
+}
+
+// starfield
+{
+  const starGeo = new THREE.BufferGeometry();
+  const N = 900, pos = new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const r = 900 + Math.random()*1400;
+    const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1);
+    pos[i*3]=r*Math.sin(ph)*Math.cos(th); pos[i*3+1]=r*Math.cos(ph); pos[i*3+2]=r*Math.sin(ph)*Math.sin(th);
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xe9ddc8, size:1.6, sizeAttenuation:true})));
+}
+/* =====================================================================
+   Zaicha 3D engine — re-written 2026-09-26 on top of the data, DOM and
+   inspector above. RULE: nothing here calculates a horoscope. Every
+   longitude comes from the zaicha the app sends (single source of truth);
+   the scene only DRAWS it. Motion after PLAY is illustrative.
+   ===================================================================== */
+const Q = new URLSearchParams(location.search);
+const EMBED = Q.get('embed') === '1';
+if (EMBED) document.body.classList.add('embed');
+if (Q.get('mini') === '0') document.body.classList.add('no-mini');
+sunLight.castShadow = false;           // point-light shadows = 6 extra renders/frame; too heavy for phones
+renderer.shadowMap.enabled = false;
+
+const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const norm360 = x => ((x % 360) + 360) % 360;
+const wrapPi = a => Math.atan2(Math.sin(a), Math.cos(a));
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const SIGN_KEYS = Object.keys(SIGNS);
+const SCALE = 0.62;                                  // orbit radii → scene units
+const RING_IN = 300, RING_OUT = 345, RING_MID = (RING_IN + RING_OUT) / 2;
+const TIER = { earth: 0, moon: 70, mercury: 100, venus: 125, sun: 150, mars: 175, jupiter: 205, saturn: 235, uranus: 258, neptune: 280, rahu: 292, ketu: 292 };
+const MASS = { sun: 333000, mercury: .055, venus: .815, earth: 1, moon: .0123, mars: .107, jupiter: 317.8, saturn: 95.2, uranus: 14.5, neptune: 17.1 };
+const ZKEYS = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu', 'uranus', 'neptune'];
+const DAYS_PER_SEC = 6;
+
+/* lunar nodes as selectable points */
+const RAHU = { id: 'rahu', name: 'Rahu', kicker: 'LUNAR NODE · NORTH', color: 0x8f9bbd, desc: 'The Moon’s ascending node — a mathematical point, not a body. Drawn from the zaicha’s own Rahu longitude.', dist: '—', diam: 'point', dayLen: '—', temp: '—', moons: '—' };
+const KETU = { id: 'ketu', name: 'Ketu', kicker: 'LUNAR NODE · SOUTH', color: 0x9c8f86, desc: 'The Moon’s descending node, always opposite Rahu. Drawn from the zaicha’s data (or Rahu + 180°).', dist: '—', diam: 'point', dayLen: '—', temp: '—', moons: '—' };
+ALL.push(RAHU, KETU);
+bodyListEl.insertAdjacentHTML('beforeend', rowHTML(RAHU, false) + rowHTML(KETU, false));
+const BY_ID = Object.fromEntries(ALL.map(b => [b.id, b]));
+
+/* extra styles for the overlays drawn by this engine */
+document.head.insertAdjacentHTML('beforeend', `<style>
+.rlab{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font:9px ui-monospace,Menlo,monospace;color:#a99c84;letter-spacing:.06em;white-space:nowrap;text-align:center;line-height:1.15;text-shadow:0 0 6px #000,0 0 2px #000;pointer-events:none}
+.rlab b{display:block;color:#f6d39b;font-weight:400;font-size:13px}
+.rlab.sel{color:#fff}.rlab.sel b{color:#fff;text-shadow:0 0 10px #f6d39b}
+.ptag{position:absolute;left:0;top:0;transform:translate(9px,-50%);font:600 10px 'DM Sans',-apple-system,Segoe UI,sans-serif;color:#ece6da;white-space:nowrap;text-shadow:0 1px 4px #000,0 0 2px #000;pointer-events:none}
+.ptag small{margin-left:4px;color:#a8a296;font:8px ui-monospace,Menlo,monospace}
+.ilab{position:absolute;left:0;top:0;transform:translate(-50%,-50%);padding:1px 4px;border-radius:2px;background:rgba(10,11,15,.72);font:10px ui-monospace,Menlo,monospace;white-space:nowrap;pointer-events:none}
+.body-row.nodata{opacity:.4}
+@media (max-width:560px){body.embed .astro-chip{display:none}body.embed .float-mode{flex-wrap:wrap;left:10px;top:10px}body.embed .seg-options.big button{padding:6px 8px;font-size:9px}}
+@keyframes selpulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.6}}
+</style>`);
+
+/* ---------- procedural planet textures (canvas, seeded — no downloads) ---------- */
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function valueNoise(seed, gw, gh) {
+  const r = rng(seed), g = new Float32Array(gw * gh);
+  for (let i = 0; i < g.length; i++) g[i] = r();
+  return (u, v) => {
+    const x = u * gw, y = v * (gh - 1), x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0;
+    const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    const X0 = ((x0 % gw) + gw) % gw, X1 = (X0 + 1) % gw, Y0 = clamp(y0, 0, gh - 1), Y1 = Math.min(Y0 + 1, gh - 1);
+    const a = g[Y0 * gw + X0], b = g[Y0 * gw + X1], c = g[Y1 * gw + X0], d = g[Y1 * gw + X1];
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  };
+}
+function fbm(seed, oct) {
+  const ns = []; for (let o = 0; o < oct; o++) ns.push(valueNoise(seed + o * 101, 4 << o, (2 << o) + 1));
+  return (u, v) => { let s = 0, amp = .5, tot = 0; for (const n of ns) { s += n(u, v) * amp; tot += amp; amp *= .5; } return s / tot; };
+}
+const hexRGB = h => [(h >> 16) & 255, (h >> 8) & 255, h & 255];
+const mixC = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const mulC = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+function paint(w, h, fn, after) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const col = fn(x / w, y / h), i = (y * w + x) * 4;
+    d[i] = clamp(col[0], 0, 255); d[i + 1] = clamp(col[1], 0, 255); d[i + 2] = clamp(col[2], 0, 255); d[i + 3] = col.length > 3 ? col[3] : 255;
+  }
+  g.putImageData(img, 0, 0);
+  if (after) after(g, w, h);
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+}
+function craters(seed, n, dark) {
+  return (g, w, h) => { const r = rng(seed); for (let i = 0; i < n; i++) {
+    const x = r() * w, y = h * .12 + r() * h * .76, rad = 1.5 + Math.pow(r(), 3) * w * .045;
+    g.beginPath(); g.ellipse(x, y, rad, rad * .8, 0, 0, Math.PI * 2); g.fillStyle = `rgba(${dark},${dark},${dark},.35)`; g.fill();
+    g.lineWidth = 1; g.strokeStyle = 'rgba(255,255,255,.12)'; g.stroke(); } };
+}
+function planetTexture(id, color) {
+  const base = hexRGB(color);
+  if (id === 'mercury') { const n = fbm(11, 5); return paint(256, 128, (u, v) => mulC(base, .72 + .55 * n(u, v)), craters(12, 70, 40)); }
+  if (id === 'moon') { const n = fbm(21, 5), m = fbm(23, 3); return paint(256, 128, (u, v) => { const k = .78 + .4 * n(u, v); const mar = sstep(.55, .62, m(u, v)); return mulC(mixC(base, [70, 70, 74], mar * .7), k); }, craters(22, 90, 50)); }
+  if (id === 'venus') { const n = fbm(31, 5); return paint(256, 128, (u, v) => { const s = .5 + .5 * Math.sin((v * 7 + n(u, v) * 3.2) * Math.PI); return mixC([232, 196, 140], [196, 136, 72], s * .8); }); }
+  if (id === 'earth') { const n = fbm(41, 6), d = fbm(43, 4); return paint(512, 256, (u, v) => {
+    const lat = Math.abs(v - .5) * 2, h = n(u, v);
+    if (lat > .86 + .06 * d(u, v)) return [236, 242, 248];
+    if (h > .54) { const t = sstep(.54, .72, h); return mixC(mixC([74, 122, 62], [150, 128, 82], d(u, v)), [120, 104, 80], t * .6); }
+    return mixC([18, 52, 110], [40, 104, 170], sstep(.3, .54, h)); }); }
+  if (id === 'mars') { const n = fbm(51, 6), d = fbm(53, 3); return paint(256, 128, (u, v) => {
+    const lat = Math.abs(v - .5) * 2; if (lat > .9 + .05 * d(u, v)) return [240, 232, 226];
+    const k = n(u, v); return mixC(mulC(base, 1.15), [92, 42, 30], sstep(.52, .68, k) * .8); }); }
+  if (id === 'jupiter') { const n = fbm(61, 5); return paint(512, 256, (u, v) => {
+    const b = .5 + .5 * Math.sin((v * 15 + n(u, v) * 2.4) * Math.PI);
+    let c = mixC([236, 222, 196], [176, 118, 80], b); c = mixC(c, [210, 160, 110], sstep(.4, .7, n(u * 2 % 1, v)) * .35);
+    const dx = (u - .3) / .07, dy = (v - .64) / .035, e = dx * dx + dy * dy; if (e < 1) c = mixC(c, [196, 92, 60], (1 - e) * .85);
+    return c; }); }
+  if (id === 'saturn') { const n = fbm(71, 4); return paint(512, 256, (u, v) => { const b = .5 + .5 * Math.sin((v * 11 + n(u, v) * 1.4) * Math.PI); return mixC([236, 214, 170], [196, 160, 104], b * .8); }); }
+  if (id === 'uranus') { const n = fbm(81, 3); return paint(256, 128, (u, v) => { const b = .5 + .5 * Math.sin((v * 6 + n(u, v)) * Math.PI); return mixC([150, 214, 220], [104, 184, 196], b * .35); }); }
+  if (id === 'neptune') { const n = fbm(91, 4); return paint(256, 128, (u, v) => {
+    const b = .5 + .5 * Math.sin((v * 8 + n(u, v) * 2) * Math.PI); let c = mixC([70, 110, 206], [40, 70, 160], b * .6);
+    const dx = (u - .6) / .06, dy = (v - .6) / .04, e = dx * dx + dy * dy; if (e < 1) c = mixC(c, [22, 34, 96], (1 - e) * .8); return c; }); }
+  const n = fbm(99, 4); return paint(256, 128, (u, v) => mulC(base, .8 + .4 * n(u, v)));
+}
+function glowSprite(inner, outer, size) {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, inner); gr.addColorStop(.25, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+  s.scale.set(size, size, 1); return s;
+}
+
+/* ---------- bodies ---------- */
+const BODIES = {};          // id → {group, mesh, size, kind}
+const pickables = [];
+function addBody(id, size, mesh, kind) {
+  const group = new THREE.Group(); group.add(mesh); scene.add(group);
+  BODIES[id] = { id, group, mesh, size, kind, wheel: new THREE.Vector3(), solar: new THREE.Vector3(), lonNow: 0, has: false };
+  pickables.push(id); return BODIES[id];
+}
+// Sun
+{
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 48), new THREE.MeshBasicMaterial({
+    map: (() => { const n = fbm(5, 6); return paint(512, 256, (u, v) => { const k = n(u, v); return mixC([255, 150, 40], [255, 236, 170], sstep(.35, .75, k)); }); })() }));
+  const b = addBody('sun', 26, mesh, 'sun');
+  b.glow = glowSprite('rgba(255,236,190,1)', 'rgba(255,170,70,.45)', 6); mesh.add(b.glow);
+  b.halo = atmosphereGlow(1.18, 0xffb347, 2.4, .9, 32); mesh.add(b.halo);
+}
+// planets
+for (const p of PLANETS) {
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 40), new THREE.MeshStandardMaterial({ map: planetTexture(p.id, p.color), roughness: .92, metalness: 0, emissive: new THREE.Color(p.color), emissiveIntensity: .06 }));
+  mesh.scale.setScalar(p.size);
+  const b = addBody(p.id, p.size, mesh, 'planet');
+  if (p.id === 'earth') {
+    const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.025, 40, 40), new THREE.MeshStandardMaterial({
+      map: (() => { const n = fbm(47, 6); return paint(512, 256, (u, v) => { const a = sstep(.5, .72, n(u, v)); return [255, 255, 255, a * 220]; }); })(), transparent: true, depthWrite: false }));
+    mesh.add(clouds); b.clouds = clouds;
+    mesh.add(atmosphereGlow(1.16, 0x6fb3ff, 3, .95, 32));
+  }
+  if (p.id === 'venus') mesh.add(atmosphereGlow(1.12, 0xffd08a, 3, .6, 24));
+  if (p.id === 'uranus' || p.id === 'neptune') mesh.add(atmosphereGlow(1.12, p.color, 3, .55, 24));
+  if (p.ring) {
+    const tex = paint(256, 8, (u) => { const s = .5 + .5 * Math.sin(u * 60) * Math.sin(u * 17); const gap = u > .62 && u < .68 ? .15 : 1; return [222, 196, 150, (60 + 170 * s) * gap * (u < .04 ? 0 : 1)]; });
+    const geo = new THREE.RingGeometry(1.3, 2.35, 96, 1);
+    const pos = geo.attributes.position, uv = geo.attributes.uv, v3 = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) { v3.fromBufferAttribute(pos, i); uv.setXY(i, (v3.length() - 1.3) / 1.05, .5); }
+    const ring = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2 + .45; mesh.add(ring);
+  }
+  if (p.id === 'uranus') mesh.rotation.z = 1.7;
+}
+// Moon
+{
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshStandardMaterial({ map: planetTexture('moon', MOON.color), roughness: .95, metalness: 0 }));
+  mesh.scale.setScalar(3.2); addBody('moon', 3.2, mesh, 'moon');
+}
+// Nodes (points, not bodies)
+for (const n of [RAHU, KETU]) {
+  const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(1, 0), new THREE.MeshBasicMaterial({ color: n.color, wireframe: true }));
+  mesh.scale.setScalar(5); addBody(n.id, 5, mesh, 'node');
+}
+
+/* orbits (solar view) */
+const orbitGroup = new THREE.Group(); scene.add(orbitGroup);
+const orbitMat = new THREE.LineBasicMaterial({ color: 0xd6aa70, transparent: true, opacity: .22 });
+function circleLine(r, seg, mat) { const pts = []; for (let i = 0; i <= seg; i++) { const a = i / seg * Math.PI * 2; pts.push(new THREE.Vector3(r * Math.cos(a), 0, -r * Math.sin(a))); } return new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat); }
+for (const p of PLANETS) orbitGroup.add(circleLine(p.radius * SCALE, 160, orbitMat));
+const moonOrbit = circleLine(18, 64, orbitMat.clone()); scene.add(moonOrbit);
+
+/* ---------- houses ring (always geocentric: centred on Earth) ---------- */
+const houseGroup = new THREE.Group(); scene.add(houseGroup);
+const sectorMeshes = [];
+for (let h = 1; h <= 12; h++) {
+  const geo = new THREE.RingGeometry(RING_IN, RING_OUT, 12, 1, Math.PI + (h - 1) * Math.PI / 6, Math.PI / 6);
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: h % 2 ? 0x2d4a36 : 0x3a3326, transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; m.userData.h = h; houseGroup.add(m); sectorMeshes.push(m);
+}
+{
+  const lm = new THREE.LineBasicMaterial({ color: 0xc8aa6e, transparent: true, opacity: .55 });
+  houseGroup.add(circleLine(RING_IN, 180, lm), circleLine(RING_OUT, 180, lm), circleLine(RING_IN - 18, 180, new THREE.LineBasicMaterial({ color: 0xc8aa6e, transparent: true, opacity: .12 })));
+  const pts = [];
+  for (let h = 0; h < 12; h++) { const a = Math.PI + h * Math.PI / 6; pts.push(new THREE.Vector3(40 * Math.cos(a), 0, -40 * Math.sin(a)), new THREE.Vector3(RING_OUT * Math.cos(a), 0, -RING_OUT * Math.sin(a))); }
+  houseGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xc8aa6e, transparent: true, opacity: .16 })));
+  const tk = [];
+  for (let d = 0; d < 360; d += 5) { const a = d * D2R, r2 = RING_OUT - (d % 30 === 0 ? 0 : d % 10 === 0 ? 7 : 4); tk.push(new THREE.Vector3(RING_OUT * Math.cos(a), 0, -RING_OUT * Math.sin(a)), new THREE.Vector3(r2 * Math.cos(a), 0, -r2 * Math.sin(a))); }
+  houseGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(tk), lm));
+}
+/* rays: centre → body → ring (shows the exact longitude) */
+const rayGroup = new THREE.Group(); houseGroup.add(rayGroup);
+const RAYS = {};
+for (const id of ZKEYS) {
+  const col = id === 'sun' ? 0xf6d39b : (BY_ID[id] || {}).color || 0xaaaaaa;
+  const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(1, 0, 0)]);
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: .35 })); rayGroup.add(l); RAYS[id] = l;
+}
+
+/* ---------- chart state ---------- */
+let CH = null, simDays = 0, playing = false, speed = 1, mix = 0, mixTarget = 0, VIEW = 'wheel';
+let selHouse = null, orbitsOn = true, showHouses = true, showTags = true, showChart = true;
+const th = lam => D2R * (180 + lam - (CH ? CH.refLon : 0));            // zodiac longitude → scene angle (house 1 cusp at 9 o'clock)
+const vAt = (a, r, out) => (out || new THREE.Vector3()).set(r * Math.cos(a), 0, -r * Math.sin(a));
+const signOf = lon => SIGN_KEYS[Math.floor(norm360(lon) / 30)];
+function houseOf(lon) { const s = Math.floor(norm360(lon) / 30); return CH && CH.houseMode === 'ascendant' ? ((s - CH.ascSign) % 12 + 12) % 12 + 1 : s + 1; }
+
+function solveHelio(lam, r, E) {       // point on circle |P|=r seen from E in direction lam
+  const a = th(lam), dx = Math.cos(a), dy = Math.sin(a);
+  const b = E[0] * dx + E[1] * dy, c = E[0] * E[0] + E[1] * E[1] - r * r, disc = b * b - c;
+  let t, clamped = false;
+  if (disc >= 0) { t = -b + Math.sqrt(disc); if (t <= 0) t = -b - Math.sqrt(disc); }
+  if (disc < 0 || t <= 0) { t = Math.max(1, -b); clamped = true; }
+  let x = E[0] + t * dx, y = E[1] + t * dy;
+  if (clamped) { const k = r / Math.hypot(x, y); x *= k; y *= k; }
+  return { ang: Math.atan2(y, x), clamped };
+}
+function applyChart(nz) {
+  const bodies = nz.bodies;
+  CH = { ...nz, helio: {}, geoBirth: {}, notes: [] };          // set first: th() reads CH.refLon
+  const sunLon = bodies.sun.lon, rE = 120 * SCALE, aE = th(sunLon + 180);
+  const E = [rE * Math.cos(aE), rE * Math.sin(aE)];
+  const helio = CH.helio, notes = CH.notes; helio.earth = { r: rE, a0: aE, period: 1 };
+  for (const p of PLANETS) {
+    if (p.id === 'earth' || !bodies[p.id]) continue;
+    const s = solveHelio(bodies[p.id].lon, p.radius * SCALE, E);
+    helio[p.id] = { r: p.radius * SCALE, a0: s.ang, period: p.period };
+    if (s.clamped) notes.push(p.name + ': elongation beyond the model orbit — drawn at the nearest reachable point; its longitude is still the zaicha’s.');
+  }
+  simDays = 0;
+  for (const id of Object.keys(helio)) if (id !== 'earth') CH.geoBirth[id] = geoAngle(id, 0);
+  CH.geoBirth.sun = geoAngle('sun', 0);
+  for (const b of ALL) {
+    const has = b.id === 'earth' || !!bodies[b.id]; if (BODIES[b.id]) BODIES[b.id].has = has;
+    const row = document.querySelector(`.body-row[data-body="${b.id}"]`); if (row) row.classList.toggle('nodata', !has);
+  }
+  setPlaying(false); selHouse = null;
+  updateBodies(); renderChart2D(); renderInfList();
+  if (repBackdrop.classList.contains('open')) snapshotReport();
+}
+function helioXY(id, days) { const h = CH.helio[id]; const a = h.a0 + 2 * Math.PI * days / (365.25 * h.period); return [h.r * Math.cos(a), h.r * Math.sin(a)]; }
+function geoAngle(id, days) { const E = helioXY('earth', days); const P = id === 'sun' ? [0, 0] : helioXY(id, days); return Math.atan2(P[1] - E[1], P[0] - E[0]); }
+function lonNow(id) {
+  const b = CH.bodies[id]; if (!b) return null;
+  if (simDays === 0) return b.lon;
+  if (id === 'moon') return norm360(b.lon + 13.176358 * simDays);
+  if (id === 'rahu' || id === 'ketu') return norm360(b.lon - 0.052954 * simDays);
+  if (CH.helio[id] || id === 'sun') return norm360(b.lon + R2D * wrapPi(geoAngle(id, simDays) - CH.geoBirth[id]));
+  return b.lon;
+}
+const _tmp = new THREE.Vector3();
+function updateBodies() {
+  if (!CH) return;
+  const E2 = helioXY('earth', simDays), E3 = new THREE.Vector3(E2[0], 0, -E2[1]);
+  for (const id of Object.keys(BODIES)) {
+    const B = BODIES[id];
+    if (id === 'earth') { B.lonNow = null; B.wheel.set(0, 0, 0); B.solar.copy(E3); continue; }
+    if (!B.has) continue;
+    const lon = lonNow(id); B.lonNow = lon;
+    vAt(th(lon), TIER[id], B.wheel);
+    if (id === 'sun') B.solar.set(0, 0, 0);
+    else if (id === 'moon') B.solar.copy(E3).add(vAt(th(lon), 18, _tmp));
+    else if (id === 'rahu' || id === 'ketu') B.solar.copy(E3).add(vAt(th(lon), RING_IN - 14, _tmp));
+    else { const P = helioXY(id, simDays); B.solar.set(P[0], 0, -P[1]); }
+  }
+  CH.E3 = E3;
+}
+function currentHouses() {
+  const out = {}; if (!CH) return out;
+  for (const id of ZKEYS) { const B = BODIES[id]; if (B && B.has) out[id] = houseOf(B.lonNow); }
+  return out;
+}
+
+/* ---------- zaicha normalisation (validates, never calculates) ---------- */
+function normaliseZaicha(z) {
+  if (typeof z === 'string') z = JSON.parse(z);
+  if (!z || typeof z !== 'object') throw new Error('Zaicha must be a JSON object.');
+  const warnings = [];
+  const houseMode = z.houseMode === 'ascendant' ? 'ascendant' : 'fixed';
+  let asc = null;
+  if (houseMode === 'ascendant') { asc = Number(z.ascendant); if (!isFinite(asc)) throw new Error('houseMode "ascendant" needs "ascendant" (a longitude 0–360).'); asc = norm360(asc); }
+  const ascSign = asc == null ? 0 : Math.floor(asc / 30), refLon = ascSign * 30;
+  const planets = Object.assign({}, z.planets || {});
+  if (z.houses && typeof z.houses === 'object') for (const [h, list] of Object.entries(z.houses)) for (const id of [].concat(list || [])) planets[String(id).toLowerCase()] = { house: Number(h) };
+  const bodies = {}, houseOnly = {}, claimed = {};
+  for (const [k, v] of Object.entries(planets)) {
+    const id = String(k).toLowerCase();
+    if (!ZKEYS.includes(id)) { warnings.push(`Unknown body "${k}" ignored.`); continue; }
+    if (v == null) continue;
+    if (typeof v === 'number') { bodies[id] = { lon: norm360(v) }; continue; }
+    if (v.house != null) claimed[id] = Number(v.house);
+    if (v.lon != null && isFinite(v.lon)) bodies[id] = { lon: norm360(+v.lon) };
+    else if (v.sign != null) {
+      let si = SIGN_KEYS.indexOf(String(v.sign).toLowerCase());
+      if (si < 0 && +v.sign >= 1 && +v.sign <= 12) si = +v.sign - 1;
+      if (si < 0) { warnings.push(`${id}: unknown sign "${v.sign}" — skipped.`); continue; }
+      const deg = v.deg != null && isFinite(v.deg) ? clamp(+v.deg, 0, 29.999) : 15;
+      if (v.deg == null) warnings.push(`${id}: no degree given — drawn at 15° of the sign.`);
+      bodies[id] = { lon: si * 30 + deg };
+    } else if (v.house != null) {
+      const h = Number(v.house);
+      if (!(h >= 1 && h <= 12)) { warnings.push(`${id}: house ${v.house} is not 1–12 — skipped.`); continue; }
+      (houseOnly[h] = houseOnly[h] || []).push(id);
+    } else warnings.push(`${id}: needs lon, sign+deg or house — skipped.`);
+  }
+  const hoIds = [];
+  for (const [h, ids] of Object.entries(houseOnly)) ids.forEach((id, k) => { bodies[id] = { lon: norm360(refLon + (h - 1) * 30 + 30 * (k + 1) / (ids.length + 1)), houseOnly: true }; hoIds.push(id); });
+  if (hoIds.length) warnings.push(`House-only data (${hoIds.join(', ')}): drawn inside the correct house, but the exact degree is unknown — aspects and influence lines for these are approximate.`);
+  if (bodies.rahu && !bodies.ketu) bodies.ketu = { lon: norm360(bodies.rahu.lon + 180), derived: true, houseOnly: bodies.rahu.houseOnly };
+  else if (bodies.ketu && !bodies.rahu) bodies.rahu = { lon: norm360(bodies.ketu.lon + 180), derived: true, houseOnly: bodies.ketu.houseOnly };
+  else if (bodies.rahu && bodies.ketu && !bodies.rahu.houseOnly && Math.abs(Math.abs(wrapPi((bodies.rahu.lon - bodies.ketu.lon) * D2R)) * R2D - 180) > 1) warnings.push('Rahu and Ketu are not 180° apart — check the data.');
+  if (!bodies.sun) throw new Error('The Sun is required (it fixes where Earth stands in the 3D scene).');
+  const missing = ['moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu'].filter(k => !bodies[k]);
+  if (missing.length) warnings.push('Not in this zaicha (hidden): ' + missing.join(', ') + '.');
+  const nz = { title: z.title ? String(z.title) : 'Zaicha', birth: z.birth || null, zodiac: z.zodiac === 'tropical' ? 'tropical' : (z.zodiac === 'sidereal' ? 'sidereal' : 'unspecified'),
+    system: z.system || null, houseMode, ascendant: asc, ascSign, refLon, bodies, warnings };
+  for (const [id, h] of Object.entries(claimed)) {
+    if (!bodies[id] || bodies[id].houseOnly) continue;
+    const got = houseMode === 'ascendant' ? ((Math.floor(bodies[id].lon / 30) - ascSign) % 12 + 12) % 12 + 1 : Math.floor(bodies[id].lon / 30) + 1;
+    if (got !== h) warnings.push(`${id}: data says house ${h}, its longitude gives house ${got} (different house system or ayanamsa?).`);
+  }
+  return nz;
+}
+
+/* ---------- events to the host app ---------- */
+const ORRERY_ALLOWED_ORIGINS = [location.origin];
+function emit(name, detail) {
+  try { window.dispatchEvent(new CustomEvent('orrery:' + name, { detail })); } catch (e) { }
+  if (window.parent !== window) { try { window.parent.postMessage({ type: 'orrery:' + name, detail: JSON.parse(JSON.stringify(detail || {})) }, location.origin); } catch (e) { } }
+}
+function bodyInfo(id) {
+  if (!CH || !BODIES[id] || !BODIES[id].has || BODIES[id].lonNow == null) return { id };
+  const lon = BODIES[id].lonNow;
+  return { id, lon: +lon.toFixed(4), sign: signOf(lon), deg: +(lon % 30).toFixed(2), house: houseOf(lon) };
+}
+
+/* selection: wrap the inspector's selectBody so every selection is shared */
+const _baseSelect = selectBody;
+selectBody = function (id, opts) {
+  if (!BY_ID[id]) return;
+  _baseSelect(id);
+  inspIndex.textContent = String(ALL.findIndex(x => x.id === id)).padStart(2, '0') + ' / ' + String(ALL.length - 1).padStart(2, '0');
+  renderInfList(); renderChart2D();
+  if (!(opts && opts.silent)) emit('select', bodyInfo(id));
+};
+function selectHouse(h, opts) {
+  h = Number(h); selHouse = h >= 1 && h <= 12 ? h : null;
+  sectorMeshes.forEach(m => { m.material.opacity = m.userData.h === selHouse ? .62 : .28; m.material.color.setHex(m.userData.h === selHouse ? 0x8a6a36 : (m.userData.h % 2 ? 0x2d4a36 : 0x3a3326)); });
+  renderChart2D();
+  if (selHouse && !(opts && opts.silent)) {
+    const hs = currentHouses();
+    emit('houseselect', { house: selHouse, sign: CH ? SIGN_KEYS[(CH.ascSign + selHouse - 1) % 12] : null, bodies: Object.keys(hs).filter(k => hs[k] === selHouse) });
+  }
+}
+
+/* ---------- 2D chart (North-Indian diamond; hidden when the host shows its own) ---------- */
+const HP = { 1: [[100, 0], [150, 50], [100, 100], [50, 50]], 2: [[0, 0], [100, 0], [50, 50]], 3: [[0, 0], [50, 50], [0, 100]], 4: [[0, 100], [50, 50], [100, 100], [50, 150]],
+  5: [[0, 100], [50, 150], [0, 200]], 6: [[0, 200], [50, 150], [100, 200]], 7: [[100, 200], [50, 150], [100, 100], [150, 150]], 8: [[100, 200], [150, 150], [200, 200]],
+  9: [[200, 200], [150, 150], [200, 100]], 10: [[200, 100], [150, 150], [100, 100], [150, 50]], 11: [[200, 100], [150, 50], [200, 0]], 12: [[200, 0], [150, 50], [100, 0]] };
+const ABBR = { sun: 'Su', moon: 'Mo', mars: 'Ma', mercury: 'Me', jupiter: 'Ju', venus: 'Ve', saturn: 'Sa', rahu: 'Ra', ketu: 'Ke', uranus: 'Ur', neptune: 'Ne' };
+const hexCss = id => id === 'sun' ? '#f6d39b' : '#' + ((BY_ID[id] || {}).color || 0xcccccc).toString(16).padStart(6, '0');
+function renderChart2D() {
+  const el = document.getElementById('chartSvg'); if (!el || !CH) return;
+  const hs = currentHouses(), by = {}; for (const [id, h] of Object.entries(hs)) (by[h] = by[h] || []).push(id);
+  let s = `<svg viewBox="-4 -4 208 208" role="img" aria-label="Chart">`;
+  for (let h = 1; h <= 12; h++) {
+    const P = HP[h], cx = P.reduce((a, p) => a + p[0], 0) / P.length, cy = P.reduce((a, p) => a + p[1], 0) / P.length;
+    s += `<polygon class="hp${selHouse === h ? ' sel' : ''}" data-h="${h}" points="${P.map(p => p.join(',')).join(' ')}"/>`;
+    s += `<text class="hnum" data-h="${h}" x="${cx}" y="${cy - (P.length === 4 ? 26 : 14)}">${h}</text>`;
+    (by[h] || []).forEach((id, i, arr) => {
+      const cols = Math.min(arr.length, P.length === 4 ? 3 : 2), row = Math.floor(i / cols), col = i % cols, n = Math.min(cols, arr.length - row * cols);
+      const x = cx + (col - (n - 1) / 2) * 17, y = cy - 4 + row * 13;
+      s += `<text class="pt" data-id="${id}" x="${x}" y="${y}" fill="${hexCss(id)}"${id === selectedId ? ' text-decoration="underline"' : ''}>${ABBR[id]}</text>`;
+    });
+  }
+  s += `<path class="gl" d="M0 0H200V200H0Z M0 0L200 200 M200 0L0 200 M100 0L200 100L100 200L0 100Z"/></svg>`;
+  el.innerHTML = s;
+  document.getElementById('chartTitle').textContent = CH.title;
+  document.getElementById('chartState').textContent = simDays === 0 ? 'BIRTH' : 't+' + Math.round(simDays) + 'd';
+  const info = bodyInfo(selectedId);
+  document.getElementById('chartInfo').textContent = info.house ? `${BY_ID[selectedId].name} · ${SIGNS[info.sign][1]} ${info.deg.toFixed(1)}° · House ${info.house}` + (CH.bodies[selectedId] && CH.bodies[selectedId].houseOnly ? ' (house only)' : '') : (selHouse ? `House ${selHouse}` : '');
+}
+document.getElementById('chartSvg').addEventListener('click', e => {
+  const t = e.target.closest('[data-id],[data-h]'); if (!t) return;
+  if (t.dataset.id) { selectBody(t.dataset.id); focusOn(t.dataset.id); } else selectHouse(t.dataset.h);
+});
+document.getElementById('chartReset').addEventListener('click', () => resetToBirth());
+function resetToBirth() { if (!CH) return; simDays = 0; setPlaying(false); updateBodies(); renderChart2D(); renderInfList(); emit('chart', getChart()); }
+
+/* ---------- influence lines ---------- */
+const ASPECTS = [
+  { n: 'Conjunction', s: '☌', a: 0, orb: 8, c: '#f6d39b' }, { n: 'Sextile', s: '⚹', a: 60, orb: 5, c: '#6fb3d9' },
+  { n: 'Square', s: '□', a: 90, orb: 7, c: '#e0685f' }, { n: 'Trine', s: '△', a: 120, orb: 7, c: '#7cc98a' }, { n: 'Opposition', s: '☍', a: 180, orb: 8, c: '#c77dff' }];
+let infMode = 'off', infDir = 'out';
+function activeIds(model) { return Object.keys(BODIES).filter(id => BODIES[id].has && (model === 'astro' ? id !== 'earth' : BODIES[id].kind !== 'node')); }
+function astroLink(a, b) {
+  const la = BODIES[a].lonNow, lb = BODIES[b].lonNow; if (la == null || lb == null) return null;
+  if ((a === 'rahu' && b === 'ketu') || (a === 'ketu' && b === 'rahu')) return null;
+  const sep = Math.abs(wrapPi((la - lb) * D2R)) * R2D;
+  for (const A of ASPECTS) { const dev = Math.abs(sep - A.a); if (dev <= A.orb) return { s: 1 - dev / A.orb, label: A.n, sym: A.s, color: A.c, how: `${A.s} ${A.n.toLowerCase()} · orb ${dev.toFixed(1)}°` }; }
+  return null;
+}
+function gravRaw(on, by) { const d = BODIES[on].solar.distanceTo(BODIES[by].solar); return d > 0 ? MASS[by] / (d * d) : 0; }
+function linksFor(src, model, dir) {
+  const ids = activeIds(model); if (!ids.includes(src)) return [];
+  const out = [];
+  for (const o of ids) {
+    if (o === src) continue;
+    if (model === 'astro') { const L = astroLink(src, o); if (L) out.push({ a: src, b: o, ...L }); }
+    else { const v = dir === 'in' ? gravRaw(src, o) : gravRaw(o, src); out.push({ a: src, b: o, raw: v, color: '#f6d39b' }); }
+  }
+  if (model === 'gravity') { const mx = Math.max(...out.map(x => x.raw), 1e-12); out.forEach(x => { x.s = Math.sqrt(x.raw / mx); x.how = (dir === 'in' ? 'pull on ' + BY_ID[src].name : 'pull by ' + BY_ID[src].name) + ' · ' + (x.raw / mx * 100).toFixed(x.raw / mx < .01 ? 3 : 1) + '%'; x.sym = (x.raw / mx * 100).toFixed(0) + '%'; }); }
+  return out.sort((x, y) => y.s - x.s);
+}
+function allLinks(model) {
+  const ids = activeIds(model), out = [];
+  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+    if (model === 'astro') { const L = astroLink(ids[i], ids[j]); if (L) out.push({ a: ids[i], b: ids[j], ...L }); }
+  }
+  if (model === 'gravity') {
+    for (const a of ids) for (const b of ids) if (a < b) { const v = Math.max(gravRaw(a, b), gravRaw(b, a)); out.push({ a, b, raw: v, color: '#f6d39b' }); }
+    const mx = Math.max(...out.map(x => x.raw), 1e-12); out.forEach(x => { x.s = Math.sqrt(x.raw / mx); x.sym = ''; });
+  }
+  return out;
+}
+const INF_MAX = 80, infLines = [];
+const infGroup = new THREE.Group(); scene.add(infGroup);
+for (let i = 0; i < INF_MAX; i++) {
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  const l = new THREE.Line(g, new THREE.LineBasicMaterial({ transparent: true, opacity: .8, depthWrite: false })); l.visible = false; infGroup.add(l); infLines.push(l);
+}
+const infLabelsEl = document.getElementById('infLabels');
+let curLinks = [];
+function computeLinks() {
+  if (infMode === 'off' || !CH) return [];
+  if (infDir === 'all') return allLinks(infMode).filter(x => infMode === 'astro' || x.s > .02).slice(0, INF_MAX);
+  return linksFor(selectedId, infMode, infDir).slice(0, INF_MAX);
+}
+function drawLinks() {
+  curLinks = computeLinks();
+  infLines.forEach((l, i) => {
+    const L = curLinks[i]; if (!L) { l.visible = false; return; }
+    const pa = BODIES[L.a].group.position, pb = BODIES[L.b].group.position, arr = l.geometry.attributes.position.array;
+    arr[0] = pa.x; arr[1] = pa.y; arr[2] = pa.z; arr[3] = pb.x; arr[4] = pb.y; arr[5] = pb.z; l.geometry.attributes.position.needsUpdate = true;
+    l.geometry.computeBoundingSphere(); l.material.color.set(L.color); l.material.opacity = .18 + .72 * L.s; l.visible = true;
+  });
+}
+function renderInfList() {
+  const rows = document.getElementById('inflRows'), meta = document.getElementById('inflMeta'), leg = document.getElementById('inflLegend'), note = document.getElementById('inflNote');
+  if (!rows) return;
+  const model = infMode === 'off' ? 'astro' : infMode, L = CH ? linksFor(selectedId, model, infDir === 'all' ? 'out' : infDir) : [];
+  meta.textContent = (infMode === 'off' ? 'ASTRO (lines off)' : infMode.toUpperCase()) + ' · ' + BY_ID[selectedId].name.toUpperCase();
+  rows.innerHTML = L.length ? L.map(x => `<div class="infl-row"><span class="nm">${BY_ID[x.b].name}</span><span class="how">${x.how}</span><span class="bar"><i style="width:${(x.s * 100).toFixed(0)}%;background:${x.color}"></i></span><span class="ln">${x.sym || ''}</span></div>`).join('')
+    : `<p class="infl-empty">${CH && BODIES[selectedId] && BODIES[selectedId].has ? 'No link within orb for this body.' : 'This body is not in the zaicha.'}</p>`;
+  leg.innerHTML = model === 'astro' ? ASPECTS.map(A => `<span><i style="background:${A.c}"></i>${A.s} ${A.n} ±${A.orb}°</span>`).join('') : '<span><i style="background:#f6d39b"></i>relative pull (m / d²)</span>';
+  note.textContent = model === 'astro' ? 'Ptolemaic aspects between the zaicha longitudes (orbs shown are a common convention; authors differ). Earth is the observer, not an aspecting body.' : 'Newtonian pull inside this schematic scene — distances are compressed, so this is a picture of the idea, not a physical measurement.';
+}
+
+/* ---------- influence report (manual check) ---------- */
+const repBackdrop = document.getElementById('repBackdrop');
+let repModel = 'astro', repBodyId = 'sun', repLive = false, repData = null;
+function openReport() { repModel = infMode === 'gravity' ? 'gravity' : 'astro'; repBodyId = selectedId; snapshotReport(); repBackdrop.classList.add('open'); repBackdrop.setAttribute('aria-hidden', 'false'); repBackdrop.querySelector('.rep').focus(); }
+function closeReport() { repBackdrop.classList.remove('open'); repBackdrop.setAttribute('aria-hidden', 'true'); }
+function snapshotReport() { if (!CH) return; repData = { days: simDays, model: repModel, links: linksFor(repBodyId, repModel, 'in'), all: allLinks(repModel), ids: activeIds(repModel) }; renderReport(); }
+function renderReport() {
+  if (!repData) return;
+  document.querySelectorAll('#repMode button').forEach(b => b.classList.toggle('active', b.dataset.rmode === repModel));
+  document.getElementById('repLive').textContent = 'LIVE: ' + (repLive ? 'ON' : 'OFF'); document.getElementById('repLive').classList.toggle('on', repLive);
+  document.getElementById('repPause').textContent = playing ? 'PAUSE SIM' : 'PLAY SIM';
+  document.getElementById('repSnap').textContent = 'SNAPSHOT · ' + (repData.days === 0 ? 'BIRTH' : 't+' + Math.round(repData.days) + 'd');
+  const ids = repData.ids;
+  document.getElementById('repChips').innerHTML = ids.map(id => `<button type="button" class="rchip${id === repBodyId ? ' active' : ''}" data-id="${id}">${GLYPH_PATHS[id] ? glyphSVG(id, 14) : ''}${BY_ID[id].name}</button>`).join('');
+  const L = repData.links, bi = bodyInfo(repBodyId), top = L[0];
+  let h = `<div style="padding:0 22px 22px"><div class="rep-cards">
+    <div><span>BODY</span><strong>${BY_ID[repBodyId].name}</strong><small>${bi.house ? SIGNS[bi.sign][1] + ' ' + bi.deg.toFixed(1) + '° · house ' + bi.house : '—'}</small></div>
+    <div><span>MODEL</span><strong>${repModel === 'astro' ? 'Aspects' : 'Gravity'}</strong><small>${repModel === 'astro' ? 'orbs ' + ASPECTS.map(a => a.s + a.orb).join(' ') : 'relative m/d², scene units'}</small></div>
+    <div><span>LINKS</span><strong>${L.length}</strong><small>${repModel === 'astro' ? 'within orb' : 'bodies with mass'}</small></div>
+    <div><span>STRONGEST</span><strong>${top ? BY_ID[top.b].name : '—'}</strong><small>${top ? top.how : ''}</small></div></div>`;
+  h += `<h3 class="rep-h">Links <small>${BY_ID[repBodyId].name}</small></h3><div class="rep-scroll"><table class="rep-table"><tr><th>With</th><th>Relation</th><th>Strength</th><th>Its place</th></tr>`;
+  h += L.length ? L.map(x => { const o = bodyInfo(x.b); return `<tr><td>${BY_ID[x.b].name}</td><td class="num">${x.how}</td><td class="barcell"><span class="bar"><i style="width:${(x.s * 100).toFixed(0)}%;background:${x.color}"></i></span><span class="pc">${(x.s * 100).toFixed(0)}</span></td><td class="muted">${o.house ? SIGNS[o.sign][1] + ' ' + o.deg.toFixed(1) + '° · H' + o.house : '—'}</td></tr>`; }).join('') : `<tr><td colspan="4" class="muted">No links.</td></tr>`;
+  h += `</table></div><h3 class="rep-h">Matrix <small>all pairs</small></h3><div class="rep-scroll"><table class="rep-matrix"><thead><tr><th></th>` + ids.map(id => `<th class="colh${id === repBodyId ? ' sel' : ''}" data-id="${id}">${GLYPH_PATHS[id] ? glyphSVG(id, 14) : ''}<span>${ABBR[id] || id.slice(0, 2)}</span></th>`).join('') + `</tr></thead><tbody>`;
+  const M = {}; repData.all.forEach(x => { M[x.a + '|' + x.b] = x; M[x.b + '|' + x.a] = x; });
+  for (const r of ids) {
+    h += `<tr class="${r === repBodyId ? 'sel' : ''}"><th class="rowh" data-id="${r}">${BY_ID[r].name}</th>`;
+    for (const c of ids) { if (r === c) { h += `<td class="self">·</td>`; continue; } const x = M[r + '|' + c]; h += x ? `<td class="mc" data-id="${c}" style="--c:${x.color};--a:${(.15 + .6 * x.s).toFixed(2)}"><b>${repModel === 'astro' ? x.sym : (x.s * 100).toFixed(0)}</b></td>` : `<td class="mc" data-id="${c}" style="--c:transparent;--a:0"></td>`; }
+    h += `</tr>`;
+  }
+  h += `</tbody></table></div><p class="astro-note" style="margin-top:14px">${repModel === 'astro' ? 'Aspects are measured between the zaicha’s own longitudes. House-only bodies have an approximate degree, so treat their aspects as indicative.' : 'Gravity uses the schematic scene (compressed distances). It illustrates who pulls whom, not real magnitudes.'}</p></div>`;
+  document.getElementById('repBody').innerHTML = h;
+}
+document.getElementById('repChips').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) { repBodyId = b.dataset.id; snapshotReport(); } });
+document.getElementById('repBody').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) { repBodyId = b.dataset.id; snapshotReport(); } });
+document.querySelectorAll('#repMode button').forEach(b => b.addEventListener('click', () => { repModel = b.dataset.rmode; snapshotReport(); }));
+document.getElementById('repRefresh').addEventListener('click', snapshotReport);
+document.getElementById('repLive').addEventListener('click', () => { repLive = !repLive; renderReport(); });
+document.getElementById('repPause').addEventListener('click', () => { setPlaying(!playing); renderReport(); });
+document.getElementById('repShow').addEventListener('click', () => { setInfMode(repModel); infDir = 'out'; syncSeg('#infDir', 'dir', 'out'); selectBody(repBodyId); closeReport(); });
+document.getElementById('repClose').addEventListener('click', closeReport);
+repBackdrop.addEventListener('click', e => { if (e.target === repBackdrop) closeReport(); });
+['repBtn', 'repBtn2'].forEach(id => document.getElementById(id).addEventListener('click', openReport));
+
+/* ---------- controls ---------- */
+function syncSeg(sel, key, val) { document.querySelectorAll(sel + ' button').forEach(b => b.classList.toggle('active', b.dataset[key] === val)); }
+function setInfMode(m) { infMode = m; syncSeg('#infMode', 'mode', m); renderInfList(); }
+document.querySelectorAll('#infMode button').forEach(b => b.addEventListener('click', () => setInfMode(b.dataset.mode)));
+document.querySelectorAll('#infDir button').forEach(b => b.addEventListener('click', () => { infDir = b.dataset.dir; syncSeg('#infDir', 'dir', infDir); renderInfList(); }));
+document.querySelectorAll('#ovl button').forEach(b => b.addEventListener('click', () => {
+  b.classList.toggle('active'); const on = b.classList.contains('active');
+  if (b.dataset.ovl === 'houses') showHouses = on; if (b.dataset.ovl === 'tags') showTags = on;
+  if (b.dataset.ovl === 'chart') { showChart = on; document.getElementById('chartMini').style.display = on ? '' : 'none'; }
+}));
+const playIcon = document.getElementById('playIcon'), playLabel = document.getElementById('playLabel'), footerStatus = document.querySelector('.footer-status');
+function setPlaying(p) {
+  playing = !!p;
+  playIcon.innerHTML = playing ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+  playLabel.textContent = playing ? 'PAUSE' : 'PLAY';
+  if (footerStatus) footerStatus.innerHTML = '<i></i>' + (playing ? 'SIMULATION RUNNING' : (simDays === 0 ? 'PAUSED AT BIRTH' : 'PAUSED'));
+}
+document.getElementById('playBtn').addEventListener('click', () => { setPlaying(!playing); emit('playing', { playing }); });
+document.querySelectorAll('.speed-options button').forEach(b => b.addEventListener('click', () => { speed = +b.dataset.speed; syncSeg('.speed-options', 'speed', b.dataset.speed); }));
+document.getElementById('orbitsBtn').addEventListener('click', () => { orbitsOn = !orbitsOn; document.getElementById('orbitsLabel').textContent = 'ORBITS ' + (orbitsOn ? 'ON' : 'OFF'); });
+document.querySelector('.scene-scale').lastChild.textContent = 'schematic scale';
+
+/* ---------- camera ---------- */
+const cam = { tilt: 1.45, az: 0, dist: 900, tTilt: 1.45, tAz: 0, tDist: 900, target: new THREE.Vector3(), follow: null, userZoom: false };
+function fitDist() { const a = camera.aspect || 1; return clamp((RING_OUT + 22) / Math.tan(21 * D2R) / Math.min(1, a), 300, 1400); }
+const zoomRange = document.getElementById('zoomRange'); zoomRange.max = 1400; zoomRange.min = 30; zoomRange.value = 900;
+zoomRange.addEventListener('input', () => { cam.tDist = +zoomRange.value; cam.userZoom = true; });
+document.querySelectorAll('.view-toggle button').forEach(b => b.addEventListener('click', () => { cam.tTilt = +b.dataset.tilt; document.querySelectorAll('.view-toggle button').forEach(x => x.classList.toggle('active', x === b)); }));
+function focusOn(id) { if (!BODIES[id] || !BODIES[id].has) return; cam.follow = id; cam.tDist = clamp(BODIES[id].size * 11 + 60, 90, 420); zoomRange.value = cam.tDist; }
+function unfocus() { cam.follow = null; cam.userZoom = false; cam.tDist = fitDist(); zoomRange.value = cam.tDist; }
+document.getElementById('closeFocus').addEventListener('click', () => { unfocus(); selectBody('sun'); });
+const canvas = renderer.domElement, dragHint = document.getElementById('dragHint');
+const ptrs = new Map(); let downAt = null, pinch0 = null, moved = 0;
+canvas.style.touchAction = 'none';
+canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 1) { downAt = { x: e.clientX, y: e.clientY }; moved = 0; } if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), dist: cam.tDist }; } });
+canvas.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return; const p = ptrs.get(e.pointerId), dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+  if (ptrs.size === 2 && pinch0) { const [a, b] = [...ptrs.values()]; cam.tDist = clamp(pinch0.dist * pinch0.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)), 30, 1400); zoomRange.value = cam.tDist; cam.userZoom = true; moved = 99; return; }
+  moved += Math.abs(dx) + Math.abs(dy); cam.tAz -= dx * .006; cam.tTilt = clamp(cam.tTilt + dy * .005, .08, 1.52);
+  if (moved > 6 && dragHint) dragHint.style.opacity = '0';
+});
+const endPtr = e => { const was = ptrs.has(e.pointerId); ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = null; if (was && ptrs.size === 0 && moved < 6 && downAt && e.type === 'pointerup') pick(e.clientX, e.clientY); };
+canvas.addEventListener('pointerup', endPtr); canvas.addEventListener('pointercancel', endPtr);
+canvas.addEventListener('wheel', e => { e.preventDefault(); cam.tDist = clamp(cam.tDist * (1 + Math.sign(e.deltaY) * .08), 30, 1400); zoomRange.value = cam.tDist; cam.userZoom = true; }, { passive: false });
+canvas.addEventListener('dblclick', () => unfocus());
+
+/* picking: bodies by screen distance, else the house under the pointer */
+const _v = new THREE.Vector3(), raycaster = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+function toScreen(v, out) { _v.copy(v).project(camera); const r = canvas.getBoundingClientRect(); out.x = (_v.x + 1) / 2 * r.width; out.y = (1 - _v.y) / 2 * r.height; out.vis = _v.z < 1 && _v.z > -1; return out; }
+function pick(cx, cy) {
+  const r = canvas.getBoundingClientRect(), x = cx - r.left, y = cy - r.top; let best = null, bd = 1e9; const s = {};
+  for (const id of pickables) { const B = BODIES[id]; if (!B.has || !B.group.visible) continue; toScreen(B.group.position, s); if (!s.vis) continue; const d = Math.hypot(s.x - x, s.y - y); const lim = Math.max(16, B.size * B.group.scale.x * r.height / (cam.dist * .77) + 6); if (d < lim && d < bd) { bd = d; best = id; } }
+  if (best) { selectBody(best); if (cam.follow) focusOn(best); return; }
+  if (!showHouses) return;
+  raycaster.setFromCamera({ x: x / r.width * 2 - 1, y: -(y / r.height) * 2 + 1 }, camera);
+  const hit = new THREE.Vector3(); if (!raycaster.ray.intersectPlane(plane, hit)) return;
+  hit.sub(houseGroup.position); const d = Math.hypot(hit.x, hit.z);
+  if (d >= RING_IN - 20 && d <= RING_OUT + 10) { const a = norm360(Math.atan2(-hit.z, hit.x) * R2D - 180); selectHouse(Math.floor(a / 30) + 1); }
+}
+
+/* ---------- view manager ---------- */
+const sceneTitle = document.getElementById('sceneTitle');
+function setView(v) {
+  VIEW = v === 'solar' ? 'solar' : 'wheel'; mixTarget = VIEW === 'solar' ? 1 : 0;
+  document.body.classList.toggle('view-wheel', VIEW === 'wheel'); document.body.classList.toggle('view-solar', VIEW === 'solar');
+  syncSeg('#viewMode', 'view', VIEW);
+  if (sceneTitle) sceneTitle.textContent = VIEW === 'solar' ? 'Solar system' : 'Chart wheel';
+  emit('view', { view: VIEW });
+}
+document.querySelectorAll('#viewMode button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+if (EMBED) {   // the heading is hidden in embed mode: float the view switch inside the scene
+  const vp = document.getElementById('viewport'), f = document.createElement('div'); f.className = 'float-mode'; f.style.display = 'flex'; f.style.gap = '6px';
+  f.appendChild(document.getElementById('viewMode')); f.appendChild(document.querySelector('.view-toggle')); vp.appendChild(f);
+  if (!document.body.classList.contains('no-mini')) { const cm = document.getElementById('chartMini'); cm.classList.add('float'); vp.appendChild(cm); }
+}
+
+/* ---------- DOM overlays: house labels, planet tags, selection ring ---------- */
+const ringLabelsEl = document.getElementById('ringLabels');
+const HL = [], TAGS = {};
+for (let h = 1; h <= 12; h++) { const d = document.createElement('div'); d.className = 'rlab'; ringLabelsEl.appendChild(d); HL.push(d); }
+for (const id of Object.keys(BODIES)) { const d = document.createElement('div'); d.className = 'ptag'; ringLabelsEl.appendChild(d); TAGS[id] = d; }
+const selRing = document.createElement('div'); selRing.className = 'selring'; document.getElementById('viewport').appendChild(selRing);
+const ILABS = []; for (let i = 0; i < 24; i++) { const d = document.createElement('div'); d.className = 'ilab'; d.style.display = 'none'; infLabelsEl.appendChild(d); ILABS.push(d); }
+const scr = {};
+function updateOverlays() {
+  if (!CH) return;
+  for (let h = 1; h <= 12; h++) {
+    const el = HL[h - 1]; if (!showHouses) { el.style.display = 'none'; continue; }
+    const p = vAt(Math.PI + (h - .5) * Math.PI / 6, RING_MID, _tmp).add(houseGroup.position); toScreen(p, scr);
+    if (!scr.vis) { el.style.display = 'none'; continue; }
+    const sk = SIGN_KEYS[(CH.ascSign + h - 1) % 12];
+    const html = `<b>${SIGNS[sk][0]}&#xFE0E;</b>H${h}`; if (el._h !== html) { el.innerHTML = html; el._h = html; }
+    el.style.display = ''; el.classList.toggle('sel', selHouse === h); el.style.transform = `translate(${scr.x}px,${scr.y}px) translate(-50%,-50%)`;
+  }
+  for (const id of Object.keys(BODIES)) {
+    const B = BODIES[id], el = TAGS[id];
+    if (!showTags || !B.has || !B.group.visible) { el.style.display = 'none'; continue; }
+    toScreen(B.group.position, scr); if (!scr.vis) { el.style.display = 'none'; continue; }
+    const hh = B.lonNow != null ? `<small>H${houseOf(B.lonNow)}</small>` : '';
+    const html = BY_ID[id].name + hh; if (el._h !== html) { el.innerHTML = html; el._h = html; }
+    el.style.display = ''; el.style.transform = `translate(${scr.x + 9}px,${scr.y}px) translate(0,-50%)`;
+  }
+  const S = BODIES[selectedId];
+  if (S && S.has) { toScreen(S.group.position, scr); selRing.style.display = scr.vis ? '' : 'none'; selRing.style.left = scr.x + 'px'; selRing.style.top = scr.y + 'px'; } else selRing.style.display = 'none';
+  ILABS.forEach((d, i) => {
+    const L = curLinks[i]; if (!L || !L.sym || infMode === 'off') { d.style.display = 'none'; return; }
+    _tmp.copy(BODIES[L.a].group.position).add(BODIES[L.b].group.position).multiplyScalar(.5); toScreen(_tmp, scr);
+    d.style.display = scr.vis ? '' : 'none'; d.style.color = L.color; d.textContent = L.sym; d.style.transform = `translate(${scr.x}px,${scr.y}px) translate(-50%,-50%)`;
+  });
+}
+
+/* ---------- frame loop ---------- */
+const simTimeEl = document.getElementById('simTime'), elapsedEl = document.getElementById('elapsedTxt');
+let last = performance.now(), uiTick = 0, lastSig = '';
+function resize() { const w = viewport.clientWidth || 300, h = viewport.clientHeight || 300; renderer.setSize(w, h, false); renderer.domElement.style.width = w + 'px'; renderer.domElement.style.height = h + 'px'; camera.aspect = w / h; camera.updateProjectionMatrix(); if (typeof cam !== 'undefined' && !cam.follow && !cam.userZoom) { cam.tDist = fitDist(); if (!cam._init) { cam.dist = cam.tDist; cam._init = true; } zoomRange.value = cam.tDist; } }
+new ResizeObserver(resize).observe(viewport); resize();
+function animate(now) {
+  requestAnimationFrame(animate);
+  const dt = Math.min(.05, Math.max(0, (now - last) / 1000)); last = now;
+  if (!CH) return;
+  if (playing) { simDays += dt * DAYS_PER_SEC * speed; updateBodies(); }
+  mix += (mixTarget - mix) * Math.min(1, dt * 3.2); if (Math.abs(mixTarget - mix) < 1e-3) mix = mixTarget;
+  const e = mix * mix * (3 - 2 * mix);
+  for (const id of Object.keys(BODIES)) {
+    const B = BODIES[id]; B.group.visible = B.has;
+    if (!B.has) continue;
+    B.group.position.lerpVectors(B.wheel, B.solar, e);
+    if (id === 'sun') B.group.scale.setScalar(13 + (19 - 13) * e);
+    else if (B.kind !== 'node') B.mesh.rotation.y += dt * .25 * ((PLANETS.find(p => p.id === id) || { spin: .6 }).spin);
+    if (B.kind === 'node') B.mesh.rotation.y += dt * .6;
+    if (B.clouds) B.clouds.rotation.y += dt * .05;
+  }
+  sunLight.position.copy(BODIES.sun.group.position);
+  houseGroup.position.lerpVectors(new THREE.Vector3(), CH.E3, e);
+  houseGroup.visible = showHouses;
+  orbitGroup.visible = orbitsOn && e > .02; orbitMat.opacity = .22 * e;
+  moonOrbit.visible = orbitsOn && e > .02; moonOrbit.position.copy(BODIES.earth.group.position); moonOrbit.material.opacity = .3 * e;
+  for (const id of ZKEYS) {
+    const R = RAYS[id], B = BODIES[id]; if (!B || !B.has || B.lonNow == null) { R.visible = false; continue; }
+    R.visible = true; const a = th(B.lonNow), arr = R.geometry.attributes.position.array;
+    arr[0] = 0; arr[1] = 0; arr[2] = 0; arr[3] = RING_IN * Math.cos(a); arr[4] = 0; arr[5] = -RING_IN * Math.sin(a);
+    R.geometry.attributes.position.needsUpdate = true; R.geometry.computeBoundingSphere(); R.material.opacity = id === selectedId ? .8 : .22;
+  }
+  const tgt = cam.follow && BODIES[cam.follow] && BODIES[cam.follow].has ? BODIES[cam.follow].group.position : houseGroup.position.clone().multiplyScalar(.5);
+  cam.target.lerp(tgt, Math.min(1, dt * 4));
+  cam.tilt += (cam.tTilt - cam.tilt) * Math.min(1, dt * 5); cam.az += (cam.tAz - cam.az) * Math.min(1, dt * 5); cam.dist += (cam.tDist - cam.dist) * Math.min(1, dt * 5);
+  camera.position.set(cam.target.x + cam.dist * Math.cos(cam.tilt) * Math.sin(cam.az), cam.target.y + cam.dist * Math.sin(cam.tilt), cam.target.z + cam.dist * Math.cos(cam.tilt) * Math.cos(cam.az));
+  camera.lookAt(cam.target);
+  drawLinks();
+  renderer.render(scene, camera);
+  updateOverlays();
+  if ((uiTick += dt) > .25) {
+    uiTick = 0; simTimeEl.textContent = Math.round(simDays); elapsedEl.textContent = 't + ' + (simDays / 365.25).toFixed(1) + ' yr';
+    if (playing) {
+      const sig = JSON.stringify(currentHouses());
+      if (sig !== lastSig) { lastSig = sig; renderChart2D(); emit('chart', getChart()); }
+      renderInfList(); if (repLive && repBackdrop.classList.contains('open')) snapshotReport();
+    }
+  }
+}
+
+/* ---------- public API ---------- */
+function getChart() {
+  if (!CH) return null;
+  const bodies = {}; for (const id of ZKEYS) if (BODIES[id] && BODIES[id].has) { const i = bodyInfo(id); bodies[id] = { lon: i.lon, sign: i.sign, deg: i.deg, house: i.house, houseOnly: !!CH.bodies[id].houseOnly }; }
+  return { title: CH.title, birth: CH.birth, zodiac: CH.zodiac, system: CH.system, houseMode: CH.houseMode, ascendant: CH.ascendant, simDays: +simDays.toFixed(2), atBirth: simDays === 0, view: VIEW, bodies, houses: currentHouses() };
+}
+const zStatus = document.getElementById('zStatus');
+function setZaicha(z) {
+  let res;
+  try {
+    const nz = normaliseZaicha(z); applyChart(nz);
+    res = { ok: true, warnings: nz.warnings.concat(CH.notes), houses: currentHouses(), chart: getChart() };
+    zStatus.classList.remove('bad');
+    zStatus.innerHTML = 'Applied · ' + Object.entries(res.houses).map(([k, h]) => BY_ID[k].name + ' H' + h).join(' · ') + (res.warnings.length ? '\n' + res.warnings.map(w => `<span class="z-warn">⚠ ${w.replace(/</g, '&lt;')}</span>`).join('\n') : '');
+  } catch (err) {
+    res = { ok: false, error: String(err && err.message || err), warnings: [] };
+    zStatus.classList.add('bad'); zStatus.textContent = '✕ ' + res.error;
+  }
+  emit('zaicha', res); return res;
+}
+window.Orrery = {
+  version: 'zaicha-3d-1',
+  setZaicha, setChart: setZaicha, getChart,
+  select: (id, o) => { selectBody(id, o); if (o && o.focus) focusOn(id); },
+  selectHouse: (h, o) => selectHouse(h, o),
+  setView, setPlaying: p => setPlaying(p), reset: resetToBirth, focus: focusOn, unfocus
+};
+window.addEventListener('message', e => {
+  if (!ORRERY_ALLOWED_ORIGINS.includes(e.origin)) return;
+  const m = e.data; if (!m || typeof m.type !== 'string' || m.type.indexOf('orrery:') !== 0) return;
+  const d = m.detail || {};
+  switch (m.type) {
+    case 'orrery:setZaicha': setZaicha(m.zaicha || d.zaicha || d); break;
+    case 'orrery:setChart': setZaicha(m.chart || d.chart || d); break;
+    case 'orrery:select': Orrery.select(m.id || d.id, { silent: m.silent || d.silent, focus: m.focus || d.focus }); break;
+    case 'orrery:selectHouse': selectHouse(m.house || d.house, { silent: m.silent || d.silent }); break;
+    case 'orrery:getChart': emit('chart', getChart()); break;
+    case 'orrery:setPlaying': setPlaying(m.playing != null ? m.playing : d.playing); break;
+    case 'orrery:setView': setView(m.view || d.view); break;
+  }
+});
+
+/* ---------- zaicha loader dialog + URL hash ---------- */
+const DEMO_CHART = { title: 'Demo · longitudes + ascendant', zodiac: 'sidereal', houseMode: 'ascendant', ascendant: 100.4,
+  planets: { sun: { lon: 29.8 }, moon: { lon: 195.2 }, mars: { lon: 101.0 }, mercury: { lon: 12.5 }, jupiter: { lon: 75.3 }, venus: { lon: 40.1 }, saturn: { lon: 301.7 }, rahu: { lon: 44.0 } } };
+const SAMPLE_HOUSES = { title: 'Sample · houses only (Lal Kitab)', houseMode: 'fixed', houses: { 1: ['mars'], 3: ['rahu'], 4: ['moon'], 7: ['venus', 'mercury'], 10: ['sun', 'jupiter'], 11: ['saturn'] } };
+const zBackdrop = document.getElementById('zBackdrop'), zText = document.getElementById('zText');
+zText.value = JSON.stringify(DEMO_CHART, null, 2);
+document.getElementById('zBtn').addEventListener('click', () => { zBackdrop.classList.add('open'); zBackdrop.setAttribute('aria-hidden', 'false'); });
+const closeZ = () => { zBackdrop.classList.remove('open'); zBackdrop.setAttribute('aria-hidden', 'true'); };
+document.getElementById('zClose').addEventListener('click', closeZ);
+zBackdrop.addEventListener('click', e => { if (e.target === zBackdrop) closeZ(); });
+document.getElementById('zApply').addEventListener('click', () => { let z; try { z = JSON.parse(zText.value); } catch (err) { zStatus.classList.add('bad'); zStatus.textContent = '✕ JSON error: ' + err.message; return; } setZaicha(z); });
+document.getElementById('zSample1').addEventListener('click', () => { zText.value = JSON.stringify(SAMPLE_HOUSES, null, 2); setZaicha(SAMPLE_HOUSES); });
+document.getElementById('zSample2').addEventListener('click', () => { zText.value = JSON.stringify(DEMO_CHART, null, 2); setZaicha(DEMO_CHART); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeReport(); closeZ(); } });
+function loadFromHash() {
+  const m = location.hash.match(/^#zaicha=(.+)$/); if (!m) return false;
+  try { const z = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1]))))); setZaicha(z); return true; }
+  catch (err) { zStatus.classList.add('bad'); zStatus.textContent = '✕ Could not read #zaicha= : ' + err.message; return false; }
+}
+window.addEventListener('hashchange', loadFromHash);
+
+/* ---------- start ---------- */
+applyChart(normaliseZaicha(DEMO_CHART));
+setView('wheel'); mix = 0;
+selectBody('sun', { silent: true });
+loadFromHash();
+emit('ready', { version: Orrery.version });
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

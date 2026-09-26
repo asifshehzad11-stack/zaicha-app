@@ -692,6 +692,145 @@
   };
 
   /* ------------------------------------------------------------------
+     LAL KITAB 3D SKY (Session 9) — /orrery.html in a same-origin iframe.
+     Rule: the app's ephemeris is the single source of truth. We SEND the
+     finished positions; the orrery never calculates, it only draws. The
+     Lal Kitab SVG chart becomes a floating mini-map at the side.
+     ------------------------------------------------------------------ */
+  var LK_KEYS = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+  var LK_POLY = { 1: [[150, 0], [225, 75], [150, 150], [75, 75]], 2: [[0, 0], [150, 0], [75, 75]], 3: [[0, 0], [75, 75], [0, 150]], 4: [[0, 150], [75, 75], [150, 150], [75, 225]],
+    5: [[0, 150], [75, 225], [0, 300]], 6: [[0, 300], [75, 225], [150, 300]], 7: [[150, 300], [75, 225], [150, 150], [225, 225]], 8: [[150, 300], [225, 225], [300, 300]],
+    9: [[300, 300], [225, 225], [300, 150]], 10: [[300, 150], [225, 225], [150, 150], [225, 75]], 11: [[300, 150], [225, 75], [300, 0]], 12: [[300, 0], [225, 75], [150, 0]] };
+  var LK3 = { data: null, frame: null, ready: false, built: false, failed: false, timer: null, collapsed: false, z: null, sel: null, selH: null, io: null };
+
+  // App data → orrery zaicha. Best case: exact sidereal longitudes + ascendant
+  // (whole-sign houses from the lagna = exactly how lib/lal-kitab.js counts).
+  // Fallback: only houses → Lal Kitab fixed houses (house 1 = Aries).
+  ZUI.toOrreryZaicha = function(data){
+    if (!data) return null;
+    var n = data.natal || {}, pl = n.planets || {}, planets = {}, full = true;
+    LK_KEYS.forEach(function(p){
+      var r = pl[p];
+      if (r && r.rasiId != null && isFinite(r.degree)) planets[p.toLowerCase()] = { lon: +(Number(r.rasiId) * 30 + Number(r.degree)).toFixed(6) };
+      else full = false;
+    });
+    var meta = { title: (data.person && data.person.name) || 'Zaicha', system: 'lalkitab', zodiac: 'sidereal',
+      ayanamsa: (data.person && data.person.systemLatin) || null, nodeType: (data.nodeType && data.nodeType.applied) || null };
+    if (full && n.ascendantRasiId != null && isFinite(n.ascendantDegree)) {
+      meta.houseMode = 'ascendant'; meta.ascendant = +(Number(n.ascendantRasiId) * 30 + Number(n.ascendantDegree)).toFixed(6); meta.planets = planets;
+      return meta;
+    }
+    var lk = data.lalKitab; if (!lk || !lk.houses) return null;
+    var houses = {};
+    lk.houses.forEach(function(h){ if (h.planets && h.planets.length) houses[h.house] = h.planets.map(function(p){ return String(p).toLowerCase(); }); });
+    meta.houseMode = 'fixed'; meta.houses = houses;
+    return meta;
+  };
+  function lkExpected(){ var m = {}; ((LK3.data && LK3.data.lalKitab || {}).planets || []).forEach(function(r){ m[String(r.planet).toLowerCase()] = r.house; }); return m; }
+  function lkWebGL(){ try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch (e) { return false; } }
+  function lkPost(msg){ if (LK3.frame && LK3.frame.contentWindow) LK3.frame.contentWindow.postMessage(msg, location.origin); }
+  function lkBox(){ return document.getElementById('lk3d'); }
+  function lkStatus(html, cls){ var b = lkBox(); if (!b) return; var s = b.querySelector('.lk3d-status'); s.className = 'lk3d-status' + (cls ? ' ' + cls : ''); s.innerHTML = html; }
+  function lkTexts(){
+    var b = lkBox(); if (!b) return;
+    b.querySelector('.lk3d-title').textContent = T('lk3dTitle');
+    b.querySelector('.lk3d-open').textContent = T('lk3dOpen') + ' ↗';
+    b.querySelector('.lk3d-map-t').textContent = T('lk3dMap');
+    b.querySelector('.lk3d-toggle').textContent = LK3.collapsed ? T('lk3dShow') : T('lk3dHide');
+    b.querySelector('.lk3d-loading').textContent = T('lk3dLoading');
+    b.querySelector('.lk3d-hint').textContent = T('lk3dHint');
+    b.querySelector('.lk3d-note').textContent = T('lk3dNote');
+    if (LK3.frame) LK3.frame.title = T('lk3dTitle');
+    if (LK3.failed) lkStatus(E(T('lk3dFallback')), 'warn'); else if (LK3.lastCheck) lkCheck(LK3.lastCheck);
+  }
+  function lkBuild(){
+    if (LK3.built) return true;
+    var phone = document.getElementById('phone-lalkitab'); if (!phone) return false;
+    var wrap = phone.querySelector('.chart-wrap'); if (!wrap) return false;
+    var box = document.createElement('div'); box.className = 'lk3d'; box.id = 'lk3d';
+    box.innerHTML = '<div class="lk3d-head"><span class="lk3d-title"></span><a class="lk3d-open" target="_blank" rel="noopener" href="/orrery.html"></a></div>' +
+      '<div class="lk3d-stage"><div class="lk3d-loading"></div>' +
+      '<aside class="lk3d-mini"><div class="lk3d-mini-head"><span class="lk3d-map-t"></span><button type="button" class="lk3d-toggle"></button></div><div class="lk3d-mini-body"></div></aside></div>' +
+      '<p class="lk3d-status" role="status" aria-live="polite"></p><p class="lk3d-hint src-note"></p><p class="lk3d-note src-note"></p>';
+    wrap.parentNode.insertBefore(box, wrap);
+    box.querySelector('.lk3d-mini-body').appendChild(wrap);
+    var svg = wrap.querySelector('svg');
+    if (svg) {
+      var ns = 'http://www.w3.org/2000/svg', g = document.createElementNS(ns, 'g'); g.setAttribute('class', 'lk3d-hit');
+      for (var h = 1; h <= 12; h++) { var p = document.createElementNS(ns, 'polygon'); p.setAttribute('points', LK_POLY[h].map(function(q){ return q.join(','); }).join(' ')); p.setAttribute('data-h', h); g.appendChild(p); }
+      svg.insertBefore(g, svg.firstChild);
+      svg.addEventListener('click', function(e){
+        var t = e.target.closest('[data-planet],[data-h]'); if (!t) return;
+        if (t.getAttribute('data-planet')) { var id = t.getAttribute('data-planet').toLowerCase(); lkMark(id, null); lkPost({ type: 'orrery:select', id: id }); }
+        else { var hh = +t.getAttribute('data-h'); lkMark(null, hh); lkPost({ type: 'orrery:selectHouse', house: hh }); }
+      });
+    }
+    box.querySelector('.lk3d-toggle').addEventListener('click', function(){ LK3.collapsed = !LK3.collapsed; box.classList.toggle('lk3d-collapsed', LK3.collapsed); lkTexts(); });
+    LK3.built = true; lkTexts();
+    if ('IntersectionObserver' in window) {
+      LK3.io = new IntersectionObserver(function(en){ en.forEach(function(x){ if (x.isIntersecting && LK3.data) lkMount(); }); }, { rootMargin: '200px' });
+      LK3.io.observe(box);
+    }
+    return true;
+  }
+  function lkFail(){
+    LK3.failed = true; clearTimeout(LK3.timer);
+    var b = lkBox(); if (b) b.classList.add('lk3d-failed');
+    if (LK3.frame) { LK3.frame.parentNode.removeChild(LK3.frame); LK3.frame = null; }
+    lkStatus(E(T('lk3dFallback')), 'warn');
+  }
+  function lkMount(){
+    if (LK3.frame || LK3.failed || !LK3.data) return;
+    if (!lkBuild()) return;
+    var b = lkBox(); if (!b || !b.offsetParent) return;          // tab hidden: wait
+    if (!lkWebGL()) { lkFail(); return; }
+    var f = document.createElement('iframe'); f.className = 'lk3d-frame'; f.title = T('lk3dTitle'); f.src = '/orrery.html?embed=1&mini=0';
+    var st = b.querySelector('.lk3d-stage'); st.insertBefore(f, st.firstChild); LK3.frame = f;
+    LK3.timer = setTimeout(function(){ if (!LK3.ready) lkFail(); }, 20000);
+  }
+  function lkSend(){
+    if (!LK3.data) return;
+    var z = ZUI.toOrreryZaicha(LK3.data); LK3.z = z; if (!z) return;
+    var b = lkBox();
+    if (b) { try { b.querySelector('.lk3d-open').href = '/orrery.html#zaicha=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(z))))); } catch (e) {} }
+    if (LK3.ready) lkPost({ type: 'orrery:setZaicha', zaicha: z });
+  }
+  function lkCheck(d){
+    LK3.lastCheck = d;
+    if (!d || !d.ok) { lkStatus('⚠ ' + E((d && d.error) || 'error'), 'warn'); return; }
+    var exp = lkExpected(), bad = [];
+    Object.keys(exp).forEach(function(k){ if (d.houses && d.houses[k] !== exp[k]) bad.push(P(k.charAt(0).toUpperCase() + k.slice(1)) + ' (' + exp[k] + ' ≠ ' + (d.houses ? d.houses[k] : '—') + ')'); });
+    var extra = LK3.z && LK3.z.houseMode === 'fixed' ? ' ' + E(T('lk3dHouseOnly')) : '';
+    if (bad.length) lkStatus('⚠ ' + E(T('lk3dMismatch', { list: bad.join(', ') })) + extra, 'warn');
+    else lkStatus('✓ ' + E(T('lk3dMatch')) + extra, 'ok');
+  }
+  function lkMark(id, house){
+    var b = lkBox(); if (!b) return;
+    if (id && !house) house = lkExpected()[id] || null;
+    LK3.sel = id; LK3.selH = house;
+    b.querySelectorAll('#lk-planet-chips text').forEach(function(t){ t.classList.toggle('lk-sel', !!id && String(t.getAttribute('data-planet')).toLowerCase() === id); });
+    b.querySelectorAll('.lk3d-hit polygon').forEach(function(p){ p.classList.toggle('sel', +p.getAttribute('data-h') === house); });
+  }
+  window.addEventListener('message', function(e){
+    if (!LK3.frame || e.source !== LK3.frame.contentWindow || e.origin !== location.origin) return;
+    var m = e.data || {}, d = m.detail || {};
+    if (m.type === 'orrery:ready') { LK3.ready = true; clearTimeout(LK3.timer); var b = lkBox(); if (b) b.classList.add('lk3d-ready'); lkSend(); }
+    else if (m.type === 'orrery:zaicha') lkCheck(d);
+    else if (m.type === 'orrery:select') lkMark(d.id, null);
+    else if (m.type === 'orrery:houseselect') lkMark(null, d.house);
+  });
+  // Called on every new zaicha (renderAll) and when the Lal Kitab tab opens.
+  ZUI.lk3dUpdate = function(data){
+    LK3.data = data || LK3.data; LK3.lastCheck = null;
+    if (!lkBuild()) return;
+    lkStatus('', '');
+    if (LK3.frame) lkSend(); else { lkSend(); setTimeout(lkMount, 30); }
+    if (LK3.sel || LK3.selH) setTimeout(function(){ lkMark(LK3.sel, LK3.sel ? null : LK3.selH); }, 0);
+  };
+  ZUI.onTab = function(tabId){ if (tabId === 'lalkitab') setTimeout(lkMount, 60); };
+  ZUI._lk3d = LK3;
+
+  /* ------------------------------------------------------------------
      HOOKS
      ------------------------------------------------------------------ */
   ZUI.renderAll = function(data){
@@ -701,9 +840,11 @@
     ZUI.renderAshtottari(data);
     ZUI.renderSudarshan(data);
     ZUI.renderLearn();
+    try { ZUI.lk3dUpdate(data); } catch (e) { console.error('lk3d', e); }
   };
   ZUI.onLanguage = function(){
     ZUI.renderLearn();
+    lkTexts();
     var nav = document.getElementById('system-tabs');
     if (nav) ZUI.initDock(nav);
   };

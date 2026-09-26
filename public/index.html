@@ -2434,6 +2434,7 @@
     renderTabIntro(tabId);
     updateBottomNav(tab.screens[0]);
     if (tabId === 'panchang' && typeof loadForwardCalendar === 'function') loadForwardCalendar();
+    if (window.ZUI && ZUI.onTab) { try { ZUI.onTab(tabId); } catch (e) { console.error('ZUI', e); } }
     if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
     try { history.replaceState(null, '', '#' + tabId); } catch (e) {}
   }
@@ -2886,6 +2887,7 @@
           pt.setAttribute('x', slot.x);
           pt.setAttribute('y', slot.y + (i >= geo.slots.length ? 13 * (i - geo.slots.length + 1) : 0));
           pt.style.fill = planetColorVar(p);
+          pt.setAttribute('data-planet', p); // Session 9: 3D mini-map sync
           pt.textContent = NAMES.abbr[p];
           planetG.appendChild(pt);
         });

@@ -441,3 +441,40 @@ body.lang-ur .phouse-text{ line-height:2.3; }
 .system-tabs.dock-compact .sys-tab:focus-visible > span:last-child{ max-width:12em; opacity:1; margin-inline-start:0; }
 .system-tabs.dock-compact .sys-tab .ic{ width:15px; height:15px; opacity:.8; }
 .system-tabs.dock-compact .sys-tab{ padding:0 10px; }
+
+/* ---------- Session 9: Lal Kitab 3D sky (orrery iframe) + side mini-map ---------- */
+.lk3d{margin:.35rem 0 1.1rem}
+.lk3d-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 .55rem}
+.lk3d-title{font-weight:600;font-size:.95rem;line-height:1.3;color:var(--text,#f1ead9)}
+.lk3d-open{flex:0 0 auto;font-size:.76rem;color:#e6c47a;text-decoration:none;border:1px solid rgba(230,196,122,.38);border-radius:999px;padding:.28rem .75rem;white-space:nowrap;transition:background .2s}
+.lk3d-open:hover{background:rgba(230,196,122,.12)}
+.lk3d-stage{position:relative;height:clamp(440px,64vh,660px);border-radius:18px;overflow:hidden;background:#090a0d;border:1px solid rgba(230,196,122,.24);box-shadow:0 22px 54px rgba(0,0,0,.38)}
+.lk3d-frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;opacity:0;transition:opacity .6s ease}
+.lk3d-ready .lk3d-frame{opacity:1}
+.lk3d-loading{position:absolute;inset:0;display:grid;place-items:center;color:#a99c84;font-size:.85rem;letter-spacing:.02em}
+.lk3d-ready .lk3d-loading{display:none}
+.lk3d-mini{position:absolute;top:86px;inset-inline-end:12px;z-index:3;width:clamp(132px,24%,196px);padding:7px 7px 5px;border-radius:14px;background:rgba(9,15,12,.84);border:1px solid rgba(230,196,122,.32);box-shadow:0 10px 30px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.lk3d-mini-head{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.68rem;color:#d6c8a6;margin:0 1px 3px}
+.lk3d-toggle{font-size:.64rem;line-height:1.4;color:#e6c47a;background:none;border:1px solid rgba(230,196,122,.38);border-radius:999px;padding:1px 8px;cursor:pointer}
+.lk3d-mini .chart-wrap{margin:0}
+.lk3d-mini .chart-wrap::before{display:none}
+.lk3d-mini .chart-wrap svg{max-width:none;width:100%}
+.lk3d-collapsed .lk3d-mini-body{display:none}
+.lk3d-collapsed .lk3d-mini{width:auto}
+.lk3d-hit polygon{fill:transparent;cursor:pointer;transition:fill .2s}
+.lk3d-hit polygon:hover{fill:rgba(230,196,122,.1)}
+.lk3d-hit polygon.sel{fill:rgba(230,196,122,.3)}
+#lk-planet-chips text{cursor:pointer}
+#lk-planet-chips text.lk-sel{font-size:17px;text-decoration:underline}
+.lk3d-status{margin:.55rem 0 0;font-size:.8rem;line-height:1.5;min-height:1em}
+.lk3d-status.ok{color:#8fd19e}
+.lk3d-status.warn{color:#e8b86b}
+.lk3d-hint,.lk3d-note{margin:.3rem 0 0}
+.lk3d-failed .lk3d-stage{height:auto;background:none;border:0;box-shadow:none;overflow:visible;border-radius:0}
+.lk3d-failed .lk3d-mini{position:static;width:auto;background:none;border:0;box-shadow:none;padding:0;-webkit-backdrop-filter:none;backdrop-filter:none}
+.lk3d-failed .lk3d-mini-head,.lk3d-failed .lk3d-loading,.lk3d-failed .lk3d-open,.lk3d-failed .lk3d-hint{display:none}
+.lk3d-failed .lk3d-mini-body{display:block}
+@media (max-width:640px){
+  .lk3d-stage{height:500px;border-radius:14px}
+  .lk3d-mini{top:auto;bottom:118px;width:120px;inset-inline-end:8px}
+}
