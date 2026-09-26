@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>آیاتِ آسمان — Zaicha</title>
+<!-- Zaicha · Session 9c (2026-09-26): "آیاتِ آسمان" — sitaron ki gardish 3D mein, Quran ki
+     ayaat ke saath (25:61, 3:190, 10:5, 36:40, 3:191). Illustrative, not to scale.
+     Quran matn: Tanzil quran-simple; tarjume: ur Jalandhari, en Pickthall, hi Farooq Khan & Nadwi, zh Ma Jian.
+     Manazil (28): Islamweb fatwa 37831 (Shawkani, Fath al-Qadir) + ar.wikipedia "منازل القمر". -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Lexend:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="/vendor/three.r128.min.js"></script>
+<style>
+:root{--gold:#e6c47a;--gold2:#f6d9a0;--ink:#efe6cf;--mute:#a79f8a;--line:rgba(230,196,122,.28);--bg:#04070a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Lexend,system-ui,sans-serif;overflow:hidden}
+#stage{position:fixed;inset:0}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.vign{position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.55))}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.lab{position:absolute;left:0;top:0;opacity:0;white-space:nowrap;pointer-events:none;text-shadow:0 0 8px #000,0 0 3px #000;transition:opacity .6s}
+.lab.z{font:600 13px/1 'Noto Nastaliq Urdu',Amiri,serif;color:var(--gold2);text-align:center}
+.lab.z b{display:block;font:400 20px/1 'Segoe UI Symbol','Noto Sans Symbols 2',serif;color:var(--gold);margin-bottom:4px}
+.lab.m{font:400 12px/1.2 Amiri,serif;color:#cfe0ff}
+.lab.m.on{color:#fff;font-weight:700;text-shadow:0 0 10px #7fb2ff,0 0 3px #000}
+.lab.p{font:600 11px/1 Lexend,sans-serif;color:#e9e2d0;letter-spacing:.04em}
+.lab.dn{font:600 12px/1 Lexend,sans-serif;letter-spacing:.12em;color:var(--gold2)}
+.top{position:fixed;top:12px;inset-inline-start:14px;z-index:5;max-width:70%}
+.kick{font:600 10px/1.2 Lexend,sans-serif;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;opacity:.85}
+.stitle{margin-top:4px;font:600 17px/1.5 Lexend,sans-serif;color:var(--ink)}
+html[lang=ur] .stitle,html[lang=ur] .kick{font-family:'Noto Nastaliq Urdu',serif;letter-spacing:0;text-transform:none}
+html[lang=ur] .stitle{font-size:18px;line-height:2.1}
+html[lang=ar] .stitle,html[lang=ar] .kick{font-family:Amiri,serif;letter-spacing:0}
+html[lang=hi] .stitle{font-family:'Noto Sans Devanagari',sans-serif}
+html[lang=zh] .stitle{font-family:'Noto Sans SC',sans-serif}
+.cap{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:5;width:min(860px,calc(100% - 24px));text-align:center;padding:14px 18px 12px;border-radius:18px;background:linear-gradient(180deg,rgba(6,12,10,.35),rgba(6,12,10,.78));border:1px solid var(--line);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .7s}
+.cap.fade{opacity:0}
+.cap .ar{direction:rtl;font:400 clamp(18px,2.4vw,27px)/2.35 'Noto Nastaliq Urdu',Amiri,serif;color:var(--gold2);text-shadow:0 0 22px rgba(230,196,122,.25)}
+.cap .ar .w{font-family:Amiri,serif;font-size:.8em;opacity:.8}
+.cap .tr{margin-top:2px;font-size:14px;line-height:1.7;color:var(--ink)}
+html[lang=ur] .cap .tr{direction:rtl;font:400 15px/2.2 'Noto Nastaliq Urdu',serif}
+html[lang=hi] .cap .tr{font-family:'Noto Sans Devanagari',sans-serif}
+html[lang=zh] .cap .tr{font-family:'Noto Sans SC',sans-serif}
+.cap .ref{margin-top:4px;font-size:11px;letter-spacing:.04em;color:var(--mute)}
+html[lang=ur] .cap .ref{font-family:'Noto Nastaliq Urdu',serif;direction:rtl;line-height:2}
+html[lang=ar] .cap .ref{font-family:Amiri,serif;direction:rtl}
+.bar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;direction:ltr}
+.btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(8,14,12,.7);color:var(--gold2);display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .2s}
+.btn:hover{background:rgba(230,196,122,.16);transform:translateY(-1px)}
+.btn svg{width:15px;height:15px;fill:currentColor}
+.dots{display:flex;gap:6px;padding:0 6px}
+.dot{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(230,196,122,.3);cursor:pointer;transition:all .3s}
+.dot.on{width:22px;border-radius:5px;background:var(--gold)}
+.inset{position:fixed;top:12px;inset-inline-end:14px;z-index:5;width:132px;padding:8px 8px 6px;border-radius:14px;text-align:center;background:rgba(6,12,10,.72);border:1px solid var(--line);transition:opacity .6s}
+.inset.hide{opacity:0;pointer-events:none}
+.inset canvas{width:84px;height:84px;display:block;margin:0 auto}
+.inset .ph{margin-top:4px;font-size:11px;color:var(--ink)}
+.inset .mz{font:700 15px/1.6 Amiri,serif;color:#cfe0ff}
+.inset .mzn{font-size:10px;color:var(--mute)}
+html[lang=ur] .inset .ph,html[lang=ur] .inset .mzn{font-family:'Noto Nastaliq Urdu',serif;line-height:2}
+.note{position:fixed;bottom:18px;inset-inline-end:14px;z-index:4;font-size:10px;color:var(--mute);opacity:.75;max-width:30%}
+html[lang=ur] .note{font-family:'Noto Nastaliq Urdu',serif;line-height:2}
+.fallback{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--mute)}
+@media (max-width:640px){.cap{bottom:58px;padding:10px 12px 8px}.cap .tr{font-size:12.5px}html[lang=ur] .cap .tr{font-size:13px;line-height:2}.inset{width:104px}.inset canvas{width:64px;height:64px}.note{display:none}.stitle{font-size:14px}html[lang=ur] .stitle{font-size:15px}.lab.m{font-size:10px}}
+@media (prefers-reduced-motion:reduce){.cap,.lab{transition:none}}
+.twm{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:9;pointer-events:none;color:#e6c47a;opacity:.28;font:600 12px/1.9 'Noto Nastaliq Urdu',Amiri,Lexend,sans-serif;letter-spacing:.06em;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="vign"></div>
+<div id="labels"></div>
+<div class="top"><div class="kick" id="kick"></div><div class="stitle" id="stitle"></div></div>
+<div class="inset hide" id="inset"><canvas id="phase" width="168" height="168"></canvas><div class="ph" id="phName"></div><div class="mz" id="mzAr"></div><div class="mzn" id="mzNo"></div></div>
+<div class="cap" id="cap"><div class="ar" id="capAr"></div><div class="tr" id="capTr"></div><div class="ref" id="capRef"></div></div>
+<div class="bar">
+  <button class="btn" id="bPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15.5 5 8 12l7.5 7z"/></svg></button>
+  <button class="btn" id="bPlay" aria-label="Play / pause"><svg viewBox="0 0 24 24" id="playIco"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" id="bNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M8.5 5 16 12l-7.5 7z"/></svg></button>
+  <button class="btn" id="bFull" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3zm11-5h5v5h-2V6h-3zM4 15h2v3h3v2H4zm14 3v-3h2v5h-5v-2z"/></svg></button>
+</div>
+<div class="note" id="note"></div>
+<div class="fallback" id="fallback"></div>
+<script>
+/* ================= main ================= */
+const Q = new URLSearchParams(location.search);
+const LANGS = ['ur', 'en', 'hi', 'ar', 'zh'];
+const LANG = LANGS.includes(Q.get('lang')) ? Q.get('lang') : 'ur';
+document.documentElement.lang = LANG;
+document.documentElement.dir = (LANG === 'ur' || LANG === 'ar') ? 'rtl' : 'ltr';
+const D2R = Math.PI / 180, TAU = Math.PI * 2;
+const norm360 = x => ((x % 360) + 360) % 360;
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- texts (Quran: Tanzil quran-simple; translations as named in each ref) ---------- */
+const AR = [
+  'تَبَارَكَ الَّذِي جَعَلَ فِي السَّمَاءِ بُرُوجًا وَجَعَلَ فِيهَا سِرَاجًا وَقَمَرًا مُنِيرًا',
+  'إِنَّ فِي خَلْقِ السَّمَاوَاتِ وَالْأَرْضِ وَاخْتِلَافِ اللَّيْلِ وَالنَّهَارِ لَآيَاتٍ لِأُولِي الْأَلْبَابِ',
+  'هُوَ الَّذِي جَعَلَ الشَّمْسَ ضِيَاءً وَالْقَمَرَ نُورًا وَقَدَّرَهُ مَنَازِلَ لِتَعْلَمُوا عَدَدَ السِّنِينَ وَالْحِسَابَ',
+  'لَا الشَّمْسُ يَنْبَغِي لَهَا أَنْ تُدْرِكَ الْقَمَرَ وَلَا اللَّيْلُ سَابِقُ النَّهَارِ <span class="w">ۚ</span> وَكُلٌّ فِي فَلَكٍ يَسْبَحُونَ',
+  'رَبَّنَا مَا خَلَقْتَ هَٰذَا بَاطِلًا سُبْحَانَكَ فَقِنَا عَذَابَ النَّارِ'
+];
+const T = {
+  ur: { kick: 'آیاتِ آسمان', titles: ['آسمان کے برج', 'رات اور دن کا بدلنا', 'چاند کی منزلیں', 'ہر ایک اپنے مدار میں', 'غور و فکر'],
+    tr: ['اور (خدا) بڑی برکت والا ہے جس نے آسمانوں میں برج بنائے اور ان میں (آفتاب کا نہایت روشن) چراغ اور چمکتا ہوا چاند بھی بنایا',
+      'بے شک آسمانوں اور زمین کی پیدائش اور رات اور دن کے بدل بدل کے آنے جانے میں عقل والوں کے لیے نشانیاں ہیں',
+      'وہی تو ہے جس نے سورج کو روشن اور چاند کو منور بنایا اور چاند کی منزلیں مقرر کیں تاکہ تم برسوں کا شمار اور (کاموں کا) حساب معلوم کرو',
+      'نہ تو سورج ہی سے ہوسکتا ہے کہ چاند کو جا پکڑے اور نہ رات ہی دن سے پہلے آسکتی ہے۔ اور سب اپنے اپنے دائرے میں تیر رہے ہیں',
+      'اے پروردگار! تو نے اس (مخلوق) کو بے فائدہ نہیں پیدا کیا تو پاک ہے تو (قیامت کے دن) ہمیں دوزخ کے عذاب سے بچائیو'],
+    refs: ['سورۂ فرقان، آیت ۶۱ · ترجمہ: مولانا فتح محمد جالندھری', 'سورۂ آلِ عمران، آیت ۱۹۰', 'سورۂ یونس، آیت ۵ (حصہ)', 'سورۂ یٰس، آیت ۴۰', 'سورۂ آلِ عمران، آیت ۱۹۱ (حصہ)'],
+    signs: ['حمل', 'ثور', 'جوزا', 'سرطان', 'اسد', 'سنبلہ', 'میزان', 'عقرب', 'قوس', 'جدی', 'دلو', 'حوت'],
+    phases: ['نیا چاند (محاق)', 'ہلال', 'پہلی چوتھائی', 'بڑھتا چاند', 'بدر — پورا چاند', 'گھٹتا چاند', 'آخری چوتھائی', 'آخری ہلال'],
+    mz: n => 'منزل ' + String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]) + ' از ۲۸', day: 'دن', night: 'رات',
+    pl: { sun: 'سورج', moon: 'چاند', earth: 'زمین', mercury: 'عطارد', venus: 'زہرہ', mars: 'مریخ', jupiter: 'مشتری', saturn: 'زحل' },
+    note: 'پیمانہ علامتی ہے: سائز اور فاصلے حقیقی تناسب میں نہیں، اور حرکت سمجھانے کے لیے تیز کی گئی ہے۔', fail: 'اس ڈیوائس پر تھری ڈی منظر نہیں چل سکا۔' },
+  en: { kick: 'Signs in the Heavens', titles: ['The mansions of the sky', 'Night and day in turn', 'The stations of the moon', 'Each in its own orbit', 'Reflection'],
+    tr: ['Blessed be He Who hath placed in the heaven mansions of the stars, and hath placed therein a great lamp and a moon giving light!',
+      'Lo! In the creation of the heavens and the earth and (in) the difference of night and day are tokens (of His Sovereignty) for men of understanding,',
+      'He it is Who appointed the sun a splendour and the moon a light, and measured for her stages, that ye might know the number of the years, and the reckoning.',
+      'It is not for the sun to overtake the moon, nor doth the night outstrip the day. They float each in an orbit.',
+      'Our Lord! Thou createdst not this in vain. Glory be to Thee! Preserve us from the doom of Fire.'],
+    refs: ['Surah Al-Furqan 25:61 · translation: Marmaduke Pickthall', 'Surah Aal-Imran 3:190', 'Surah Yunus 10:5 (part)', 'Surah Ya-Sin 36:40', 'Surah Aal-Imran 3:191 (part)'],
+    signs: ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
+    phases: ['New moon', 'Waxing crescent', 'First quarter', 'Waxing gibbous', 'Full moon', 'Waning gibbous', 'Last quarter', 'Waning crescent'],
+    mz: n => 'Station ' + n + ' of 28', day: 'DAY', night: 'NIGHT',
+    pl: { sun: 'Sun', moon: 'Moon', earth: 'Earth', mercury: 'Mercury', venus: 'Venus', mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturn' },
+    note: 'Illustrative scale: sizes and distances are not to proportion, and motion is sped up.', fail: 'The 3D view could not start on this device.' },
+  hi: { kick: 'आसमान की निशानियाँ', titles: ['आसमान के बुर्ज', 'रात और दिन का बदलना', 'चाँद की मंज़िलें', 'हर एक अपने मदार में', 'ग़ौर-ओ-फ़िक्र'],
+    tr: ['बहुत बाबरकत है वह ख़ुदा जिसने आसमान में बुर्ज बनाए और उन बुर्जों में (आफ़ताब का) चिराग़ और जगमगाता चाँद बनाया',
+      'इसमें तो शक ही नहीं कि आसमानों और ज़मीन की पैदाइश और रात दिन के फेर बदल में अक्लमन्दों के लिए (क़ुदरत ख़ुदा की) बहुत सी निशानियॉ हैं',
+      'वही वह (ख़ुदाए क़ादिर) है जिसने आफ़ताब को चमकदार और महताब को रौशन बनाया और उसकी मंज़िलें मुक़र्रर की ताकि तुम लोग बरसों की गिनती और हिसाब मालूम करो',
+      'न तो आफताब ही से ये बन पड़ता है कि वह माहताब को जा ले और न रात ही दिन से आगे बढ़ सकती है (चाँद, सूरज, सितारे) हर एक अपने-अपने आसमान (मदार) में चक्कर लगा रहें हैं',
+      'ख़ुदावन्दा तूने इसको बेकार पैदा नहीं किया तू (फेले अबस से) पाक व पाकीज़ा है बस हमको दोज़क के अज़ाब से बचा'],
+    refs: ['सूरह अल-फ़ुरक़ान 25:61 · अनुवाद: सुहैल फ़ारूक़ ख़ान व सैफ़ुर्रहमान नदवी', 'सूरह आल-इमरान 3:190', 'सूरह यूनुस 10:5 (अंश)', 'सूरह यासीन 36:40', 'सूरह आल-इमरान 3:191 (अंश)'],
+    signs: ['मेष', 'वृषभ', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुंभ', 'मीन'],
+    phases: ['अमावस', 'बढ़ता हिलाल', 'पहली चौथाई', 'बढ़ता चाँद', 'पूर्णिमा', 'घटता चाँद', 'आख़िरी चौथाई', 'आख़िरी हिलाल'],
+    mz: n => 'मंज़िल ' + n + ' / 28', day: 'दिन', night: 'रात',
+    pl: { sun: 'सूरज', moon: 'चाँद', earth: 'धरती', mercury: 'बुध', venus: 'शुक्र', mars: 'मंगल', jupiter: 'बृहस्पति', saturn: 'शनि' },
+    note: 'पैमाना प्रतीकात्मक है: आकार और दूरियाँ असली अनुपात में नहीं, और गति समझाने के लिए तेज़ की गई है।', fail: 'इस डिवाइस पर 3D दृश्य नहीं चल सका।' },
+  ar: { kick: 'آيات السماء', titles: ['بروج السماء', 'اختلاف الليل والنهار', 'منازل القمر', 'كلٌّ في فلك', 'تفكّر'],
+    tr: ['', '', '', '', ''],
+    refs: ['سورة الفرقان · الآية ٦١', 'سورة آل عمران · الآية ١٩٠', 'سورة يونس · الآية ٥ (جزء)', 'سورة يس · الآية ٤٠', 'سورة آل عمران · الآية ١٩١ (جزء)'],
+    signs: ['الحمل', 'الثور', 'الجوزاء', 'السرطان', 'الأسد', 'السنبلة', 'الميزان', 'العقرب', 'القوس', 'الجدي', 'الدلو', 'الحوت'],
+    phases: ['المحاق', 'هلال متزايد', 'التربيع الأول', 'أحدب متزايد', 'البدر', 'أحدب متناقص', 'التربيع الأخير', 'هلال متناقص'],
+    mz: n => 'المنزلة ' + String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]) + ' من ٢٨', day: 'نهار', night: 'ليل',
+    pl: { sun: 'الشمس', moon: 'القمر', earth: 'الأرض', mercury: 'عطارد', venus: 'الزهرة', mars: 'المريخ', jupiter: 'المشتري', saturn: 'زحل' },
+    note: 'المقياس رمزي: الأحجام والمسافات ليست على نسبتها الحقيقية، والحركة مسرَّعة للتوضيح.', fail: 'تعذّر تشغيل المشهد ثلاثي الأبعاد على هذا الجهاز.' },
+  zh: { kick: '天上的迹象', titles: ['天上的星宫', '昼夜的轮流', '月亮的宿位', '各在轨道上', '思维'],
+    tr: ['圣洁哉真主！他把许多宫造在天上，又造明灯和灿烂的月亮。',
+      '天地的创造，昼夜的轮流，在有理智的人看来，此中确有许多迹象。',
+      '他曾以太阳为发光的、以月亮为光明的，并为月亮而定列宿，以便你们知道历算。',
+      '太阳不得追及月亮，黑夜也不得超越白昼，各在一个轨道上浮游着。',
+      '我们的主啊！你没有徒然地创造这个世界。我们赞颂你超绝万物，求你保护我们，免受火狱的刑罚。'],
+    refs: ['准则章 25:61 · 马坚译', '仪姆兰的家属章 3:190', '优努斯章 10:5（节选）', '雅辛章 36:40', '仪姆兰的家属章 3:191（节选）'],
+    signs: ['白羊', '金牛', '双子', '巨蟹', '狮子', '室女', '天秤', '天蝎', '人马', '摩羯', '宝瓶', '双鱼'],
+    phases: ['新月', '娥眉月', '上弦月', '盈凸月', '满月', '亏凸月', '下弦月', '残月'],
+    mz: n => '第' + n + '宿 / 28', day: '昼', night: '夜',
+    pl: { sun: '太阳', moon: '月亮', earth: '地球', mercury: '水星', venus: '金星', mars: '火星', jupiter: '木星', saturn: '土星' },
+    note: '示意比例：大小和距离不按真实比例，运动已加速。', fail: '此设备无法运行三维场景。' }
+};
+const L = T[LANG];
+const GLYPHS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+/* 28 منازل القمر — Islamweb fatwa 37831 (Shawkani) + ar.wikipedia; starts at 0° Aries (Arab tradition) */
+const MANAZIL = ['الشرطان', 'البطين', 'الثريا', 'الدبران', 'الهقعة', 'الهنعة', 'الذراع', 'النثرة', 'الطرف', 'الجبهة', 'الزبرة', 'الصرفة', 'العواء', 'السماك',
+  'الغفر', 'الزبانى', 'الإكليل', 'القلب', 'الشولة', 'النعائم', 'البلدة', 'سعد الذابح', 'سعد بلع', 'سعد السعود', 'سعد الأخبية', 'الفرغ المقدم', 'الفرغ المؤخر', 'بطن الحوت'];
+
+document.getElementById('kick').textContent = L.kick;
+document.getElementById('note').textContent = L.note;
+/* Tehzeeb-ul-Ilm watermark — only when opened on its own (inside the app the page already shows it) */
+if (window.top === window) { const w = document.createElement('div'); w.className = 'twm'; w.textContent = {"ur": "تہذیب العلم", "en": "Tehzeeb-ul-Ilm", "hi": "तहज़ीब-उल-इल्म", "ar": "تهذيب العلم", "zh": "Tehzeeb-ul-Ilm · 学识修养"}[LANG]; document.body.appendChild(w); document.querySelector('.bar').style.bottom = '30px'; }
+
+/* ---------- renderer ---------- */
+const stage = document.getElementById('stage');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); }
+catch (e) { renderer = null; }
+if (!renderer || typeof THREE === 'undefined') {
+  const fb = document.getElementById('fallback'); fb.style.display = 'grid'; fb.textContent = L.fail;
+  try { parent.postMessage({ type: 'cosmos:error' }, location.origin); } catch (e) { }
+  throw new Error('no webgl');
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+renderer.setClearColor(0x04070a, 1);
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 3000);
+scene.add(new THREE.AmbientLight(0x2a3340, 0.42));
+const sunLight = new THREE.PointLight(0xfff1d6, 2.6, 0, 1.2); scene.add(sunLight);
+
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+function atmosphereGlow(radius, color, power, opacity, seg){
+  const mat = new THREE.ShaderMaterial({
+    uniforms:{glowColor:{value:new THREE.Color(color)}, p:{value:power}, op:{value:opacity}},
+    vertexShader:`varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`varying vec3 vN; uniform vec3 glowColor; uniform float p; uniform float op; void main(){ float i=pow(0.7-dot(vN,vec3(0.0,0.0,1.0)),p); gl_FragColor=vec4(glowColor, clamp(i,0.0,1.0)*op); }`,
+    side:THREE.BackSide, blending:THREE.AdditiveBlending, transparent:true, depthWrite:false
+  });
+  return new THREE.Mesh(new THREE.SphereGeometry(radius, seg||32, seg||32), mat);
+}
+
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function valueNoise(seed, gw, gh) {
+  const r = rng(seed), g = new Float32Array(gw * gh);
+  for (let i = 0; i < g.length; i++) g[i] = r();
+  return (u, v) => {
+    const x = u * gw, y = v * (gh - 1), x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0;
+    const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    const X0 = ((x0 % gw) + gw) % gw, X1 = (X0 + 1) % gw, Y0 = clamp(y0, 0, gh - 1), Y1 = Math.min(Y0 + 1, gh - 1);
+    const a = g[Y0 * gw + X0], b = g[Y0 * gw + X1], c = g[Y1 * gw + X0], d = g[Y1 * gw + X1];
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  };
+}
+function fbm(seed, oct) {
+  const ns = []; for (let o = 0; o < oct; o++) ns.push(valueNoise(seed + o * 101, 4 << o, (2 << o) + 1));
+  return (u, v) => { let s = 0, amp = .5, tot = 0; for (const n of ns) { s += n(u, v) * amp; tot += amp; amp *= .5; } return s / tot; };
+}
+const hexRGB = h => [(h >> 16) & 255, (h >> 8) & 255, h & 255];
+const mixC = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const mulC = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+function paint(w, h, fn, after) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const col = fn(x / w, y / h), i = (y * w + x) * 4;
+    d[i] = clamp(col[0], 0, 255); d[i + 1] = clamp(col[1], 0, 255); d[i + 2] = clamp(col[2], 0, 255); d[i + 3] = col.length > 3 ? col[3] : 255;
+  }
+  g.putImageData(img, 0, 0);
+  if (after) after(g, w, h);
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+}
+function craters(seed, n, dark) {
+  return (g, w, h) => { const r = rng(seed); for (let i = 0; i < n; i++) {
+    const x = r() * w, y = h * .12 + r() * h * .76, rad = 1.5 + Math.pow(r(), 3) * w * .045;
+    g.beginPath(); g.ellipse(x, y, rad, rad * .8, 0, 0, Math.PI * 2); g.fillStyle = `rgba(${dark},${dark},${dark},.35)`; g.fill();
+    g.lineWidth = 1; g.strokeStyle = 'rgba(255,255,255,.12)'; g.stroke(); } };
+}
+function planetTexture(id, color) {
+  const base = hexRGB(color);
+  if (id === 'mercury') { const n = fbm(11, 5); return paint(256, 128, (u, v) => mulC(base, .72 + .55 * n(u, v)), craters(12, 70, 40)); }
+  if (id === 'moon') { const n = fbm(21, 5), m = fbm(23, 3); return paint(256, 128, (u, v) => { const k = .78 + .4 * n(u, v); const mar = sstep(.55, .62, m(u, v)); return mulC(mixC(base, [70, 70, 74], mar * .7), k); }, craters(22, 90, 50)); }
+  if (id === 'venus') { const n = fbm(31, 5); return paint(256, 128, (u, v) => { const s = .5 + .5 * Math.sin((v * 7 + n(u, v) * 3.2) * Math.PI); return mixC([232, 196, 140], [196, 136, 72], s * .8); }); }
+  if (id === 'earth') { const n = fbm(41, 6), d = fbm(43, 4); return paint(512, 256, (u, v) => {
+    const lat = Math.abs(v - .5) * 2, h = n(u, v);
+    if (lat > .86 + .06 * d(u, v)) return [236, 242, 248];
+    if (h > .54) { const t = sstep(.54, .72, h); return mixC(mixC([74, 122, 62], [150, 128, 82], d(u, v)), [120, 104, 80], t * .6); }
+    return mixC([18, 52, 110], [40, 104, 170], sstep(.3, .54, h)); }); }
+  if (id === 'mars') { const n = fbm(51, 6), d = fbm(53, 3); return paint(256, 128, (u, v) => {
+    const lat = Math.abs(v - .5) * 2; if (lat > .9 + .05 * d(u, v)) return [240, 232, 226];
+    const k = n(u, v); return mixC(mulC(base, 1.15), [92, 42, 30], sstep(.52, .68, k) * .8); }); }
+  if (id === 'jupiter') { const n = fbm(61, 5); return paint(512, 256, (u, v) => {
+    const b = .5 + .5 * Math.sin((v * 15 + n(u, v) * 2.4) * Math.PI);
+    let c = mixC([236, 222, 196], [176, 118, 80], b); c = mixC(c, [210, 160, 110], sstep(.4, .7, n(u * 2 % 1, v)) * .35);
+    const dx = (u - .3) / .07, dy = (v - .64) / .035, e = dx * dx + dy * dy; if (e < 1) c = mixC(c, [196, 92, 60], (1 - e) * .85);
+    return c; }); }
+  if (id === 'saturn') { const n = fbm(71, 4); return paint(512, 256, (u, v) => { const b = .5 + .5 * Math.sin((v * 11 + n(u, v) * 1.4) * Math.PI); return mixC([236, 214, 170], [196, 160, 104], b * .8); }); }
+  if (id === 'uranus') { const n = fbm(81, 3); return paint(256, 128, (u, v) => { const b = .5 + .5 * Math.sin((v * 6 + n(u, v)) * Math.PI); return mixC([150, 214, 220], [104, 184, 196], b * .35); }); }
+  if (id === 'neptune') { const n = fbm(91, 4); return paint(256, 128, (u, v) => {
+    const b = .5 + .5 * Math.sin((v * 8 + n(u, v) * 2) * Math.PI); let c = mixC([70, 110, 206], [40, 70, 160], b * .6);
+    const dx = (u - .6) / .06, dy = (v - .6) / .04, e = dx * dx + dy * dy; if (e < 1) c = mixC(c, [22, 34, 96], (1 - e) * .8); return c; }); }
+  const n = fbm(99, 4); return paint(256, 128, (u, v) => mulC(base, .8 + .4 * n(u, v)));
+}
+function glowSprite(inner, outer, size) {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, inner); gr.addColorStop(.25, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+  s.scale.set(size, size, 1); return s;
+}
+
+/* ---------- sky: stars + milky way ---------- */
+{
+  const N = 5200, pos = new Float32Array(N * 3), col = new Float32Array(N * 3), r = rng(7);
+  const tilt = 60 * D2R;
+  for (let i = 0; i < N; i++) {
+    let x, y, z;
+    if (i < 2600) { // milky-way band: points near a tilted great circle
+      const a = r() * TAU, off = (r() + r() + r() - 1.5) * 0.18;
+      x = Math.cos(a); y = off; z = Math.sin(a);
+      const yy = y * Math.cos(tilt) - z * Math.sin(tilt), zz = y * Math.sin(tilt) + z * Math.cos(tilt); y = yy; z = zz;
+    } else { const u = r() * 2 - 1, a = r() * TAU, s = Math.sqrt(1 - u * u); x = s * Math.cos(a); y = u; z = s * Math.sin(a); }
+    const R = 900 + r() * 500; pos[i * 3] = x * R; pos[i * 3 + 1] = y * R; pos[i * 3 + 2] = z * R;
+    const w = r(), c = w < .15 ? [1, .82, .62] : w < .3 ? [.72, .82, 1] : [1, .97, .92], b = .45 + r() * .55;
+    col[i * 3] = c[0] * b; col[i * 3 + 1] = c[1] * b; col[i * 3 + 2] = c[2] * b;
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 2.1, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: .9, depthWrite: false })));
+  // faint nebula glow along the band
+  for (let k = 0; k < 7; k++) { const a = k / 7 * TAU; const s = glowSprite('rgba(120,140,220,.10)', 'rgba(90,110,200,.05)', 700); const x = Math.cos(a) * 1100, z0 = Math.sin(a) * 1100; s.position.set(x, -z0 * Math.sin(tilt), z0 * Math.cos(tilt)); scene.add(s); }
+}
+
+/* ---------- sun ---------- */
+const SUN_R = 5.5;
+const sunTex = (() => { const n = fbm(5, 6), m = fbm(9, 3); return paint(512, 256, (u, v) => { const k = n(u, v), q = m(u * 3 % 1, v); return mixC(mixC([255, 136, 30], [255, 226, 150], sstep(.3, .78, k)), [255, 250, 220], sstep(.62, .8, q) * .35); }); })();
+sunTex.wrapS = THREE.RepeatWrapping;
+const sun = new THREE.Mesh(new THREE.SphereGeometry(SUN_R, 64, 64), new THREE.MeshBasicMaterial({ map: sunTex }));
+scene.add(sun);
+sun.add(atmosphereGlow(SUN_R * 1.18, 0xffb050, 3.2, .55, 48));
+sun.add(atmosphereGlow(SUN_R * 1.7, 0xff7a20, 3.2, .45, 32));
+const sunGlow = glowSprite('rgba(255,236,190,1)', 'rgba(255,160,60,.35)', SUN_R * 9); scene.add(sunGlow);
+const sunHalo = glowSprite('rgba(255,200,120,.3)', 'rgba(255,140,40,.06)', SUN_R * 16); scene.add(sunHalo);
+const rays = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d'); g.translate(256, 256); const r = rng(3);
+  for (let i = 0; i < 90; i++) { const a = r() * TAU, len = 120 + r() * 130, w = .6 + r() * 2.4; const gr = g.createLinearGradient(0, 0, Math.cos(a) * len, Math.sin(a) * len); gr.addColorStop(0, 'rgba(255,220,160,.55)'); gr.addColorStop(1, 'rgba(255,200,120,0)'); g.strokeStyle = gr; g.lineWidth = w; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * len, Math.sin(a) * len); g.stroke(); }
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: .55 }));
+  s.scale.set(SUN_R * 9, SUN_R * 9, 1); scene.add(s); return s;
+})();
+
+/* ---------- planets ---------- */
+function earthTex() { const n = fbm(41, 6), d = fbm(43, 4); return paint(512, 256, (u, v) => {
+  const lat = Math.abs(v - .5) * 2, h = n(u, v);
+  if (lat > .84 + .06 * d(u, v)) return [236, 242, 248];
+  if (h > .6) { const t = sstep(.6, .75, h); return mixC(mixC([62, 116, 58], [138, 122, 80], d(u, v)), [112, 98, 76], t * .5); }
+  return mixC([12, 44, 104], [34, 96, 166], sstep(.3, .6, h)); }); }
+const PL = [
+  { id: 'mercury', color: 0x8f877c, r: .55, a: 14, P: 87.97, l0: 40 },
+  { id: 'venus', color: 0xc88748, r: .95, a: 20, P: 224.7, l0: 150 },
+  { id: 'earth', color: 0x3e86c4, r: 1.6, a: 28, P: 365.25, l0: 180 },
+  { id: 'mars', color: 0xa64f3f, r: .8, a: 37, P: 686.98, l0: 290 },
+  { id: 'jupiter', color: 0xb97957, r: 3.1, a: 52, P: 4332.6, l0: 75 },
+  { id: 'saturn', color: 0xbf9d68, r: 2.6, a: 66, P: 10759, l0: 320 }
+];
+const lonVec = (lonDeg, r, out) => (out || new THREE.Vector3()).set(r * Math.cos(lonDeg * D2R), 0, -r * Math.sin(lonDeg * D2R));
+const orbitMat = new THREE.LineBasicMaterial({ color: 0xe6c47a, transparent: true, opacity: .22, depthWrite: false });
+function ring(r, seg, mat) { const pts = []; for (let i = 0; i <= seg; i++) { const a = i / seg * TAU; pts.push(new THREE.Vector3(r * Math.cos(a), 0, -r * Math.sin(a))); } return new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat); }
+const orbits = new THREE.Group(); scene.add(orbits);
+const P = {};
+for (const p of PL) {
+  orbits.add(ring(p.a, 256, orbitMat));
+  const holder = new THREE.Group(); scene.add(holder);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(p.r, p.id === 'earth' ? 64 : 40, p.id === 'earth' ? 64 : 40), new THREE.MeshStandardMaterial({ map: p.id === 'earth' ? earthTex() : planetTexture(p.id, p.color), roughness: .9, metalness: 0 }));
+  holder.add(mesh);
+  P[p.id] = { ...p, holder, mesh };
+  if (p.id === 'saturn') {
+    const tex = paint(256, 8, (u) => { const s = .5 + .5 * Math.sin(u * 60) * Math.sin(u * 17); const gap = u > .62 && u < .68 ? .15 : 1; return [222, 196, 150, (60 + 170 * s) * gap * (u < .04 ? 0 : 1)]; });
+    const geo = new THREE.RingGeometry(p.r * 1.3, p.r * 2.35, 128, 1), pa = geo.attributes.position, uv = geo.attributes.uv, v3 = new THREE.Vector3();
+    for (let i = 0; i < pa.count; i++) { v3.fromBufferAttribute(pa, i); uv.setXY(i, (v3.length() - p.r * 1.3) / (p.r * 1.05), .5); }
+    const rg = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
+    rg.rotation.x = -Math.PI / 2 + .47; mesh.add(rg);
+  }
+  if (p.id === 'venus') mesh.add(atmosphereGlow(p.r * 1.12, 0xffd08a, 3, .55, 24));
+}
+/* Earth: tilt, clouds, atmosphere; Moon */
+const E = P.earth;
+E.tilt = new THREE.Group(); E.holder.remove(E.mesh); E.holder.add(E.tilt); E.tilt.add(E.mesh); E.tilt.rotation.z = 23.44 * D2R;
+E.clouds = new THREE.Mesh(new THREE.SphereGeometry(E.r * 1.02, 64, 64), new THREE.MeshStandardMaterial({ map: (() => { const n = fbm(47, 6); return paint(512, 256, (u, v) => [255, 255, 255, sstep(.5, .72, n(u, v)) * 215]); })(), transparent: true, depthWrite: false }));
+E.mesh.add(E.clouds);
+E.holder.add(atmosphereGlow(E.r * 1.1, 0x6fb3ff, 4, .7, 48));
+const MOON_A = 4.4, MOON_P = 27.3217, MOON_L0 = 200;
+const moon = new THREE.Mesh(new THREE.SphereGeometry(.44, 40, 40), new THREE.MeshStandardMaterial({ map: planetTexture('moon', 0x9b9a96), roughness: .95, metalness: 0 }));
+E.holder.add(moon);
+const moonOrbit = ring(MOON_A, 128, new THREE.LineBasicMaterial({ color: 0xcfe0ff, transparent: true, opacity: .28, depthWrite: false })); E.holder.add(moonOrbit);
+
+/* ---------- manazil ring (around Earth) ---------- */
+const MZ_R = 6.6;
+const mzGroup = new THREE.Group(); E.holder.add(mzGroup);
+const mzLineMat = new THREE.LineBasicMaterial({ color: 0x9fc0ff, transparent: true, opacity: .4, depthWrite: false });
+mzGroup.add(ring(MZ_R, 196, mzLineMat));
+const mzTicks = []; for (let i = 0; i < 28; i++) { const a = i * 360 / 28; mzTicks.push(lonVec(a, MZ_R - .35), lonVec(a, MZ_R + .35)); }
+mzGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(mzTicks), mzLineMat));
+const mzStars = []; { const r = rng(28); for (let i = 0; i < 28; i++) { const s = glowSprite('rgba(220,235,255,1)', 'rgba(150,190,255,.4)', .9); lonVec((i + .5) * 360 / 28, MZ_R, s.position); s.position.y = (r() - .5) * .5; mzGroup.add(s); mzStars.push(s); } }
+
+/* ---------- zodiac ring (around the Sun) ---------- */
+const ZR = 92;
+const zGroup = new THREE.Group(); scene.add(zGroup);
+const zMat = new THREE.LineBasicMaterial({ color: 0xe6c47a, transparent: true, opacity: .45, depthWrite: false });
+zGroup.add(ring(ZR - 4, 256, zMat), ring(ZR + 4, 256, zMat));
+{ const t = []; for (let i = 0; i < 12; i++) { const a = i * 30; t.push(lonVec(a, ZR - 4), lonVec(a, ZR + 4)); } zGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(t), zMat)); }
+const zBand = [];
+for (let i = 0; i < 12; i++) {
+  const geo = new THREE.RingGeometry(ZR - 4, ZR + 4, 16, 1, i * 30 * D2R, 30 * D2R);
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: i % 2 ? 0x2b4a38 : 0x4a3b22, transparent: true, opacity: .16, side: THREE.DoubleSide, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2; zGroup.add(m); zBand.push(m);
+}
+
+/* ---------- DOM labels ---------- */
+const labelsEl = document.getElementById('labels');
+function mkLab(cls, html) { const d = document.createElement('div'); d.className = 'lab ' + cls; d.innerHTML = html; labelsEl.appendChild(d); return { el: d, vis: 0 }; }
+const zLabs = L.signs.map((s, i) => mkLab('z', '<b>' + GLYPHS[i] + '&#xFE0E;</b>' + s));
+const mzLabs = MANAZIL.map((n, i) => mkLab('m', n));
+const plLabs = {}; for (const k of ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'moon']) plLabs[k] = mkLab('p', L.pl[k]);
+const dnLabs = { day: mkLab('dn', L.day), night: mkLab('dn', L.night) };
+
+/* ---------- scenes ---------- */
+const SCENES = [
+  { id: 'burooj', rate: 3, zod: 1, orb: 1, mz: 0, pl: .6 },
+  { id: 'daynight', rate: .12, zod: 0, orb: 0, mz: 0, pl: 0 },
+  { id: 'manazil', rate: 1.1, zod: 0, orb: 0, mz: 1, pl: 0 },
+  { id: 'orbits', rate: 26, zod: .6, orb: 1, mz: 0, pl: 1 },
+  { id: 'reflect', rate: 5, zod: .8, orb: .7, mz: 0, pl: 0 }
+];
+let cur = 0, playing = !REDUCE, sceneT = 0, simDays = 0, rate = SCENES[0].rate;
+const mix = { zod: 1, orb: 1, mz: 0, pl: .6 };
+const capEl = document.getElementById('cap'), capAr = document.getElementById('capAr'), capTr = document.getElementById('capTr'), capRef = document.getElementById('capRef');
+const dotsEl = document.getElementById('dots'), insetEl = document.getElementById('inset');
+SCENES.forEach((s, i) => { const b = document.createElement('button'); b.className = 'dot'; b.setAttribute('aria-label', L.titles[i]); b.addEventListener('click', () => go(i, true)); dotsEl.appendChild(b); });
+function showCaption(i) {
+  capEl.classList.add('fade');
+  setTimeout(() => {
+    capAr.innerHTML = AR[i]; capTr.textContent = L.tr[i]; capTr.style.display = L.tr[i] ? '' : 'none'; capRef.textContent = L.refs[i];
+    document.getElementById('stitle').textContent = L.titles[i];
+    capEl.classList.remove('fade');
+  }, 380);
+}
+function go(i, manual) {
+  cur = (i + SCENES.length) % SCENES.length; sceneT = 0;
+  [...dotsEl.children].forEach((d, k) => d.classList.toggle('on', k === cur));
+  insetEl.classList.toggle('hide', SCENES[cur].id !== 'manazil');
+  showCaption(cur);
+  if (manual) user.idle = 0;
+  try { parent.postMessage({ type: 'cosmos:scene', detail: { index: cur, id: SCENES[cur].id } }, location.origin); } catch (e) { }
+}
+const playIco = document.getElementById('playIco');
+function setPlaying(p) { playing = p; playIco.innerHTML = p ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; }
+document.getElementById('bPrev').addEventListener('click', () => go(cur - 1, true));
+document.getElementById('bNext').addEventListener('click', () => go(cur + 1, true));
+document.getElementById('bPlay').addEventListener('click', () => setPlaying(!playing));
+document.getElementById('bFull').addEventListener('click', () => { const d = document.documentElement; if (document.fullscreenElement) document.exitFullscreen(); else if (d.requestFullscreen) d.requestFullscreen().catch(() => { }); });
+addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(cur + (document.dir === 'rtl' ? -1 : 1), true); if (e.key === 'ArrowLeft') go(cur + (document.dir === 'rtl' ? 1 : -1), true); if (e.key === ' ') { e.preventDefault(); setPlaying(!playing); } });
+
+/* ---------- camera: scene targets + user orbit ---------- */
+const camPos = new THREE.Vector3(0, 120, 190), camLook = new THREE.Vector3();
+const tPos = new THREE.Vector3(), tLook = new THREE.Vector3(), tmp = new THREE.Vector3(), tmp2 = new THREE.Vector3();
+const user = { yaw: 0, pitch: 0, zoom: 1, idle: 99, drag: null };
+function sceneTarget(i, t) {
+  const eP = E.holder.position;
+  if (i === 0) { const az = 0.9 + t * .03; tLook.set(0, 0, 0); tPos.set(Math.cos(az) * 150, 92, Math.sin(az) * 150); }
+  else if (i === 1) { tLook.copy(eP); const sd = tmp.copy(eP).normalize(); const perp = tmp2.set(-sd.z, 0, sd.x); tPos.copy(eP).addScaledVector(perp, 6.2).addScaledVector(sd, -1.2); tPos.y += 1.6; }
+  else if (i === 2) { tLook.copy(eP); tPos.copy(eP); tPos.y += 13.5; const sd = tmp.copy(eP).normalize(); tPos.addScaledVector(sd, 4.2); }
+  else if (i === 3) { const az = 2.2 + t * .02; tLook.set(0, 0, 0); tPos.set(Math.cos(az) * 96, 112, Math.sin(az) * 96); }
+  else { const az = 4 + t * .045; tLook.set(0, 0, 0); tPos.set(Math.cos(az) * 190, 46, Math.sin(az) * 190); }
+}
+const cv = renderer.domElement, ptr = new Map();
+cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); ptr.set(e.pointerId, { x: e.clientX, y: e.clientY }); user.idle = 0; if (ptr.size === 2) { const [a, b] = [...ptr.values()]; user.pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: user.zoom }; } });
+cv.addEventListener('pointermove', e => {
+  if (!ptr.has(e.pointerId)) return; const p = ptr.get(e.pointerId), dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY; user.idle = 0;
+  if (ptr.size === 2 && user.pinch) { const [a, b] = [...ptr.values()]; user.zoom = Math.min(2.6, Math.max(.35, user.pinch.z * user.pinch.d / Math.max(20, Math.hypot(a.x - b.x, a.y - b.y)))); return; }
+  user.yaw -= dx * .005; user.pitch = Math.max(-.9, Math.min(.9, user.pitch + dy * .004));
+});
+const endP = e => { ptr.delete(e.pointerId); if (ptr.size < 2) user.pinch = null; };
+cv.addEventListener('pointerup', endP); cv.addEventListener('pointercancel', endP);
+cv.addEventListener('wheel', e => { e.preventDefault(); user.idle = 0; user.zoom = Math.min(2.6, Math.max(.35, user.zoom * (1 + Math.sign(e.deltaY) * .08))); }, { passive: false });
+
+/* ---------- moon-phase inset ---------- */
+const phCv = document.getElementById('phase'), phG = phCv.getContext('2d');
+const moonTexImg = (() => { const c = document.createElement('canvas'); c.width = c.height = 168; const g = c.getContext('2d'); const n = fbm(21, 5), m = fbm(23, 3); const img = g.createImageData(168, 168);
+  for (let y = 0; y < 168; y++) for (let x = 0; x < 168; x++) { const dx = (x - 84) / 80, dy = (y - 84) / 80, rr = dx * dx + dy * dy, i = (y * 168 + x) * 4; if (rr > 1) { img.data[i + 3] = 0; continue; } const u = x / 168, v = y / 168, k = .78 + .4 * n(u, v), mar = sstep(.55, .62, m(u, v)); const c0 = mixC([196, 196, 190], [96, 96, 100], mar * .7).map(q => q * k * (1 - rr * .25)); img.data[i] = c0[0]; img.data[i + 1] = c0[1]; img.data[i + 2] = c0[2]; img.data[i + 3] = 255; }
+  g.putImageData(img, 0, 0); return c; })();
+function drawPhase(elong) { // elong: 0 new → 180 full → 360
+  const g = phG, R = 80, cx = 84, cy = 84; g.clearRect(0, 0, 168, 168);
+  g.save(); g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.clip(); g.drawImage(moonTexImg, 0, 0);
+  // dark part
+  const e = norm360(elong) * D2R, k = Math.cos(e); // terminator ellipse x-scale
+  const waxing = norm360(elong) < 180;
+  g.fillStyle = 'rgba(4,7,10,.9)'; g.beginPath();
+  if (waxing) { g.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, true); g.ellipse(cx, cy, Math.max(.01, Math.abs(k) * R), R, 0, Math.PI / 2, -Math.PI / 2, k > 0); }
+  else { g.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, false); g.ellipse(cx, cy, Math.max(.01, Math.abs(k) * R), R, 0, Math.PI / 2, -Math.PI / 2, k < 0); }
+  g.fill(); g.restore();
+  g.strokeStyle = 'rgba(207,224,255,.35)'; g.lineWidth = 1.5; g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.stroke();
+}
+const phName = document.getElementById('phName'), mzAr = document.getElementById('mzAr'), mzNo = document.getElementById('mzNo');
+let lastMz = -1, lastPh = -1, phTick = 0;
+
+/* ---------- visibility / host messages ---------- */
+let hostVisible = true;
+addEventListener('message', e => {
+  if (e.origin !== location.origin) return; const m = e.data || {};
+  if (m.type === 'cosmos:visible') hostVisible = !!m.visible;
+  if (m.type === 'cosmos:play') setPlaying(true);
+  if (m.type === 'cosmos:pause') setPlaying(false);
+  if (m.type === 'cosmos:go') go(+m.index || 0, true);
+});
+
+/* ---------- resize ---------- */
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w < h ? 60 : 45; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+/* ---------- frame ---------- */
+const scr = new THREE.Vector3();
+function place(lab, v3, alpha, dx, dy) {
+  if (alpha < .02) { if (lab.vis) { lab.el.style.opacity = 0; lab.vis = 0; } return; }
+  scr.copy(v3).project(camera);
+  if (scr.z > 1 || scr.z < -1) { lab.el.style.opacity = 0; lab.vis = 0; return; }
+  const x = (scr.x + 1) / 2 * innerWidth + (dx || 0), y = (1 - scr.y) / 2 * innerHeight + (dy || 0);
+  lab.el.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`; lab.el.style.opacity = alpha.toFixed(2); lab.vis = 1;
+}
+let last = performance.now();
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (!hostVisible || document.hidden) return;
+  const S = SCENES[cur];
+  sceneT += dt;
+  if (playing && sceneT > (S.id === 'reflect' ? 18 : 16)) go(cur + 1, false);
+  const k = 1 - Math.exp(-dt * 1.4);
+  rate += ((REDUCE ? S.rate * .4 : S.rate) - rate) * k;
+  simDays += dt * rate;
+  for (const key of ['zod', 'orb', 'mz', 'pl']) mix[key] += (S[key] - mix[key]) * k;
+
+  // bodies
+  for (const p of Object.values(P)) { const lon = p.l0 + 360 * simDays / p.P; lonVec(lon, p.a, p.holder.position); p.mesh.rotation.y += dt * (p.id === 'jupiter' || p.id === 'saturn' ? 1.6 : .5); }
+  E.mesh.rotation.y = simDays * TAU; E.clouds.rotation.y = simDays * TAU * .03;
+  const mLon = MOON_L0 + 360 * simDays / MOON_P; lonVec(mLon, MOON_A, moon.position); moon.rotation.y = mLon * D2R;
+  sun.rotation.y += dt * .04; rays.material.rotation += dt * .01; sunTex.offset.x += dt * .002;
+  orbitMat.opacity = .22 * mix.orb; moonOrbit.material.opacity = .28 * Math.max(mix.mz, S.id === 'daynight' ? 0 : .3);
+  zMat.opacity = .45 * mix.zod; zBand.forEach(m => m.material.opacity = .16 * mix.zod);
+  mzLineMat.opacity = .45 * mix.mz; mzStars.forEach(s => s.material.opacity = mix.mz); mzGroup.visible = mix.mz > .02; zGroup.visible = mix.zod > .02; orbits.visible = mix.orb > .02;
+
+  // camera
+  sceneTarget(cur, sceneT);
+  user.idle += dt; if (user.idle > 5) { user.yaw *= (1 - k * .5); user.pitch *= (1 - k * .5); user.zoom += (1 - user.zoom) * k * .5; }
+  const off = tmp.copy(tPos).sub(tLook); const rr = off.length() * user.zoom * (camera.aspect < 1 ? (cur === 1 || cur === 2 ? 1.9 : 1.35) : 1);
+  let az = Math.atan2(off.z, off.x) + user.yaw, el = Math.asin(Math.max(-.999, Math.min(.999, off.y / off.length()))) + user.pitch; el = Math.max(-1.35, Math.min(1.45, el));
+  tPos.set(tLook.x + rr * Math.cos(el) * Math.cos(az), tLook.y + rr * Math.sin(el), tLook.z + rr * Math.cos(el) * Math.sin(az));
+  const kc = 1 - Math.exp(-dt * 1.7); camPos.lerp(tPos, kc); camLook.lerp(tLook, kc);
+  camera.position.copy(camPos); camera.lookAt(camLook);
+  renderer.render(scene, camera);
+
+  // labels
+  for (let i = 0; i < 12; i++) place(zLabs[i], lonVec(i * 30 + 15, ZR + 11, tmp2), mix.zod);
+  const eP = E.holder.position;
+  const mzCur = Math.floor(norm360(mLon) / (360 / 28));
+  for (let i = 0; i < 28; i++) { mzLabs[i].el.classList.toggle('on', i === mzCur); place(mzLabs[i], tmp2.copy(eP).add(lonVec((i + .5) * 360 / 28, MZ_R + 1.3, scr)), mix.mz * (i === mzCur ? 1 : .75)); }
+  for (const p of Object.values(P)) place(plLabs[p.id], p.holder.position, mix.pl, 0, -(p.r * 6 + 12));
+  place(plLabs.sun, sun.position, Math.max(mix.pl, S.id === 'burooj' || S.id === 'reflect' ? .9 : 0) * (S.id === 'daynight' || S.id === 'manazil' ? 0 : 1), 0, -34);
+  place(plLabs.moon, tmp2.copy(eP).add(moon.position), S.id === 'manazil' || S.id === 'daynight' ? .9 : 0, 0, -18);
+  const sd = tmp.copy(eP).normalize();
+  place(dnLabs.day, tmp2.copy(eP).addScaledVector(sd, -2.6), S.id === 'daynight' ? .95 : 0);
+  place(dnLabs.night, tmp2.copy(eP).addScaledVector(sd, 2.6), S.id === 'daynight' ? .95 : 0);
+
+  // inset (moon phase + mansion)
+  if (S.id === 'manazil' && (phTick += dt) > .15) {
+    phTick = 0; const sunGeo = norm360(Math.atan2(-eP.z, eP.x) / D2R + 180); const elong = norm360(mLon - sunGeo);
+    drawPhase(elong); const ph = Math.round(elong / 45) % 8;
+    if (ph !== lastPh) { phName.textContent = L.phases[ph]; lastPh = ph; }
+    if (mzCur !== lastMz) { mzAr.textContent = MANAZIL[mzCur]; mzNo.textContent = L.mz(mzCur + 1); lastMz = mzCur; }
+  }
+}
+setPlaying(playing);
+go(0, false);
+requestAnimationFrame(frame);
+try { parent.postMessage({ type: 'cosmos:ready' }, location.origin); } catch (e) { }
+</script>
+</body>
+</html>

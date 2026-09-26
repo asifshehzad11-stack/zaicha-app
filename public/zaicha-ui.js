@@ -831,6 +831,105 @@
   ZUI._lk3d = LK3;
 
   /* ------------------------------------------------------------------
+     Session 9c: ابتدائیہ (preface) + آیاتِ آسمان (3D cosmos iframe)
+     ------------------------------------------------------------------ */
+  var PREF_OPEN = false;
+  ZUI.renderPreface = function(boxId){
+    boxId = boxId || 'preface-sec'; var box = document.getElementById(boxId); var all = window.ZAICHA_PREFACE; if (!box || !all) return;
+    var P = all[lang()] || all.en;
+    var h = '<div class="pref-card' + (PREF_OPEN ? ' open' : '') + '"><div class="pref-head"><h3>' + E(P.title) + '</h3>' + (P.byline ? '<p class="pref-by">' + E(P.byline) + '</p>' : '') + '</div><div class="pref-body">';
+    P.blocks.forEach(function(b){
+      if (b.t === 'p') h += '<p>' + b.x + '</p>';
+      else if (b.t === 'q') h += '<figure class="pref-q"><blockquote lang="ar" dir="rtl">' + E(b.ar).replace(/ ۞ /g, ' <span class="waqf">۞</span> ') + '</blockquote>' + (b.tr ? '<figcaption>' + E(b.tr) + '</figcaption>' : '') + '<cite>' + E(b.ref) + '</cite></figure>';
+      else if (b.t === 'dua') h += '<p class="pref-dua" lang="ar" dir="rtl">' + E(b.ar) + '</p>';
+    });
+    if (P.trNote) h += '<p class="pref-note">' + E(P.trNote) + '</p>';
+    h += '</div><button type="button" class="pill-btn pref-toggle">' + E(PREF_OPEN ? T('prefLess') : T('prefMore')) + '</button></div>';
+    box.innerHTML = h;
+    box.querySelector('.pref-toggle').addEventListener('click', function(){ PREF_OPEN = !PREF_OPEN; ZUI.renderPreface(boxId); if (!PREF_OPEN) box.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  };
+  var COS = { frame: null, io: null, failed: false, lang: null };
+  function cosWebGL(){ try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch (e) { return false; } }
+  function cosMount(){
+    var st = document.getElementById('cosmos-stage'); if (!st || COS.frame || COS.failed) return;
+    if (!cosWebGL()) { COS.failed = true; st.classList.add('failed'); var pp = document.getElementById('cosmos-poster'); if (pp) pp.textContent = T('cosmosFail'); return; }
+    var f = document.createElement('iframe'); f.className = 'cosmos-frame'; f.title = T('cosmosTitle'); f.setAttribute('allow', 'fullscreen'); f.allowFullscreen = true;
+    COS.lang = lang(); f.src = '/cosmos.html?lang=' + encodeURIComponent(COS.lang); st.appendChild(f); COS.frame = f;
+  }
+  function cosVisible(v){ if (COS.frame && COS.frame.contentWindow) COS.frame.contentWindow.postMessage({ type: 'cosmos:visible', visible: v }, location.origin); }
+  window.addEventListener('message', function(e){
+    if (!COS.frame || e.source !== COS.frame.contentWindow || e.origin !== location.origin) return;
+    var m = e.data || {};
+    if (m.type === 'cosmos:ready') { var st = document.getElementById('cosmos-stage'); if (st) st.classList.add('ready'); }
+    if (m.type === 'cosmos:error') { COS.failed = true; var s2 = document.getElementById('cosmos-stage'); if (s2) s2.classList.add('failed'); var pp = document.getElementById('cosmos-poster'); if (pp) pp.textContent = T('cosmosFail'); if (COS.frame) { COS.frame.remove(); COS.frame = null; } }
+  });
+  ZUI.initCosmos = function(){
+    var sec = document.getElementById('cosmos-sec'); if (!sec || COS.io) return;
+    if (!('IntersectionObserver' in window)) { cosMount(); return; }
+    COS.io = new IntersectionObserver(function(en){ en.forEach(function(x){ if (x.isIntersecting) cosMount(); cosVisible(x.isIntersecting); }); }, { rootMargin: '300px 0px' });
+    COS.io.observe(sec);
+  };
+  ZUI.cosmosLang = function(){ if (COS.frame && COS.lang !== lang()) { COS.lang = lang(); COS.frame.src = '/cosmos.html?lang=' + encodeURIComponent(COS.lang); var st = document.getElementById('cosmos-stage'); if (st) st.classList.remove('ready'); } };
+
+  /* ------------------------------------------------------------------
+     Session 9c: فہرست (Index) — auto-built from the tabs + screen titles
+     ------------------------------------------------------------------ */
+  var IDX_Q = '';
+  function idxText(el){ return el ? el.textContent.replace(/\s+/g, ' ').trim() : ''; }
+  ZUI.renderIndex = function(){
+    var box = document.getElementById('index-content'); if (!box || typeof SYSTEM_TABS === 'undefined') return;
+    var inApp = document.body.classList.contains('app-mode');
+    var groups = [];
+    groups.push({ id: 'front', name: T('indexFront'), items: [
+      { go: 'cosmos', title: T('cosmosTitle'), desc: T('cosmosSub'), free: true },
+      { go: 'preface', title: (window.ZAICHA_PREFACE && (ZAICHA_PREFACE[lang()] || ZAICHA_PREFACE.en).title) || 'Preface', desc: '', free: true }
+    ] });
+    SYSTEM_TABS.forEach(function(t){
+      if (t.id === 'index') return;
+      var items = t.screens.map(function(sid){
+        var el = document.getElementById(sid); if (!el) return null;
+        var title = idxText(el.querySelector('.feed-head')).replace(/^[^\p{L}\p{N}]+/u, '');
+        var d = idxText(el.querySelector('p.sub')); if (d.length > 120) d = d.slice(0, 118) + '…';
+        return title ? { go: sid, tab: t.id, title: title, desc: d, free: !!t.noData } : null;
+      }).filter(Boolean);
+      if (items.length) groups.push({ id: t.id, name: T('sys_' + t.id), items: items });
+    });
+    var h = '<div class="idx-search"><input type="search" id="idx-q" placeholder="' + E(T('indexSearch')) + '" value="' + E(IDX_Q) + '"></div><div class="idx-grid">';
+    groups.forEach(function(g){
+      h += '<section class="idx-group" data-g="' + E(g.id) + '"><h4>' + E(g.name) + '</h4><ul>';
+      g.items.forEach(function(it){
+        var lock = !inApp && !it.free;
+        h += '<li><button type="button" class="idx-item' + (lock ? ' lock' : '') + '" data-go="' + E(it.go) + '" data-tab="' + E(it.tab || '') + '" data-s="' + E((g.name + ' ' + it.title + ' ' + it.desc).toLowerCase()) + '"><b>' + E(it.title) + '</b>' + (it.desc ? '<small>' + E(it.desc) + '</small>' : '') + (lock ? '<i>' + E(T('indexNeeds')) + '</i>' : '') + '</button></li>';
+      });
+      h += '</ul></section>';
+    });
+    h += '</div><p class="idx-empty" hidden>—</p>';
+    box.innerHTML = h;
+    var q = box.querySelector('#idx-q');
+    function filter(){ IDX_Q = q.value; var v = q.value.trim().toLowerCase(), any = false;
+      box.querySelectorAll('.idx-group').forEach(function(sec){ var n = 0; sec.querySelectorAll('.idx-item').forEach(function(b){ var ok = !v || b.getAttribute('data-s').indexOf(v) >= 0; b.parentNode.hidden = !ok; if (ok) n++; }); sec.hidden = !n; if (n) any = true; });
+      box.querySelector('.idx-empty').hidden = any; }
+    q.addEventListener('input', filter); filter();
+    box.addEventListener('click', function(e){
+      var b = e.target.closest('.idx-item'); if (!b) return;
+      var go = b.getAttribute('data-go'), tab = b.getAttribute('data-tab');
+      if (go === 'cosmos' || go === 'preface') {
+        if (document.body.classList.contains('app-mode')) {   // landing is hidden inside the app
+          if (go === 'cosmos') { window.open('/cosmos.html?lang=' + encodeURIComponent(lang()), '_blank', 'noopener'); return; }
+          var ip = document.getElementById('idx-preface'); if (!ip) { ip = document.createElement('div'); ip.id = 'idx-preface'; ip.className = 'preface-sec'; box.appendChild(ip); }
+          PREF_OPEN = true; ZUI.renderPreface('idx-preface'); ip.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
+        }
+        document.body.classList.remove('learn-open');
+        var tgt = document.getElementById(go === 'cosmos' ? 'cosmos-sec' : 'preface-sec'); if (tgt) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (!document.body.classList.contains('app-mode') && b.classList.contains('lock')) { if (typeof showEntryForm === 'function') showEntryForm(); ZUI.toast(T('needChartFirst')); return; }
+      if (typeof activateTab === 'function') activateTab(tab, false);
+      setTimeout(function(){ var el = document.getElementById(go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+    });
+  };
+
+  /* ------------------------------------------------------------------
      HOOKS
      ------------------------------------------------------------------ */
   ZUI.renderAll = function(data){
@@ -845,6 +944,9 @@
   ZUI.onLanguage = function(){
     ZUI.renderLearn();
     lkTexts();
+    ZUI.renderPreface();
+    ZUI.cosmosLang();
+    if (document.getElementById('phone-index') && document.getElementById('index-content').childElementCount) ZUI.renderIndex();
     var nav = document.getElementById('system-tabs');
     if (nav) ZUI.initDock(nav);
   };
@@ -857,6 +959,8 @@
     if (typeof buildSystemTabs === 'function') buildSystemTabs();
     else if (nav) ZUI.initDock(nav);
     ZUI.renderLearn();
+    ZUI.renderPreface();
+    ZUI.initCosmos();
     // PWA shortcut / share link: /#learn seedha Learn kholta hai
     if (location.hash === '#learn' && typeof activateTab === 'function') setTimeout(function(){ activateTab('learn', false); }, 60);
   }

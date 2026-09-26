@@ -187,10 +187,10 @@ window.I18N_S8 = {
   "phSources": "Sources"
  },
  "ur": {
-  "docTitle": "زائچہ — ایسٹرولوجی کا مہا ساگر | ویدک، کے پی، ناڑی اور یونانی نجوم",
-  "brandSub": "ایسٹرولوجی کا مہا ساگر",
+  "docTitle": "زائچہ — آسٹرولوجی کا مہا ساگر | ویدک، کے پی، ناڑی اور یونانی نجوم",
+  "brandSub": "آسٹرولوجی کا مہا ساگر",
   "brandTagline": "علمِ نجوم کا عظیم سمندر",
-  "heroTitle": "زائچہ — ایسٹرولوجی کا مہا ساگر",
+  "heroTitle": "زائچہ — آسٹرولوجی کا مہا ساگر",
   "heroKicker": "ویدک · کے پی · جیمنی · ناڑی · لال کتاب · یونانی",
   "heroSub": "آپ کا مکمل زائچہ — پاراشری، کے پی، جیمنی، ناڑی، لال کتاب اور یونانی نجوم — دشاؤں، پنچانگ اور سیکھنے کے لیے ایک ماسٹر بک کے ساتھ، آپ کی اپنی زبان میں۔",
   "heroStart": "میرا زائچہ بنائیں",
@@ -1027,11 +1027,40 @@ window.I18N_S8 = {
 /* Session 9b: Tehzeeb-ul-Ilm watermark + founder line (Asif Shehzad Mughal) */
 (function(){
   var add = {
-    en: { wmName: 'Tehzeeb-ul-Ilm', founderLine: 'Presented by Tehzeeb-ul-Ilm · Founder: Asif Shehzad Mughal' },
-    ur: { wmName: 'تہذیب العلم', founderLine: 'پیشکش: تہذیب العلم · بانی: آصف شہزاد مغل' },
-    hi: { wmName: 'तहज़ीब-उल-इल्म', founderLine: 'प्रस्तुति: तहज़ीब-उल-इल्म · संस्थापक: आसिफ़ शहज़ाद मुग़ल' },
-    ar: { wmName: 'تهذيب العلم', founderLine: 'تقديم: تهذيب العلم · المؤسس: آصف شهزاد مغل' },
-    zh: { wmName: 'Tehzeeb-ul-Ilm · 学识修养', founderLine: '出品：Tehzeeb-ul-Ilm（学识修养）· 创始人：Asif Shehzad Mughal' }
+    en: { wmName: 'Tehzeeb-ul-Ilm', founderLine: 'Disclaimer: this chart and its predictions are guidance in the light of traditional astrology, not a final verdict. Knowledge of the unseen belongs to Allah alone. For health, legal or financial matters, always consult a qualified professional. — Presented by Asif Shehzad Mughal, Pattoki, Punjab, Pakistan' },
+    ur: { wmName: 'تہذیب العلم', founderLine: 'تنبیہ: یہ زائچہ اور پیشگوئیاں روایتی علمِ نجوم کی روشنی میں رہنمائی ہیں، حتمی فیصلہ نہیں۔ غیب کا علم صرف اللہ کے پاس ہے۔ صحت، قانونی یا مالی معاملات میں متعلقہ ماہر سے ضرور مشورہ کریں۔ — پیشکش: آصف شہزاد مغل، پتوکی، پنجاب، پاکستان' },
+    hi: { wmName: 'तहज़ीब-उल-इल्म', founderLine: 'अस्वीकरण: यह कुंडली और भविष्यवाणियाँ पारंपरिक ज्योतिष की रोशनी में मार्गदर्शन हैं, अंतिम फ़ैसला नहीं। ग़ैब का इल्म सिर्फ़ अल्लाह के पास है। सेहत, क़ानूनी या आर्थिक मामलों में योग्य विशेषज्ञ से ज़रूर सलाह लें। — पेशकश: आसिफ़ शहज़ाद मुग़ल, पत्तोकी, पंजाब, पाकिस्तान' },
+    ar: { wmName: 'تهذيب العلم', founderLine: 'تنبيه: هذا الطالع وتوقعاته إرشادٌ في ضوء علم النجوم التقليدي، لا حكمٌ نهائي. وعلم الغيب لله وحده. في الأمور الصحية والقانونية والمالية استشر مختصًا مؤهلًا. — تقديم: آصف شهزاد مغل، بتوكي، البنجاب، باكستان' },
+    zh: { wmName: 'Tehzeeb-ul-Ilm · 学识修养', founderLine: '免责声明：本星盘及其预测是依据传统星象学的参考，而非最终结论。幽玄之事唯有真主知道。涉及健康、法律或财务问题，请务必咨询合格的专业人士。——出品：Asif Shehzad Mughal，巴基斯坦旁遮普省帕托基（Pattoki）' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();
+
+/* Session 9c: cosmos + preface UI keys */
+(function(){
+  var add = {
+    en: { cosmosTitle: 'Signs in the Heavens', cosmosSub: 'The movement of the sun, the moon and the stars in 3D — with the verses of the Qur’an. Drag to turn, scroll or pinch to zoom.', cosmosLoading: 'Loading the sky…', cosmosFail: 'This device cannot show the 3D sky (WebGL is not available).', prefMore: 'Read the full foreword', prefLess: 'Show less' },
+    ur: { cosmosTitle: 'آیاتِ آسمان', cosmosSub: 'سورج، چاند اور ستاروں کی گردش تھری ڈی میں — قرآن کی آیات کے ساتھ۔ گھمانے کے لیے ڈریگ کریں، زوم کے لیے اسکرول یا چٹکی۔', cosmosLoading: 'آسمان لوڈ ہو رہا ہے…', cosmosFail: 'یہ ڈیوائس تھری ڈی آسمان نہیں دکھا سکتی (WebGL دستیاب نہیں)۔', prefMore: 'پورا ابتدائیہ پڑھیں', prefLess: 'مختصر کریں' },
+    hi: { cosmosTitle: 'आसमान की निशानियाँ', cosmosSub: 'सूरज, चाँद और सितारों की गर्दिश 3D में — क़ुरआन की आयतों के साथ। घुमाने के लिए ड्रैग करें, ज़ूम के लिए स्क्रॉल या पिंच।', cosmosLoading: 'आसमान लोड हो रहा है…', cosmosFail: 'यह डिवाइस 3D आसमान नहीं दिखा सकता (WebGL उपलब्ध नहीं)।', prefMore: 'पूरी प्रस्तावना पढ़ें', prefLess: 'कम दिखाएँ' },
+    ar: { cosmosTitle: 'آيات السماء', cosmosSub: 'حركة الشمس والقمر والنجوم ثلاثية الأبعاد — مع آيات القرآن. اسحب للتدوير، ومرّر أو اقرص للتكبير.', cosmosLoading: 'جارٍ تحميل السماء…', cosmosFail: 'هذا الجهاز لا يستطيع عرض السماء ثلاثية الأبعاد (WebGL غير متاح).', prefMore: 'اقرأ التقديم كاملًا', prefLess: 'عرض أقل' },
+    zh: { cosmosTitle: '天上的迹象', cosmosSub: '日月星辰的运行（三维）——配以《古兰经》经文。拖动旋转，滚轮或双指缩放。', cosmosLoading: '正在加载星空…', cosmosFail: '此设备无法显示三维星空（WebGL 不可用）。', prefMore: '阅读完整序言', prefLess: '收起' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();
+
+/* Session 9c: learning section renamed to Tehzeeb-ul-Ilm (Asif) */
+(function(){ var n = {"en": "Tehzeeb-ul-Ilm", "ur": "تہذیب العلم", "hi": "तहज़ीब-उल-इल्म", "ar": "تهذيب العلم", "zh": "Tehzeeb-ul-Ilm 学堂"}; var S = window.I18N_S8 = window.I18N_S8 || {}; Object.keys(n).forEach(function(l){ S[l] = S[l] || {}; ['dock_learn','sys_learn','heroLearn','learnH3'].forEach(function(k){ S[l][k] = n[l]; }); }); })();
+
+/* Session 9c: فہرست (Index) tab */
+(function(){
+  var add = {
+    en: { dock_index: 'Index', sys_index: 'Index — everything in one place', indexH3: 'Index', indexSub: 'Everything in the app in one place — search and jump straight there.', indexSearch: 'Search: marriage, dasha, moon…', indexFront: 'Front page', indexNeeds: 'needs a chart' },
+    ur: { dock_index: 'فہرست', sys_index: 'فہرست — سب کچھ ایک جگہ', indexH3: 'فہرست', indexSub: 'ایپ میں جو کچھ ہے، ایک جگہ — تلاش کریں اور سیدھا وہاں پہنچیں۔', indexSearch: 'تلاش کریں: شادی، دشا، چاند…', indexFront: 'پہلا صفحہ', indexNeeds: 'زائچہ درکار' },
+    hi: { dock_index: 'फ़ेहरिस्त', sys_index: 'फ़ेहरिस्त — सब कुछ एक जगह', indexH3: 'फ़ेहरिस्त', indexSub: 'ऐप में जो कुछ है, एक जगह — खोजें और सीधे वहाँ पहुँचें।', indexSearch: 'खोजें: शादी, दशा, चाँद…', indexFront: 'पहला पन्ना', indexNeeds: 'कुंडली चाहिए' },
+    ar: { dock_index: 'الفهرس', sys_index: 'الفهرس — كل شيء في مكان واحد', indexH3: 'الفهرس', indexSub: 'كل ما في التطبيق في مكان واحد — ابحث وانتقل مباشرة.', indexSearch: 'ابحث: الزواج، الداشا، القمر…', indexFront: 'الصفحة الأولى', indexNeeds: 'يحتاج طالعًا' },
+    zh: { dock_index: '目录', sys_index: '目录 — 一切尽在一处', indexH3: '目录', indexSub: '应用中的全部内容集中于此——搜索并直接跳转。', indexSearch: '搜索：婚姻、大运、月亮…', indexFront: '首页', indexNeeds: '需要星盘' }
   };
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });

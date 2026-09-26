@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Zaicha — Astrology ka Maha Sagar | زائچہ · Vedic, KP, Jaimini, Nadi &amp; Unani Astrology</title>
-<meta name="description" content="Zaicha — Astrology ka Maha Sagar (زائچہ — ایسٹرولوجی کا مہا ساگر): free Vedic birth chart (kundli) in Urdu, English, Hindi, Arabic and Chinese — Parashari, KP, Jaimini, Nadi, Lal Kitab, Unani (Greco-Arabic), Dasha, Panchang, Kundli Milan, Prashna and a beginner-to-advanced Learning section in one app.">
-<meta name="keywords" content="Zaicha, زائچہ, Zaicha Astrology ka Maha Sagar, ایسٹرولوجی کا مہا ساگر, Unani najoom, ilm e najoom, علم نجوم, kundli, Vedic astrology, janam kundli, birth chart, horoscope Urdu, KP astrology, Jaimini, Nadi, Lal Kitab, Vimshottari dasha, kundli milan, panchang">
+<meta name="description" content="Zaicha — Astrology ka Maha Sagar (زائچہ — آسٹرولوجی کا مہا ساگر): free Vedic birth chart (kundli) in Urdu, English, Hindi, Arabic and Chinese — Parashari, KP, Jaimini, Nadi, Lal Kitab, Unani (Greco-Arabic), Dasha, Panchang, Kundli Milan, Prashna and a beginner-to-advanced Learning section in one app.">
+<meta name="keywords" content="Zaicha, زائچہ, Zaicha Astrology ka Maha Sagar, آسٹرولوجی کا مہا ساگر, Unani najoom, ilm e najoom, علم نجوم, kundli, Vedic astrology, janam kundli, birth chart, horoscope Urdu, KP astrology, Jaimini, Nadi, Lal Kitab, Vimshottari dasha, kundli milan, panchang">
 <meta name="application-name" content="Zaicha">
 <meta name="apple-mobile-web-app-title" content="Zaicha">
 <meta name="theme-color" content="#041010">
@@ -33,7 +33,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Zaicha — Astrology ka Maha Sagar",
-  "alternateName": ["Zaicha", "زائچہ", "Zaicha Astrology ka Maha Sagar", "زائچہ — ایسٹرولوجی کا مہا ساگر", "Zaicha Aik Maha Sagar"],
+  "alternateName": ["Zaicha", "زائچہ", "Zaicha Astrology ka Maha Sagar", "زائچہ — آسٹرولوجی کا مہا ساگر", "Zaicha Aik Maha Sagar"],
   "url": "https://zaicha-app.onrender.com/",
   "applicationCategory": "LifestyleApplication",
   "operatingSystem": "Web, Windows, macOS, Android, iOS (installable PWA)",
@@ -612,6 +612,13 @@
       <div class="hero-col"><div class="n">03</div><h4 data-i18n="heroC3t">Nadi &amp; Lal Kitab</h4><p data-i18n="heroC3d">Bhrigu Nandi Nadi planetary links and the fixed-house Lal Kitab chart.</p></div>
       <div class="hero-col"><div class="n">04</div><h4 data-i18n="heroC4t">Unani</h4><p data-i18n="heroC4d">Greco-Arabic astrology of Al-Biruni: dignities, sect, lots and firdaria.</p></div>
     </div>
+    <!-- Session 9c: "آیاتِ آسمان" — 3D sitaron ki gardish, ayaat ke saath (public/cosmos.html, lazy iframe) -->
+    <section class="cosmos-sec" id="cosmos-sec" aria-labelledby="cosmos-h">
+      <div class="cosmos-head"><h3 id="cosmos-h" data-i18n="cosmosTitle">Signs in the Heavens</h3><p data-i18n="cosmosSub">The movement of the sun, the moon and the stars in 3D — with the verses of the Qur’an.</p></div>
+      <div class="cosmos-stage" id="cosmos-stage"><div class="cosmos-poster" id="cosmos-poster"><span data-i18n="cosmosLoading">Loading the sky…</span></div></div>
+    </section>
+    <!-- Session 9c: ابتدائیہ — kawish: Asif Shehzad Mughal (public/preface-content.js) -->
+    <section class="preface-sec" id="preface-sec"></section>
   </section>
 
   <section class="showcase">
@@ -880,6 +887,13 @@
         <div class="feed-head"><span data-i18n="learnH3">Learn astrology</span></div>
         <p class="sub" data-i18n="learnSub">A step-by-step master book: from the first look at a birth chart to advanced systems — in simple language.</p>
         <div id="learn-content"><div class="placeholder" data-i18n="waitingData">Waiting for data</div></div>
+      </div>
+
+      <!-- Session 9c (Asif): فہرست — sab kuch ek jagah, talaash ke saath -->
+      <div class="phone wide" id="phone-index">
+        <div class="feed-head"><span data-i18n="indexH3">Index</span></div>
+        <p class="sub" data-i18n="indexSub">Everything in the app in one place — search and jump straight there.</p>
+        <div id="index-content"></div>
       </div>
 
       <!-- HOUSE & LORD ANALYSIS -->
@@ -1358,7 +1372,7 @@
 
   <footer>
     <span data-i18n="footerNote1">یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔</span>
-    <span class="founder-line" data-i18n="founderLine">Presented by Tehzeeb-ul-Ilm · Founder: Asif Shehzad Mughal</span>
+    <span class="founder-line disclaimer-line" data-i18n="founderLine">Disclaimer: this chart and its predictions are guidance in the light of traditional astrology, not a final verdict. — Presented by Asif Shehzad Mughal, Pattoki, Punjab, Pakistan</span>
     <span class="ltr">Zaicha v0.1</span>
   </footer>
 
@@ -2310,6 +2324,7 @@
     panchang: '<rect x="2.2" y="3.2" width="11.6" height="10.4" rx="1"/><path d="M2.2 6.4h11.6M5.2 1.8v2.6M10.8 1.8v2.6M5 9h1.2M7.4 9h1.2M9.8 9H11M5 11.4h1.2M7.4 11.4h1.2"/>',
     other: '<path d="M3.4 13.4C3 7.2 5.2 3 6.8 3S8 5.6 8 8c0-2.4-.4-5 1.2-5s3.8 4.2 3.4 10.4"/>',
     learn: '<path d="M8 4.2C6.6 3 4.6 2.6 2.2 2.8v9.4c2.4-.2 4.4.2 5.8 1.4 1.4-1.2 3.4-1.6 5.8-1.4V2.8C11.4 2.6 9.4 3 8 4.2z"/><path d="M8 4.2v9.4"/>',
+    index: '<path d="M6 4h7.5M6 8h7.5M6 12h7.5"/><circle cx="3" cy="4" r="1"/><circle cx="3" cy="8" r="1"/><circle cx="3" cy="12" r="1"/>',
     report: '<path d="M4 1.9h5.4l2.6 2.6V14H4z"/><path d="M9.2 1.9v2.8H12M5.9 8h4.2M5.9 10.4h4.2"/>',
   };
   var DOCK_LOGO = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor"><circle cx="24" cy="24" r="19" stroke-width="2.4"/><rect x="11" y="11" width="26" height="26" stroke-width="2"/><polygon points="24,11 37,24 24,37 11,24" stroke-width="2"/><circle cx="24" cy="24" r="3.4" fill="currentColor" stroke="none"/></svg>';
@@ -2328,6 +2343,7 @@
     { id: 'panchang', screens: ['phone-panchang', 'phone-weekly', 'phone-moonphases'] },
     { id: 'other', screens: ['phone-western', 'phone-arabianparts'] },
     { id: 'learn', screens: ['phone-learn'], noData: true },
+    { id: 'index', screens: ['phone-index'], noData: true },
     { id: 'report', screens: ['phone-pdfreport'] },
   ];
   SYSTEM_TABS.forEach(function(t){ t.icon = '<svg viewBox="0 0 16 16">' + (DOCK_ICONS[t.id] || '') + '</svg>'; });
@@ -2353,7 +2369,7 @@
     SYSTEM_TABS.forEach(function(t){
       var b = document.createElement('button');
       b.type = 'button';
-      var isActive = inApp ? t.id === activeTabId : (t.id === 'learn' && document.body.classList.contains('learn-open'));
+      var isActive = inApp ? t.id === activeTabId : (t.id === (document.body.dataset.openTab || 'learn') && document.body.classList.contains('learn-open'));
       b.className = 'sys-tab' + (isActive ? ' active' : '') + (!inApp && !t.noData ? ' needs-data' : '');
       b.dataset.tab = t.id;
       b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
@@ -2420,10 +2436,12 @@
     if (!document.body.classList.contains('app-mode')) {
       // Zaicha abhi bana nahi: Learn khul jata hai, baqi tabs form par le jate hain.
       if (tab.noData) {
-        document.body.classList.add('learn-open');
+        document.body.classList.add('learn-open'); document.body.dataset.openTab = tabId;
+        document.querySelectorAll('#phone-learn, #phone-index').forEach(function(x){ x.style.display = x.id === tab.screens[0] ? '' : 'none'; });
         showScreen(tab.screens[0]);
         document.querySelectorAll('.sys-tab').forEach(function(b){ var on = b.dataset.tab === tabId; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
         if (window.ZUI && ZUI.renderLearn) ZUI.renderLearn();
+        if (tabId === 'index' && window.ZUI && ZUI.renderIndex) ZUI.renderIndex();
         var le = document.getElementById(tab.screens[0]);
         if (le) setTimeout(function(){ le.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40);
       } else {
@@ -2444,6 +2462,8 @@
     });
     document.querySelectorAll('.sys-tab').forEach(function(b){ var on = b.dataset.tab === tabId; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     if (tabId === 'learn' && window.ZUI && ZUI.renderLearn) ZUI.renderLearn();
+    if (tabId === 'index' && window.ZUI && ZUI.renderIndex) ZUI.renderIndex();
+    document.querySelectorAll('#phone-learn, #phone-index').forEach(function(x){ x.style.display = ''; });
     var activeBtn = document.querySelector('.sys-tab.active');
     if (activeBtn && activeBtn.parentNode && activeBtn.parentNode.scrollWidth > activeBtn.parentNode.clientWidth + 4) { var nv = activeBtn.parentNode; nv.scrollTo({ left: activeBtn.offsetLeft - nv.clientWidth / 2 + activeBtn.offsetWidth / 2, behavior: 'smooth' }); }
     renderTabIntro(tabId);
@@ -4700,7 +4720,7 @@
     // 2026-09-25: naye system screens
     'phone-reading', 'phone-jaimini', 'phone-nadi', 'phone-lalkitab',
     // 2026-09-26 (Session 8)
-    'phone-unani', 'phone-ashtottari', 'phone-sudarshan', 'phone-learn',
+    'phone-unani', 'phone-ashtottari', 'phone-sudarshan', 'phone-learn', 'phone-index',
     // Subscription screen — Profile ka hissa (wahin se khulti hai, aur
     // lock overlays ke "اپگریڈ کریں" button se bhi).
     'phone-subscribe',
@@ -5249,6 +5269,7 @@
   // (masalan #kp) aur zaicha bana ho to wahi tab khule.
   applyLanguage(detectLanguage(), { save: false });
 </script>
+<script src="/preface-content.js"></script>
 <script src="/zaicha-ui.js"></script>
 <script>
   // PWA — Windows/Mac (Chrome/Edge "Install app"), Android aur iPhone par

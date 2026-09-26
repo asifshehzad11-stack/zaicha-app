@@ -327,6 +327,7 @@ body.view-wheel .scene-scale{display:none}
 /* Zaicha host: app ka apna mini-map istemal hota hai */
 body.no-mini #chartMini{display:none !important}
 
+.twm{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:9;pointer-events:none;color:#e6c47a;opacity:.28;font:600 12px/1.9 'Noto Nastaliq Urdu',Amiri,Lexend,sans-serif;letter-spacing:.06em;white-space:nowrap}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
@@ -877,6 +878,7 @@ const Q = new URLSearchParams(location.search);
 const EMBED = Q.get('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
 if (Q.get('mini') === '0') document.body.classList.add('no-mini');
+if (window.top === window) { const w = document.createElement('div'); w.className = 'twm'; w.textContent = 'Tehzeeb-ul-Ilm · تہذیب العلم'; document.body.appendChild(w); }
 sunLight.castShadow = false;           // point-light shadows = 6 extra renders/frame; too heavy for phones
 renderer.shadowMap.enabled = false;
 
