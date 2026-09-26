@@ -1,10 +1,59 @@
 {
-  "name": "Zaicha — Aik Maha Sagar",
+  "name": "Zaicha — Astrology ka Maha Sagar",
   "short_name": "Zaicha",
-  "description": "Vedic birth chart (kundli) and predictions in Urdu, English, Hindi, Arabic and Chinese.",
-  "start_url": "/",
+  "description": "Vedic, KP, Jaimini, Nadi, Lal Kitab and Unani astrology with a master book to learn — in Urdu, English, Hindi, Arabic and Chinese.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#070b1f",
-  "theme_color": "#070b1f",
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "background_color": "#030b0a",
+  "theme_color": "#041010",
+  "lang": "en",
+  "dir": "auto",
+  "categories": [
+    "lifestyle",
+    "education",
+    "books"
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Learn astrology",
+      "short_name": "Learn",
+      "url": "/?source=pwa#learn"
+    },
+    {
+      "name": "Unani",
+      "url": "/?source=pwa#unani"
+    }
+  ]
 }
