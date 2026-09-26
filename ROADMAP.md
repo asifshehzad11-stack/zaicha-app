@@ -2,7 +2,50 @@
 
 Yeh file Zaicha project ki har hidayat/feature-request aur uska status track karne ke liye hai — taake har naye session mein sab kuch chat history se dobara nikalna na paray. Jo item complete ho jaye usay `[x]` mark kar dein.
 
-Last updated: 2026-09-26 (session 7 — "Zaicha — Aik Maha Sagar": Bismillah, 5 zabanein + auto-detect, 13 system tabs, PDF (Celestial Blueprint) bayan, Jaimini/Nadi/Lal Kitab, naya design, time-zone accuracy, 10 bug fixes, speed — neeche "Session 7")
+Last updated: 2026-09-26 (session 8 — "Zaicha — Astrology ka Maha Sagar": Sylva/Phixen-style dock + editorial design, Planet Studio (har sayyare ka tab), Unani tab, Ashtottari + Sudarshan, Learning master book, installable PWA — neeche "Session 8"; pehle: session 7 — "Zaicha — Aik Maha Sagar": Bismillah, 5 zabanein + auto-detect, 13 system tabs, PDF (Celestial Blueprint) bayan, Jaimini/Nadi/Lal Kitab, naya design, time-zone accuracy, 10 bug fixes, speed — neeche "Session 7")
+
+---
+
+## Session 8 (2026-09-26) — "Zaicha — Astrology ka Maha Sagar": shahkar design, Unani, Learning, PWA
+
+Asif ki hidayat (verbatim ka khulasa): roadmap check/update karo; international mayar ka ek hi platform (web + Windows/desktop + mobile) jahan user ko kuch aur na chahiye; horary (prasna) + baqi cheezein; ek ustad ne kaha "sehat ka ghar pehla nahi"; Nadi aur baqi systems; Learning section + master book (beginner se advanced, aasan zaban); Urdu mein "مہا ساگر" ke گ ka danda nahi dikhta; zaiche ke neeche sitaron (Mars, Jupiter...) ke bayan ke TABS; Phixen Studios (Sylva) website ke graphics/buttons ka andaz; naam "Zaicha" + "Astrology ka Maha Sagar"; Unani najoom tab; AstroMatrix jaisa interface; "aik shahkar".
+
+**Ho gaya (code tayyar + local test pass; GitHub/Render deploy baqi — Chrome connection nahi mila):**
+- [x] **Bug — Urdu "گ" ka danda:** wajah `background-clip:text` (hero) + `overflow:hidden` tang line-height (brand-sub) — Nastaliq ke oonche hissay kat jate the. Dono hata diye, line-height barhayi.
+- [x] **Naam:** "Zaicha — Astrology ka Maha Sagar" (title, meta, OG, JSON-LD alternateName, manifest, 5 zabanon mein brandSub/heroTitle/docTitle).
+- [x] **Design (public/zaicha-skin.css):** Sylva ka andaz — gehra sabz-raat background + grain, cream "active" pill, Lexend UPPERCASE labels, Fraunces editorial headings, Fragment Mono chhotay labels, hairline lakeerein; hero mein ghoomta burj-wheel + aasman (canvas) ke sitare; tab-intro bara editorial heading.
+- [x] **Dock (public/zaicha-ui.js):** system tabs ab Sylva ka "Animated Top Dock" — SVG line icons, mouse qareeb aane par spring-physics se phailna (proximity 122, spring .19, damping .7 — reference ki file se), pointer ke sath ghoomti specular roshni. Mobile par scroll, reduced-motion par band.
+- [x] **Planet Studio:** "گرہوں کی تفصیل" ab har sayyare ka apna dock-tab: degree-ring (0–30°), bari degree, burj/nakshatra, dignity/verdict pills, khana, kin khanon ka hakim, nakshatra + KP sub lord, navamsa, Shadbala-lite + Vimshopak bars, nazrein, Nadi rishte, functional nateeja, karakatva paragraph (5 zabanein). Parashari tab mein chart ke foran baad.
+- [x] **Reading tabs:** PDF-method "functional diagnostic engine" ki planet-by-planet list bhi ab tabs (All + har sayyara), Planet Studio ke sath sync.
+- [x] **Chart:** North Indian chart mein sign-number aur sayyare takraate the — HOUSE_GEOMETRY dobara (har khane mein 6 jagahen, number andar ke kone mein).
+- [x] **Unani tab (lib/unani.js):** Al-Biruni ki Greco-Arabic riwayat — tropical, whole-sign; essential dignities (bait/sharaf/muthallatha/hadd/wajh/wabal/hubut, Egyptian terms, Chaldean faces, Dorothean triplicity), score, gharib; hayyiz (sect); almubtazz (almuten) of Asc; sahm al-sa'ada / sahm al-ghaib; firdaria (Abu Ma'shar, 75 saal, 7 sub-periods); intiha (profection) + saal ka hakim; sahib-e-roz + sahib-e-sa'at (NOAA sunrise). 14 sources, 35/35 tests pass, har ikhtilaf `disputes` mein (5 zabanon mein dikhaya).
+- [x] **Ashtottari dasha (lib/ashtottari-dasha.js):** 108 saal, Ardradi 4-3 groups + Abhijit; applicability (Rahu rule + paksha rule) sab ko dikhaya, ikhtilafat disclose. Dasha tab mein.
+- [x] **Sudarshan chakra (lib/sudarshan-chakra.js):** Lagna/Chandra/Surya teen rings SVG + saalana dasha (umar ka har saal ek khana). Parashari tab mein.
+- [x] **Learning (public/learn-content.js):** "سیکھیں" tab — Beginner 8 mukammal sabaq x 5 zabanein (zaicha kya hai, 9 graha, 12 rashi, 12 bhava + SEHAT ka sawal, nakshatra, drishti, bal, dasha), Intermediate/Advanced ka khaka (coming soon). Zaicha banaye baghair bhi khulta hai.
+- [x] **Sehat ka ghar (ustad ka sawal):** jawab lesson 4 mein — 1st = jism/quwwat (tanu bhava), 6th = bimari (roga bhava), 8th = umar/purani bimari, 12th = hospital; sehat chaaron ko mila kar. Sources: BPHS (Varahamihira blog) + Jagannath Hora medical astrology.
+- [x] **PWA:** sw.js (app-shell cache, /api kabhi cache nahi), manifest (PNG 192/512 + maskable), Windows/Mac (Chrome/Edge "Install app"), Android, iPhone "Add to Home Screen".
+
+**Session 8b (usi din, Asif: "Mars waghaira ke tab dabayein to wo kis ghar mein hai aur us ghar mein us ke asraat kya hain"; dock tabs Sylva jaisay "ubhar" jayein; baqi tehqeeq):**
+- [x] **Sayyara-dar-khana nataij (public/planet-house.js):** 9 sayyare x 12 khane x 5 zabanein. Do mustaqil sources: B.V. Raman "Hindu Predictive Astrology" (108-entry khulasa) + Jagannath Hora 108 combinations; Phaladeepika ch. 8 hawala. Sakht/fatalistic classical alfaz (jaise "evil-natured", bimari ke tafseeli dawe) chhod diye — sirf rujhanat.
+- [x] Planet Studio mein har tab ab sab se upar: **"Mars khana 7 mein"** (khane ka number + khane ka mauzu), **"Yeh maqam kya deta hai"** (classical nataij), aur **"Aap ke zaiche mein"** — is zaiche ke hisab se modifiers: sharaf/apna burj/hubut, ihtiraq, rajat, functional (PDF matrix) verdict, kin khanon ka hakim, Shadbala-lite, Mushtari/Zohra (sahara) aur Zuhal/Mirrikh/Rahu/Ketu (dabao) ki nazar.
+- [x] **Dock:** jahan poori patti na samaye (1280-1366px) wahan "compact" mode — sirf icons, cursor jate hi tab ubhar kar (height + drop spring) label khol deta hai; active tab ka label hamesha khula.
+- [x] **Learning — Intermediate:** 6 mukammal sabaq x 5 zabanein (Yogas; Navamsa/vargas; Laghu Parashari functional nature; gochar + Sade Sati; Ashtakavarga (SAV 337, ~28/burj); Shadbala (6 hisse, BPHS minimum rupas: Su 6.5, Mo 6, Ma 5, Me 7, Ju 6.5, Ve 5.5, Sa 5) + Vimshopaka). Sources: Wikipedia (Yoga (Hindu astrology), Yoga-karakas, Hindu astrology), Supastro SAV, Saravali bala summary, BPHS.
+- [ ] Tehqeeq jo abhi baqi hai (wajah ke sath): Prasna — Asif ka material chahiye; Nadi progression (Guru/Shani gochar-progression rules) — sources mein wazeh ikhtilaf, pehle 3+ sources jama karne hain; Kalachakra dasha — BPHS ki tashreeh mein kai riwayatain; Advanced sabaq (KP, Jaimini, Nadi, Prasna, Tajik, Unani) — agli baari.
+
+**Platform plan (international mayar — ek hi code, har jagah):**
+- [x] Web + installable PWA (Windows/Mac/Linux desktop, Android, iOS) — isi session mein.
+- [ ] Android Play Store: Capacitor scaffold pehle se hai (paused) — isi web app ko wrap; Google Play Billing (subscription portion abhi chhora hua hai).
+- [ ] Windows Store / .exe: PWA ko Microsoft Store mein PWABuilder se package (koi naya code nahi).
+- [ ] iOS App Store: Capacitor iOS (Mac + Apple developer account chahiye — Asif ka faisla).
+- [ ] Apna domain (zaicha.app sifarish, 2026-09-26 research) → canonical/sitemap update.
+
+**Baqi (agla qadam):**
+- [ ] **Prasna method:** Asif apna Prasna reference material bhejenge — us ke mutabiq pesh-goi ka tareeqa (abhi Prasna tab mojood hai, method update pending).
+- [ ] **Nadi — aur gehra:** BNN ke karaka-by-karaka reading rules (marriage/career/progeny), transit-over-natal Nadi links; palm-leaf Nadi software se mumkin nahi (disclosed).
+- [ ] **Baqi Vedic systems:** Kalachakra dasha (sources mein ikhtilaf — pehle research), Sarvatobhadra chakra, Muhurta, Shoola/Narayana dasha — har ek 2+ sources ke baad.
+- [ ] **Unani — agla hissa:** tasyir/directions, solar revolution (tahwil-e-saal), 'Unani/Tibb' (mizaj/akhlat) link — AKSRA research ke baad.
+- [ ] **Learning:** Intermediate + Advanced sabaq likhna; har sabaq ke sath YouTube lecture link (Asif ki series).
+- [ ] Ashtottari/Sudarshan/Unani ko PDF report mein shamil karna.
 
 ---
 

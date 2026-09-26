@@ -71,6 +71,12 @@ const { buildFunctionalNature } = require('./lib/functional-nature');
 const { buildJaiminiExtra } = require('./lib/jaimini-extra');
 const { buildNadi } = require('./lib/nadi');
 const { buildLalKitab } = require('./lib/lal-kitab');
+// 2026-09-26 (Session 8): Unani (Greco-Arabic / Al-Biruni) tab + do naye
+// Vedic nizaam (Ashtottari dasha, Sudarshan chakra). Teeno khaalis riyazi,
+// koi extra API call nahi; har module ke header mein AKSRA sources hain.
+const { buildUnani } = require('./lib/unani');
+const { buildAshtottariDasha } = require('./lib/ashtottari-dasha');
+const { buildSudarshanChakra } = require('./lib/sudarshan-chakra');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -592,6 +598,10 @@ app.post('/api/kundli', async (req, res) => {
     const jaiminiExtra = buildJaiminiExtra(data.natal, charaKarakas);
     const nadi = buildNadi(data.natal);
     const lalKitab = buildLalKitab(data.natal);
+    const safeBuild = (fn) => { try { return fn(); } catch (e) { console.error('[session8-module]', e && e.message); return null; } };
+    const unani = safeBuild(() => buildUnani(data.natal, new Date(birthDatetime), parseFloat(effective.lat), parseFloat(effective.lon), now));
+    const ashtottariDasha = safeBuild(() => buildAshtottariDasha(data.natal, new Date(birthDatetime), now));
+    const sudarshanChakra = safeBuild(() => buildSudarshanChakra(data.natal, new Date(birthDatetime), now));
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -638,6 +648,9 @@ app.post('/api/kundli', async (req, res) => {
       jaiminiExtra,
       nadi,
       lalKitab,
+      unani,
+      ashtottariDasha,
+      sudarshanChakra,
       bhavaBala,
       muntha,
       panchang,
