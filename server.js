@@ -67,6 +67,10 @@ const { buildWesternChart, ayanamsaValueForDate } = require('./lib/western-chart
 const { buildArabianParts } = require('./lib/arabian-parts');
 const { buildPrasnaJudgment, CATEGORY_HOUSES } = require('./lib/prasna');
 const { buildKundliMilan } = require('./lib/kundli-milan');
+const { buildFunctionalNature } = require('./lib/functional-nature');
+const { buildJaiminiExtra } = require('./lib/jaimini-extra');
+const { buildNadi } = require('./lib/nadi');
+const { buildLalKitab } = require('./lib/lal-kitab');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -256,14 +260,18 @@ function applyNodeOverride(natalPlanetPosition, trueNode) {
  * in 5 calls ko dobara Prokerala se mangwane ki zaroorat nahi rehti.
  */
 async function fetchNatalBundle(person) {
-  const [kundliAdvanced, natalPlanetPosition, kaalSarp] = await Promise.all([
+  // Speed (2026-09-25): pehle ye do alag marhalon mein (ek ke baad ek) chalti
+  // thin — ab paanchon ek saath chalti hain.
+  const optional = (p) => p.then(
+    (value) => ({ status: 'fulfilled', value }),
+    (reason) => ({ status: 'rejected', reason })
+  );
+  const [kundliAdvanced, natalPlanetPosition, kaalSarp, birthPanchangSettled, ashtakavargaSettled] = await Promise.all([
     prokerala.getKundliAdvanced(person),
     prokerala.getPlanetPosition(person),
     prokerala.getKaalSarpDosha(person),
-  ]);
-  const [birthPanchangSettled, ashtakavargaSettled] = await Promise.allSettled([
-    prokerala.getPanchang(person),
-    prokerala.getSarvashtakavargaBestEffort(person),
+    optional(prokerala.getPanchang(person)),
+    optional(prokerala.getSarvashtakavargaBestEffort(person)),
   ]);
   return {
     kundliAdvanced,
@@ -294,7 +302,12 @@ app.post('/api/kundli', async (req, res) => {
     // usi mein saara narrative/prediction content generate hoga. Default English
     // hai (app-wide default) — narrative.js ka normLang() bhi khud fallback
     // karta hai, lekin yahan bhi explicit rakha hai taake saaf rahe.
-    const reqLang = ['en', 'ur', 'hi'].indexOf(lang) !== -1 ? lang : 'en';
+    // 2026-09-25: Arabic (ar) aur Chinese (zh) bhi. Backend ke jin modules
+    // mein ar/zh ka matn (text) abhi tak nahi (ya jo sirf en/ur/hi jaante
+    // hain) woh khud en par fallback karte hain; `uiLang` frontend ko wapas
+    // jata hai taake poora interface usi zaban mein rahe.
+    const uiLang = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(lang) !== -1 ? lang : 'en';
+    const reqLang = uiLang;
 
     let effective = { name, dob, time, lat, lon, ayanamsa, utcOffset };
     let profileRow = null;
@@ -334,8 +347,26 @@ app.post('/api/kundli', async (req, res) => {
     const person = { datetime: birthDatetime, coordinates, ayanamsa: ayanamsaVal };
 
     const now = new Date();
-    const nowDatetime = now.toISOString().replace('Z', offset);
+    // BUG FIX (2026-09-25): pehle `now.toISOString().replace('Z', offset)` tha —
+    // UTC waqt par local offset ka label, yani gochar (transit) chart offset
+    // jitne ghante ghalat waqt ka banta tha (Pakistan: 5 ghante pehle ka).
+    const offMatch = /^([+-])(\d{2}):(\d{2})$/.exec(offset) || ['', '+', '05', '00'];
+    const offMin = (offMatch[1] === '-' ? -1 : 1) * (parseInt(offMatch[2], 10) * 60 + parseInt(offMatch[3], 10));
+    const nowDatetime = new Date(now.getTime() + offMin * 60000).toISOString().slice(0, 19) + offset;
     const gocharPerson = { datetime: nowDatetime, coordinates, ayanamsa: ayanamsaVal };
+
+    // Speed (2026-09-25): gochar/Sade-Sati/aaj ka panchang natal data par
+    // munhasir nahi — is liye inhein natal bundle ke SAATH hi shuru kar dete
+    // hain (pehle natal ke mukammal hone ke baad shuru hoti thin).
+    const freshPromise = Promise.all([
+      prokerala.getPlanetPosition(gocharPerson),
+      prokerala.getSadeSati(person),
+      prokerala.getPanchang(gocharPerson).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (reason) => ({ status: 'rejected', reason: reasonMessage(reason) })
+      ),
+    ]);
+    freshPromise.catch(() => {}); // natal pehle fail ho to unhandled-rejection na bane
 
     // ---- Natal bundle: cache se (agar saved profile hai) ya taaza fetch ----
     let natalBundle;
@@ -404,14 +435,7 @@ app.post('/api/kundli', async (req, res) => {
     // ---- Ye teeno HAMESHA taaza fetch hote hain — waqt/tareekh ke sath
     // badalte hain, is liye cache nahi ho sakte: aaj ki gochar (current
     // transit) positions, Sade Sati ka current status, aur aaj ka panchang.
-    const [gocharPlanetPosition, sadeSati, todayPanchangSettled] = await Promise.all([
-      prokerala.getPlanetPosition(gocharPerson),
-      prokerala.getSadeSati(person),
-      prokerala.getPanchang(gocharPerson).then(
-        (value) => ({ status: 'fulfilled', value }),
-        (reason) => ({ status: 'rejected', reason: reasonMessage(reason) })
-      ),
-    ]);
+    const [gocharPlanetPosition, sadeSati, todayPanchangSettled] = await freshPromise;
 
     const data = buildZaichaData({
       personName: effective.name || 'صارف',
@@ -559,6 +583,15 @@ app.post('/api/kundli', async (req, res) => {
     // (2 independent sources se cross-verified), is app ki apni sidereal
     // longitude data par (disclosed frame). Koi extra API call nahi.
     const arabianParts = buildArabianParts(data);
+    // ---- 2026-09-25: Asif ki upload ki hui PDF ("The Celestial Blueprint" —
+    // Laghu Parashari functional benefic/malefic framework) ke tariqe par har
+    // graha ki functional nature; aur naye system tabs (Jaimini Arudha/
+    // Karakamsa, Nadi/BNN, Lal Kitab). Sab khaalis riyazi — koi extra API
+    // call nahi. Har module ke header mein AKSRA sources/disclosures hain.
+    const functionalNature = buildFunctionalNature(data.natal);
+    const jaiminiExtra = buildJaiminiExtra(data.natal, charaKarakas);
+    const nadi = buildNadi(data.natal);
+    const lalKitab = buildLalKitab(data.natal);
     const remedies = buildRemedies({
       hasMangalDosha: data.mangalDosha && data.mangalDosha.has_dosha,
       hasKaalSarpDosha: data.kaalSarp && data.kaalSarp.has_dosha,
@@ -601,6 +634,10 @@ app.post('/api/kundli', async (req, res) => {
       yoginiDasha,
       charaDasha,
       charaKarakas,
+      functionalNature,
+      jaiminiExtra,
+      nadi,
+      lalKitab,
       bhavaBala,
       muntha,
       panchang,
@@ -615,10 +652,10 @@ app.post('/api/kundli', async (req, res) => {
       nodeType: { requested: nodeTypeRequested, applied: nodeTypeApplied, note: nodeTypeNote },
       // Frontend ko ye chahiye taake baad mein (jab user "ہفتہ وار کیلنڈر"
       // shortcut dabaye) /api/forward-calendar ko call karte waqt poori
-      // pedaishi tafseelat dobara bheجne ki zaroorat na pare.
+      // pedaishi tafseelat dobara bhejne ki zaroorat na pare.
       ayanamsa: ayanamsaVal,
       isPremium: premiumStatus.isPremium,
-      lang: reqLang,
+      lang: uiLang,
     });
   } catch (err) {
     console.error(err);
@@ -642,7 +679,7 @@ app.post('/api/kundli', async (req, res) => {
     // "dobara koshish karein" wala mashwara de — asal rate-limit/cold-start
     // khud khatam karne ke liye paid upgrade chahiye (VedAstro $1/month,
     // Render paid plan), jo Asif ka apna faisla hai.
-    const errReqLang = ['en', 'ur', 'hi'].indexOf(req.body && req.body.lang) !== -1 ? req.body.lang : 'en';
+    const errReqLang = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(req.body && req.body.lang) !== -1 ? req.body.lang : 'en';
     const rawMsg = String((err && err.message) || '');
     const isRateLimit = /rate limit|too many requests|429/i.test(rawMsg);
     const isColdStartOrNetwork = /timeout|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ECONNABORTED|EAI_AGAIN|fetch failed|network/i.test(rawMsg);
@@ -651,16 +688,22 @@ app.post('/api/kundli', async (req, res) => {
         en: 'The astrology engine is getting a lot of requests right now (this happens when several people try at the same time). Please wait about a minute and try again.',
         ur: 'اس وقت astrology engine پر بہت زیادہ درخواستیں آ رہی ہیں (ایسا اس وقت ہوتا ہے جب کئی لوگ ایک ساتھ کوشش کریں)۔ براہ کرم ایک منٹ انتظار کریں اور دوبارہ کوشش کریں۔',
         hi: 'अभी ज्योतिष इंजन पर बहुत ज़्यादा अनुरोध आ रहे हैं (ऐसा तब होता है जब कई लोग एक साथ कोशिश करते हैं)। कृपया एक मिनट रुकें और दोबारा कोशिश करें।',
+        ar: 'محرك الحسابات الفلكية يتلقى الآن طلبات كثيرة (يحدث هذا عندما يحاول عدة أشخاص في الوقت نفسه). يُرجى الانتظار دقيقة تقريبًا ثم المحاولة مرة أخرى.',
+        zh: '星盘计算引擎目前请求过多（多人同时使用时会出现这种情况）。请等待约一分钟后再试。',
       },
       coldStart: {
         en: 'The server was asleep and is waking up — this can take up to a minute the first time. Please try again shortly.',
         ur: 'سرور سو رہا تھا اور ابھی جاگ رہا ہے — پہلی بار ایک منٹ تک لگ سکتا ہے۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
         hi: 'सर्वर सो रहा था और अभी जाग रहा है — पहली बार एक मिनट तक लग सकता है। कृपया थोड़ी देर बाद दोबारा कोशिश करें।',
+        ar: 'كان الخادم في وضع السكون ويستيقظ الآن — قد يستغرق ذلك حتى دقيقة في المرة الأولى. يُرجى المحاولة بعد قليل.',
+        zh: '服务器刚才处于休眠状态，正在唤醒——首次可能需要约一分钟。请稍后再试。',
       },
       generic: {
         en: 'Something went wrong while generating your kundli. Please try again in a moment.',
         ur: 'آپ کی کنڈلی بناتے وقت کچھ خرابی ہوئی۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
         hi: 'आपकी कुंडली बनाते समय कुछ गड़बड़ हुई। कृपया थोड़ी देर बाद दोबारा कोशिश करें।',
+        ar: 'حدث خطأ أثناء إعداد خريطتك الفلكية. يُرجى المحاولة مرة أخرى بعد قليل.',
+        zh: '生成您的星盘时出现问题。请稍后再试。',
       },
     };
     const bucket = isRateLimit ? 'rateLimit' : (isColdStartOrNetwork ? 'coldStart' : 'generic');
@@ -1081,9 +1124,18 @@ app.post('/api/prasna', async (req, res) => {
     if (!lat || !lon) {
       return res.status(400).json({ error: 'sawal poochne ke waqt ki location (lat, lon) zaroori hai — pehle shehar chunein.' });
     }
-    const offset = utcOffset || '+05:00';
+    const offset = /^[+-]\d{2}:\d{2}$/.test(String(utcOffset || '')) ? utcOffset : '+05:00';
     const now = new Date();
-    const nowDatetime = now.toISOString().replace('Z', offset);
+    // BUG FIX (2026-09-25): pehle `now.toISOString().replace('Z', offset)`
+    // tha — yani UTC ka waqt le kar us par local offset ka label laga diya
+    // jata tha (masalan UTC 10:00 -> "10:00+05:00", jo asal mein 05:00 UTC
+    // hai) — Prashna chart poore offset jitne ghante ghalat banta tha.
+    // Ab asal local wall-clock waqt (UTC + offset) nikal kar wahi offset
+    // lagaya jata hai.
+    const om = /^([+-])(\d{2}):(\d{2})$/.exec(offset);
+    const offsetMinutes = (om[1] === '-' ? -1 : 1) * (parseInt(om[2], 10) * 60 + parseInt(om[3], 10));
+    const local = new Date(now.getTime() + offsetMinutes * 60000);
+    const nowDatetime = local.toISOString().slice(0, 19) + offset;
     const coordinates = `${lat},${lon}`;
     const ayanamsaVal = ayanamsa || 1; // 1 = Lahiri
 
@@ -1176,7 +1228,7 @@ app.get('/api/geocode-city', async (req, res) => {
 
     const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
     url.searchParams.set('name', q);
-    url.searchParams.set('count', '8');
+    url.searchParams.set('count', '15');
     url.searchParams.set('language', 'en');
     url.searchParams.set('format', 'json');
 
@@ -1198,14 +1250,33 @@ app.get('/api/geocode-city', async (req, res) => {
     // pehchan kar select kar sake — koi automatic "guess" nahi ki gayi
     // (kaunsi jagah "sahi" hai ye khud decide karna theek nahi, kyunke
     // koi bhi in mein se user ki asal paidaish ki jagah ho sakti hai).
-    const results = (raw.results || []).map((item) => {
-      const label = [item.name, item.admin2, item.admin1, item.country].filter(Boolean).join(', ');
-      return {
-        label,
-        lat: item.latitude,
-        lon: item.longitude,
-      };
-    });
+    // 2026-09-25 (Asif: "latitude longitude accurate honay chahiye"): ab har
+    // natijay ke saath (1) shehar ka IANA time-zone (masalan Asia/Karachi) —
+    // frontend is se paidaish ki TAREEKH par sahi UTC offset (daylight-saving
+    // samet) khud nikalta hai; pehle user ko alag se mulk/offset chunna parta
+    // tha aur default hamesha Pakistan (+05:00) rehta tha; (2) aabadi
+    // (population) aur feature code — bare/asal shehar (PPLC/PPLA, zyada
+    // aabadi) list mein upar aate hain, chhote hamnaam gaon neeche (lekin
+    // hataye nahi jate — kisi ki paidaish waqai wahan bhi ho sakti hai).
+    const rank = (it) => {
+      const fc = String(it.feature_code || '');
+      const boost = fc === 'PPLC' ? 3e9 : /^PPLA/.test(fc) ? 1e9 : 0;
+      return boost + (Number(it.population) || 0);
+    };
+    const results = (raw.results || [])
+      .slice()
+      .sort((a, b) => rank(b) - rank(a))
+      .map((item) => {
+        const label = [item.name, item.admin2, item.admin1, item.country].filter(Boolean).join(', ');
+        return {
+          label,
+          lat: Math.round(Number(item.latitude) * 1e5) / 1e5,
+          lon: Math.round(Number(item.longitude) * 1e5) / 1e5,
+          timezone: item.timezone || null,
+          population: item.population || null,
+          countryCode: item.country_code || null,
+        };
+      });
 
     res.json({ results });
   } catch (err) {
@@ -1215,8 +1286,15 @@ app.get('/api/geocode-city', async (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
+  const provider = process.env.ASTRO_PROVIDER === 'prokerala' ? 'prokerala' : 'vedastro';
   res.json({
     ok: true,
+    provider,
+    // VedAstro: key ho to "unlimited", warna free tier (5 calls/minute) —
+    // sirf boolean, key ki value kabhi nahi.
+    engineKeyConfigured: provider === 'vedastro'
+      ? !!(typeof prokerala.apiKeyDiagnostics === 'function' && prokerala.apiKeyDiagnostics().configured)
+      : !!(process.env.PROKERALA_CLIENT_ID && process.env.PROKERALA_CLIENT_SECRET),
     credentialsConfigured: !!(process.env.PROKERALA_CLIENT_ID && process.env.PROKERALA_CLIENT_SECRET),
     dbConfigured: db.isDbConfigured(),
     safepayConfigured: safepay.isSafepayConfigured(),

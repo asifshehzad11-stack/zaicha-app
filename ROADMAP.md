@@ -2,9 +2,25 @@
 
 Yeh file Zaicha project ki har hidayat/feature-request aur uska status track karne ke liye hai — taake har naye session mein sab kuch chat history se dobara nikalna na paray. Jo item complete ho jaye usay `[x]` mark kar dein.
 
-Last updated: 2026-09-25 (session 6 — VedAstro premium key set + city-geocoding bug fix + Hora/D2 chart feature DEPLOYED + Rahu/Ketu True Node feature bhi DEPLOYED (khud, bina kisi npm library ke, orbital-mechanics se) — neeche "Session 6" section mein poori tafseel. VedAstro rate-limit ki ASAL WAJAH mil gayi: Render par `VEDASTRO_API_KEY` is waqt SET HI NAHI hai (subscription theek hai) — Asif ko key dobara Render mein daalni hai; dekhein neeche "VedAstro rate-limit ROOT CAUSE".)
+Last updated: 2026-09-26 (session 7 — "Zaicha — Aik Maha Sagar": Bismillah, 5 zabanein + auto-detect, 13 system tabs, PDF (Celestial Blueprint) bayan, Jaimini/Nadi/Lal Kitab, naya design, time-zone accuracy, 10 bug fixes, speed — neeche "Session 7")
 
 ---
+
+## Session 7 (2026-09-26) — "Zaicha — Aik Maha Sagar": 5 zabanein, system tabs, PDF-method bayan, naya design
+
+Asif ki hidayat: Bismillah sab se upar; naam "Zaicha — Aik Maha Sagar" (sirf "Zaicha" se bhi search ho); Urdu/English/Hindi/Arabic/Chinese + auto-select; har Vedic system ka apna TAB jo backend par chale; lat/long accurate; AstroMatrix jaisa style; degrees parhna aasan aur dilkash; upload ki hui PDF ("The Celestial Blueprint — Laghu Parashari functional benefic/malefic") ke tariqe par zaiche ka bayan; jahan durustagi chahiye karo.
+
+- [x] **Bismillah** har zaban mein, hamesha Arabi, sab se upar (Amiri font).
+- [x] **Naam/SEO:** title/meta/OG/JSON-LD (alternateName: Zaicha, زائچہ, Zaicha Aik Maha Sagar), hreflang ?lang=en/ur/hi/ar/zh, robots.txt, sitemap.xml, manifest + icon. NOTE: Google par "Zaicha" se aana Google Search Console mein sitemap submit karne se tez hoga (Asif ka apna account — Claude nahi kar sakta); onrender.com subdomain par ranking ki guarantee nahi.
+- [x] **5 zabanein + auto-detect** (URL ?lang= > pichhli pasand > browser > time-zone/mulk > English). Poora UI (labels + backend pishgoiyan) usi zaban mein; zaban badalne par data dobara usi zaban mein mangwaya jata hai. Files: public/i18n-extra.js (en+ur naye keys), i18n-hi/ar/zh.js; backend narrative.js, yoga-engine.js, jaimini-karaka.js mein hi/ar/zh. Test: 5 zabanon ke DOM scan mein koi ghalat script/English jumla nahi (sirf jaan-boojh kar Arabi dua).
+- [x] **System tabs:** Home · Parashari · Dasha · KP · Jaimini · Nadi · Lal Kitab · Tajik · Prashna · Kundli Milan · Panchang · Western&Arabic · Report (desktop + mobile, sticky, bottom-nav bhi).
+- [x] **PDF method ("Celestial Blueprint")** — lib/functional-nature.js: Ascendant Matrix (slides 8-9) hubahu, flowchart (Red Flag 3/6/11 → A, Golden Rule kendra 4/7/10 + trikona 5/9 → B Yoga Karaka, Double Maraka → C, warna D), exceptions (maraka paradox, 8/12 neutrality, Kendradhipati dosha), Trikona principle. Matrix mein na likhe grah flowchart se (label ke saath); Lagna lord = "baseline"; Rahu/Ketu = placement (framework se bahar, disclosed). Pisces neutral column ka "None purely positive" PDF typo samjha gaya.
+- [x] **Naye systems (backend):** lib/jaimini-extra.js (Arudha padas A1-A12, AL, UL, Karakamsa; 3 sources; Scorpio/Aquarius co-lord ikhtilaf disclose), lib/nadi.js (Bhrigu Nandi Nadi links + nakshatra Nadi; palm-leaf Nadi ka software se na banna disclose; retro-previous-sign rule sirf 1 source — shamil nahi), lib/lal-kitab.js (fixed-house chart + pakka ghar, sources ka ikhtilaf alag dikhaya; LK upay shamil nahi).
+- [x] **Degrees:** chart mein har grah ke saath darja; "ek nazar mein" table; Parashari tab mein degree cards (0-30° patti, deg°min′sec″, nakshatra/pada/star-lord, dignity, functional verdict). Surkh = kamzor/antagonist, safed = theek (Asif ki pehli khwahish).
+- [x] **Lat/long + time-zone accuracy:** geocode ab IANA time-zone + aabadi deta hai; offset paidaish ki TAREEKH par (DST samet) khud; lat/long khud bhi likh sakte hain (validation). Prashna aur Milan ab querent/har fareeq ke apne time-zone se (pehle hamesha +05:00).
+- [x] **Durustagiyan (bugs fixed):** (1) Prashna chart waqt offset jitne ghante ghalat (UTC waqt par local label); (2) wahi bug gochar (transit) waqt mein; (3) Kundli Milan: Purva Bhadrapada ki Nadi 'antya' likhi thi, asal 'aadi' (2 sources) — Nadi Koota/Dosha ghalat aa rahi thi; (4) KP significators A aur C ulte thay (3 sources); (5) KP "Placidus" cusps asal mein Topocentric formula thay — asli Placidus iteration lagayi (Raphael's Tables se match); (6) Graha Bala: Sun ko Paksha Bala 0 milta tha — Sun malefic group mein hai (2 sources); (7) Yogini Dasha pehli mahadasha ki antardashayein balance mein daba di jati thin — ab poori length par; (8) status badge "Prokerala credentials not set" ghalat dikhata tha (app VedAstro par hai); (9) Ashtakavarga kacha JSON dikhata tha — ab table; (10) English narrative mein Urdu Sade Sati phase/grah naam.
+- [x] **Speed:** ek kundli ~75 sec le rahi thi. VedAstro calls ab ek saath (parallel) + duplicate calls share (10-min promise cache).
+- [ ] Disclosed / baqi: Unani nizaam (research pending), LK soya-ghar/rin rules, Moon ka "double paksha bala" (1 source), Ashtakavarga columns ki sign-orientation VedAstro doc se confirm karni hai.
 
 ## Session 6 (2026-09-25) — VedAstro premium key + geocoding lat/long bug
 
