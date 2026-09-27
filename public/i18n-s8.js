@@ -1065,3 +1065,16 @@ window.I18N_S8 = {
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
 })();
+
+/* Session 9e: navigation + recent zaichas + folded form */
+(function(){
+  var add = {
+    en: { peopleRecent: 'Recent charts', peopleNew: 'New chart', peopleRemove: 'Remove from list', navHome: 'Home', navClose: 'Close — back to the front page', advSettings: 'More settings (system, Rahu type, time zone) — system:' },
+    ur: { peopleRecent: 'حالیہ زائچے', peopleNew: 'نیا زائچہ', peopleRemove: 'فہرست سے ہٹائیں', navHome: 'ہوم', navClose: 'بند کریں — پہلے صفحے پر', advSettings: 'مزید ترتیبات (نظام، راہو کی قسم، ٹائم زون) — نظام:' },
+    hi: { peopleRecent: 'हाल की कुंडलियाँ', peopleNew: 'नई कुंडली', peopleRemove: 'सूची से हटाएँ', navHome: 'होम', navClose: 'बंद करें — पहले पन्ने पर', advSettings: 'और सेटिंग्स (प्रणाली, राहु का प्रकार, टाइम ज़ोन) — प्रणाली:' },
+    ar: { peopleRecent: 'الطوالع الأخيرة', peopleNew: 'طالع جديد', peopleRemove: 'إزالة من القائمة', navHome: 'الرئيسية', navClose: 'إغلاق — العودة إلى الصفحة الأولى', advSettings: 'إعدادات أخرى (النظام، نوع العقدة، المنطقة الزمنية) — النظام:' },
+    zh: { peopleRecent: '最近的星盘', peopleNew: '新建星盘', peopleRemove: '从列表中移除', navHome: '首页', navClose: '关闭——返回首页', advSettings: '更多设置（体系、罗睺类型、时区）——体系：' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();

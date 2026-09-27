@@ -881,7 +881,7 @@
     var inApp = document.body.classList.contains('app-mode');
     var groups = [];
     groups.push({ id: 'front', name: T('indexFront'), items: [
-      { go: 'cosmos', title: T('cosmosTitle'), desc: T('cosmosSub'), free: true },
+      { go: 'cosmos', title: T('cosmosTitle'), desc: '', free: true },
       { go: 'preface', title: (window.ZAICHA_PREFACE && (ZAICHA_PREFACE[lang()] || ZAICHA_PREFACE.en).title) || 'Preface', desc: '', free: true }
     ] });
     SYSTEM_TABS.forEach(function(t){
@@ -930,6 +930,115 @@
   };
 
   /* ------------------------------------------------------------------
+     Session 9e — Week 1: navigation (Home / Close / people switcher),
+     recent zaichas (no re-typing), simpler birth form (advanced folded)
+     ------------------------------------------------------------------ */
+  var PEOPLE_KEY = 'zaicha.people.v1';
+  function peopleLoad(){ try { var a = JSON.parse(localStorage.getItem(PEOPLE_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function peopleSave(a){ try { localStorage.setItem(PEOPLE_KEY, JSON.stringify(a.slice(0, 12))); } catch (e) {} }
+  function val(id){ var el = document.getElementById(id); return el ? el.value : ''; }
+  function currentForm(){ return { name: val('in-name').trim(), dob: val('in-dob'), time: val('in-time'), city: val('in-city'), lat: val('in-lat'), lon: val('in-lon'), tz: val('in-tz'), off: val('in-offset'), ay: val('in-ayanamsa'), node: val('in-node-type') }; }
+  function pKey(p){ return [p.name, p.dob, p.time, (+p.lat).toFixed(3), (+p.lon).toFixed(3)].join('|'); }
+  ZUI.rememberPerson = function(){
+    var p = currentForm(); if (!p.dob || !p.time || !p.lat || !p.lon) return;
+    var list = peopleLoad().filter(function(x){ return pKey(x) !== pKey(p); });
+    list.unshift(p); peopleSave(list); ZUI.current = p; renderPeopleUI();
+  };
+  function setV(id, v){ var el = document.getElementById(id); if (el && v != null) el.value = v; }
+  ZUI.openPerson = function(p){
+    setV('in-name', p.name); setV('in-dob', p.dob); setV('in-time', p.time); setV('in-city', p.city); setV('in-lat', p.lat); setV('in-lon', p.lon); setV('in-tz', p.tz);
+    if (typeof updateBirthOffset === 'function') updateBirthOffset();
+    if (p.off) setV('in-offset', p.off); if (p.ay) setV('in-ayanamsa', p.ay); if (p.node) setV('in-node-type', p.node);
+    if (typeof updateCoordHint === 'function') updateCoordHint();
+    try { window.loadedProfileId = null; } catch (e) {}
+    closeMenu();
+    if (typeof runGenerate === 'function') runGenerate();
+  };
+  function removePerson(i){ var l = peopleLoad(); l.splice(i, 1); peopleSave(l); renderPeopleUI(); }
+  ZUI.newZaicha = function(){
+    closeMenu(); document.body.classList.remove('app-mode', 'learn-open');
+    ['in-name', 'in-dob', 'in-time', 'in-city', 'in-lat', 'in-lon', 'in-tz'].forEach(function(id){ setV(id, ''); });
+    try { window.loadedProfileId = null; } catch (e) {}
+    if (typeof updateCoordHint === 'function') updateCoordHint();
+    if (typeof showScreen === 'function') showScreen('phone-entry');
+    if (typeof buildSystemTabs === 'function') buildSystemTabs();
+    var f = document.getElementById('phone-entry'); if (f) setTimeout(function(){ f.scrollIntoView({ behavior: 'smooth', block: 'start' }); var n = document.getElementById('in-name'); if (n) n.focus(); }, 60);
+  };
+  ZUI.closeApp = function(){
+    closeMenu(); document.body.classList.remove('app-mode', 'learn-open');
+    if (typeof buildSystemTabs === 'function') buildSystemTabs();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  function closeMenu(){ var m = document.getElementById('zp-menu'); if (m) m.hidden = true; var b = document.getElementById('zp-btn'); if (b) b.setAttribute('aria-expanded', 'false'); }
+  function personLine(p){ return E(p.name || '—') + '<small>' + E(p.dob) + ' · ' + E(p.time) + (p.city ? ' · ' + E(p.city.split(',')[0]) : '') + '</small>'; }
+  function renderPeopleUI(){
+    var list = peopleLoad(), cur = ZUI.current;
+    // header bar
+    var bar = document.getElementById('zp-bar');
+    if (bar) {
+      var name = cur && cur.name ? cur.name : T('peopleRecent');
+      bar.querySelector('#zp-btn .zp-name').textContent = name;
+      var menu = document.getElementById('zp-menu');
+      var h = '<button type="button" class="zp-new" data-act="new">＋ ' + E(T('peopleNew')) + '</button>';
+      if (list.length) h += '<div class="zp-cap">' + E(T('peopleRecent')) + '</div>';
+      list.forEach(function(p, i){ h += '<div class="zp-row"><button type="button" class="zp-open" data-i="' + i + '">' + personLine(p) + '</button><button type="button" class="zp-del" data-del="' + i + '" aria-label="' + E(T('peopleRemove')) + '" title="' + E(T('peopleRemove')) + '">×</button></div>'; });
+      menu.innerHTML = h;
+      bar.querySelector('#zp-home').title = T('navHome'); bar.querySelector('#zp-home').setAttribute('aria-label', T('navHome'));
+      bar.querySelector('#zp-close').title = T('navClose'); bar.querySelector('#zp-close').setAttribute('aria-label', T('navClose'));
+    }
+    // recent chips above the form
+    var rc = document.getElementById('zp-recent');
+    if (rc) {
+      if (!list.length) { rc.hidden = true; rc.innerHTML = ''; }
+      else { rc.hidden = false; rc.innerHTML = '<div class="zp-cap">' + E(T('peopleRecent')) + '</div><div class="zp-chips">' + list.slice(0, 8).map(function(p, i){ return '<button type="button" class="zp-chip" data-i="' + i + '">' + personLine(p) + '</button>'; }).join('') + '</div>'; }
+    }
+  }
+  function buildNav(){
+    var acts = document.querySelector('.topbar .topbar-actions'); if (!acts || document.getElementById('zp-bar')) return;
+    var bar = document.createElement('div'); bar.id = 'zp-bar'; bar.className = 'zp-bar';
+    bar.innerHTML = '<button type="button" class="zp-ic" id="zp-home"><svg viewBox="0 0 24 24"><path d="M3.5 11.2 12 4l8.5 7.2V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg></button>' +
+      '<div class="zp-people"><button type="button" class="zp-btn" id="zp-btn" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"/></svg><span class="zp-name"></span><span aria-hidden="true">▾</span></button><div class="zp-menu" id="zp-menu" hidden></div></div>' +
+      '<button type="button" class="zp-ic" id="zp-close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';
+    acts.insertBefore(bar, acts.firstChild);
+    bar.querySelector('#zp-home').addEventListener('click', function(){ closeMenu(); if (typeof activateTab === 'function') activateTab('home', true); });
+    bar.querySelector('#zp-close').addEventListener('click', ZUI.closeApp);
+    bar.querySelector('#zp-btn').addEventListener('click', function(e){ e.stopPropagation(); var m = document.getElementById('zp-menu'); m.hidden = !m.hidden; this.setAttribute('aria-expanded', m.hidden ? 'false' : 'true'); });
+    bar.querySelector('#zp-menu').addEventListener('click', function(e){
+      e.stopPropagation();
+      var d = e.target.closest('[data-del]'); if (d) { removePerson(+d.getAttribute('data-del')); return; }
+      var o = e.target.closest('.zp-open'); if (o) { ZUI.openPerson(peopleLoad()[+o.getAttribute('data-i')]); return; }
+      if (e.target.closest('[data-act="new"]')) ZUI.newZaicha();
+    });
+    document.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeMenu(); });
+  }
+  function simplifyForm(){
+    var entry = document.getElementById('phone-entry'); if (!entry || document.getElementById('zp-adv')) return;
+    // recent chips on top of the form
+    var rc = document.createElement('div'); rc.id = 'zp-recent'; rc.className = 'zp-recent'; rc.hidden = true;
+    var sub = entry.querySelector('p.sub'); if (sub && sub.parentNode) sub.parentNode.insertBefore(rc, sub.nextSibling);
+    rc.addEventListener('click', function(e){ var c = e.target.closest('.zp-chip'); if (c) ZUI.openPerson(peopleLoad()[+c.getAttribute('data-i')]); });
+    // fold advanced options (system / Rahu type / UTC offset) — Lahiri stays the default
+    var adv = document.createElement('details'); adv.id = 'zp-adv'; adv.className = 'zp-adv';
+    adv.innerHTML = '<summary></summary><div class="zp-adv-body"></div>';
+    var body = adv.querySelector('.zp-adv-body');
+    var fOff = (document.getElementById('in-offset') || {}).closest ? document.getElementById('in-offset').closest('.field') : null;
+    var fAy = document.getElementById('in-ayanamsa') ? document.getElementById('in-ayanamsa').closest('.field') : null;
+    var fNode = document.getElementById('in-node-type') ? document.getElementById('in-node-type').closest('.field') : null;
+    var gen = document.getElementById('generate-btn');
+    if (!fAy || !gen) return;
+    gen.parentNode.insertBefore(adv, gen);
+    [fAy, fNode, fOff].forEach(function(f){ if (f) body.appendChild(f); });
+    advLabel();
+  }
+  function advLabel(){ var s = document.querySelector('#zp-adv > summary'); if (!s) return; var ay = document.getElementById('in-ayanamsa'); var sys = ay && ay.options[ay.selectedIndex] ? ay.options[ay.selectedIndex].textContent : ''; s.innerHTML = E(T('advSettings')) + ' <b>' + E(sys) + '</b>'; }
+  ZUI.initNav = function(){
+    buildNav(); simplifyForm(); renderPeopleUI();
+    var ay = document.getElementById('in-ayanamsa'); if (ay) ay.addEventListener('change', advLabel);
+  };
+  ZUI.navLang = function(){ renderPeopleUI(); advLabel(); };
+
+  /* ------------------------------------------------------------------
      HOOKS
      ------------------------------------------------------------------ */
   ZUI.renderAll = function(data){
@@ -940,12 +1049,14 @@
     ZUI.renderSudarshan(data);
     ZUI.renderLearn();
     try { ZUI.lk3dUpdate(data); } catch (e) { console.error('lk3d', e); }
+    try { ZUI.rememberPerson(); } catch (e) { console.error('people', e); }
   };
   ZUI.onLanguage = function(){
     ZUI.renderLearn();
     lkTexts();
     ZUI.renderPreface();
     ZUI.cosmosLang();
+    ZUI.navLang();
     if (document.getElementById('phone-index') && document.getElementById('index-content').childElementCount) ZUI.renderIndex();
     var nav = document.getElementById('system-tabs');
     if (nav) ZUI.initDock(nav);
@@ -961,6 +1072,7 @@
     ZUI.renderLearn();
     ZUI.renderPreface();
     ZUI.initCosmos();
+    ZUI.initNav();
     // PWA shortcut / share link: /#learn seedha Learn kholta hai
     if (location.hash === '#learn' && typeof activateTab === 'function') setTimeout(function(){ activateTab('learn', false); }, 60);
   }

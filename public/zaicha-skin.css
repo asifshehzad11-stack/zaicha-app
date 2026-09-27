@@ -569,3 +569,38 @@ body.lang-ur .idx-group h4,body.lang-ur .idx-item b,body.lang-ur .idx-item small
 .tz-logo{display:block;width:96px;height:96px;margin:.2rem auto .3rem;filter:drop-shadow(0 6px 18px rgba(230,196,122,.25))}
 .tz-logo.sm{width:64px;height:64px}
 .tehzeeb-wm svg{width:20px;height:20px;flex:0 0 auto}
+
+/* Session 9e: nav bar (Home / people / Close), recent zaichas, folded advanced form */
+.zp-bar{display:none;align-items:center;gap:.4rem;margin-inline-end:.4rem}
+body.app-mode .zp-bar{display:flex}
+.zp-ic{width:38px;height:38px;border-radius:50%;border:1px solid rgba(230,196,122,.3);background:rgba(8,14,12,.6);color:#f1d9a0;display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .2s}
+.zp-ic:hover{background:rgba(230,196,122,.14);transform:translateY(-1px)}
+.zp-ic svg,.zp-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.zp-people{position:relative}
+.zp-btn{display:flex;align-items:center;gap:.45rem;max-width:220px;height:38px;padding:0 .8rem;border-radius:999px;border:1px solid rgba(230,196,122,.35);background:rgba(8,14,12,.6);color:#f1ead9;font:inherit;font-size:.85rem;cursor:pointer}
+.zp-btn .zp-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zp-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:90;width:min(320px,86vw);max-height:60vh;overflow:auto;padding:.5rem;border-radius:16px;background:rgba(10,18,14,.97);border:1px solid rgba(230,196,122,.3);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.zp-new{width:100%;padding:.65rem .8rem;border-radius:12px;border:1px dashed rgba(230,196,122,.45);background:transparent;color:#f1d9a0;font:inherit;cursor:pointer;text-align:start}
+.zp-new:hover{background:rgba(230,196,122,.1)}
+.zp-cap{margin:.6rem .3rem .3rem;font-size:.72rem;opacity:.6;letter-spacing:.04em}
+.zp-row{display:flex;align-items:center;gap:.3rem}
+.zp-open,.zp-chip{flex:1;text-align:start;padding:.5rem .7rem;border-radius:12px;border:1px solid transparent;background:transparent;color:inherit;font:inherit;font-size:.88rem;cursor:pointer}
+.zp-open:hover,.zp-chip:hover{background:rgba(230,196,122,.08);border-color:rgba(230,196,122,.25)}
+.zp-open small,.zp-chip small{display:block;opacity:.6;font-size:.72rem;direction:ltr;text-align:start}
+.zp-del{width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:#a79f8a;cursor:pointer;font-size:1.1rem}
+.zp-del:hover{color:#e8b86b;background:rgba(232,184,107,.1)}
+.zp-recent{margin:.4rem 0 .9rem}
+.zp-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.zp-chip{flex:0 1 auto;border-color:rgba(230,196,122,.25);background:rgba(230,196,122,.05)}
+.zp-adv{margin:.3rem 0 1rem;border:1px solid rgba(230,196,122,.2);border-radius:14px;padding:.2rem .8rem}
+.zp-adv > summary{cursor:pointer;padding:.6rem 0;font-size:.86rem;opacity:.85;list-style:none}
+.zp-adv > summary::-webkit-details-marker{display:none}
+.zp-adv > summary::before{content:"⚙ ";color:#e6c47a}
+.zp-adv > summary b{color:#f1d9a0;font-weight:600}
+.zp-adv[open] > summary{border-bottom:1px solid rgba(230,196,122,.15);margin-bottom:.6rem}
+body.lang-ur .zp-btn,body.lang-ur .zp-open,body.lang-ur .zp-chip,body.lang-ur .zp-new,body.lang-ur .zp-adv>summary{font-family:"Noto Nastaliq Urdu",serif}
+@media (max-width:640px){.zp-btn{max-width:120px;padding:0 .6rem}.zp-btn .zp-name{font-size:.78rem}.topbar-actions .badge{display:none}}
+.topbar{position:relative;z-index:120}
+.zp-menu{z-index:200}
+.zp-open,.zp-chip{line-height:1.6}
+body.lang-ur .zp-open,body.lang-ur .zp-chip{line-height:1.9}
