@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Tehzeeb-ul-Ilm">
+  <title>تہذیب العلم — Tehzeeb-ul-Ilm</title>
+  <defs>
+    <linearGradient id="tzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e0a8"/><stop offset=".5" stop-color="#e0b964"/><stop offset="1" stop-color="#a97e33"/></linearGradient>
+    <symbol id="tzs8" viewBox="-50 -50 100 100"><path d="M0 -46 L13 -31 L33 -33 L31 -13 L46 0 L31 13 L33 33 L13 31 L0 46 L-13 31 L-33 33 L-31 13 L-46 0 L-31 -13 L-33 -33 L-13 -31Z" fill="#f3d58f"/></symbol>
+  </defs>
+  <path d="M52 214 V110 C52 70 86 44 120 22 C154 44 188 70 188 110 V214" fill="none" stroke="url(#tzg)" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M66 214 V114 C66 82 92 60 120 42 C148 60 174 82 174 114 V214" fill="none" stroke="url(#tzg)" stroke-width="1.5" opacity=".75"/>
+  <path d="M134 84 A26 26 0 1 0 150 132 A21 21 0 1 1 134 84Z" fill="url(#tzg)"/>
+  <use href="#tzs8" x="86" y="92" width="16" height="16"/><use href="#tzs8" x="104" y="130" width="10" height="10"/>
+  <use href="#tzs8" x="150" y="150" width="12" height="12"/><use href="#tzs8" x="80" y="140" width="8" height="8"/>
+  <g fill="none" stroke="url(#tzg)" stroke-width="3.5" stroke-linejoin="round"><path d="M72 196 C92 184 108 186 120 196 C132 186 148 184 168 196"/><path d="M72 206 C92 194 108 196 120 206 C132 196 148 194 168 206"/></g>
+  <path d="M40 214 H200" stroke="url(#tzg)" stroke-width="4" stroke-linecap="round"/>
+</svg>

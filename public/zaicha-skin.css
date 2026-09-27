@@ -564,3 +564,8 @@ body.lang-ur footer .disclaimer-line{font-family:"Noto Nastaliq Urdu",serif;line
 .idx-item.lock{opacity:.75}
 body.lang-ur .idx-group h4,body.lang-ur .idx-item b,body.lang-ur .idx-item small{font-family:"Noto Nastaliq Urdu",serif;line-height:2}
 .idx-empty{text-align:center;opacity:.6}
+
+/* Session 9d: Tehzeeb-ul-Ilm logo (mihrab) */
+.tz-logo{display:block;width:96px;height:96px;margin:.2rem auto .3rem;filter:drop-shadow(0 6px 18px rgba(230,196,122,.25))}
+.tz-logo.sm{width:64px;height:64px}
+.tehzeeb-wm svg{width:20px;height:20px;flex:0 0 auto}

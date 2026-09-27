@@ -837,7 +837,7 @@
   ZUI.renderPreface = function(boxId){
     boxId = boxId || 'preface-sec'; var box = document.getElementById(boxId); var all = window.ZAICHA_PREFACE; if (!box || !all) return;
     var P = all[lang()] || all.en;
-    var h = '<div class="pref-card' + (PREF_OPEN ? ' open' : '') + '"><div class="pref-head"><h3>' + E(P.title) + '</h3>' + (P.byline ? '<p class="pref-by">' + E(P.byline) + '</p>' : '') + '</div><div class="pref-body">';
+    var h = '<div class="pref-card' + (PREF_OPEN ? ' open' : '') + '"><div class="pref-head"><img class="tz-logo sm" src="/tehzeeb-logo.svg" alt="" width="64" height="64"><h3>' + E(P.title) + '</h3>' + (P.byline ? '<p class="pref-by">' + E(P.byline) + '</p>' : '') + '</div><div class="pref-body">';
     P.blocks.forEach(function(b){
       if (b.t === 'p') h += '<p>' + b.x + '</p>';
       else if (b.t === 'q') h += '<figure class="pref-q"><blockquote lang="ar" dir="rtl">' + E(b.ar).replace(/ ۞ /g, ' <span class="waqf">۞</span> ') + '</blockquote>' + (b.tr ? '<figcaption>' + E(b.tr) + '</figcaption>' : '') + '<cite>' + E(b.ref) + '</cite></figure>';

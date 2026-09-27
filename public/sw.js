@@ -1,8 +1,8 @@
 /* Zaicha service worker (Session 8) — sirf app-shell cache karta hai taake
    app Windows/Mac/Android/iPhone par install ho sake aur tez khule.
    /api/* kabhi cache NAHI hota (har zaicha hamesha taaza server se). */
-const CACHE = 'zaicha-shell-v9c';
-const SHELL = ['/', '/preface-content.js', '/zaicha-skin.css', '/zaicha-ui.js', '/i18n-extra.js', '/i18n-hi.js', '/i18n-ar.js', '/i18n-zh.js', '/i18n-s8.js', '/learn-content.js', '/planet-house.js', '/icon.svg', '/icon-192.png', '/manifest.webmanifest'];
+const CACHE = 'zaicha-shell-v9d';
+const SHELL = ['/', '/tehzeeb-logo.svg', '/preface-content.js', '/zaicha-skin.css', '/zaicha-ui.js', '/i18n-extra.js', '/i18n-hi.js', '/i18n-ar.js', '/i18n-zh.js', '/i18n-s8.js', '/learn-content.js', '/planet-house.js', '/icon.svg', '/icon-192.png', '/manifest.webmanifest'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()).catch(() => self.skipWaiting()));
 });
