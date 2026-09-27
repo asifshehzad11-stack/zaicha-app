@@ -1078,3 +1078,41 @@ window.I18N_S8 = {
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
 })();
+
+/* Session 9e: question-based tabs + public/expert mode */
+(function(){
+  var add = {
+    en: { dock_zaicha: 'Chart', sys_zaicha: 'Your chart', sysdesc_zaicha: 'The birth chart, each planet in its house, the reading, houses, aspects and yogas.',
+      dock_time: 'Time', sys_time: 'Time and periods', sysdesc_time: 'Which period you are in, when good times come, this year, this week and the Moon’s phases.',
+      dock_charts: 'Charts', sys_charts: 'Divisional charts', sysdesc_charts: 'D9 (marriage), D2 (wealth) and the Sudarshan chakra — each chart for its own question.',
+      dock_tools: 'Tools', sys_tools: 'Tools', sysdesc_tools: 'Marriage matching, horary (prashna) and the daily panchang.',
+      dock_expert: 'Expert corner', sys_expert: 'Expert corner', sysdesc_expert: 'KP, Jaimini, Nadi, Lal Kitab, Unani, other dashas, strengths and ashtakavarga — for astrologers, with reasons.',
+      modePublic: 'Simple', modeExpert: 'Expert', modeHint: 'Simple = plain answers · Expert = reasons and all systems', modeExpertOn: 'Expert mode: reasons and all systems are shown', modePublicOn: 'Simple mode: plain answers only' },
+    ur: { dock_zaicha: 'زائچہ', sys_zaicha: 'آپ کا زائچہ', sysdesc_zaicha: 'پیدائشی زائچہ، ہر سیارہ اپنے گھر میں، تفصیلی بیان، گھر، نظریں اور یوگ۔',
+      dock_time: 'وقت', sys_time: 'وقت اور دور', sysdesc_time: 'آپ کس دور میں ہیں، اچھا وقت کب آئے گا، یہ سال، یہ ہفتہ اور چاند کی منزلیں۔',
+      dock_charts: 'چارٹ خانہ', sys_charts: 'چارٹ خانہ', sysdesc_charts: 'D9 (شادی)، D2 (دولت) اور سُدرشن چکر — ہر چارٹ اپنے سوال کے لیے۔',
+      dock_tools: 'اوزار', sys_tools: 'اوزار', sysdesc_tools: 'رشتوں کا ملان، پرشن (سوالیہ زائچہ) اور روزانہ پنچانگ۔',
+      dock_expert: 'ماہر کا گوشہ', sys_expert: 'ماہر کا گوشہ', sysdesc_expert: 'کے پی، جیمنی، ناڑی، لال کتاب، یونانی، دوسری دشائیں، قوت اور اشٹک ورگ — نجومیوں کے لیے، دلیل کے ساتھ۔',
+      modePublic: 'عام', modeExpert: 'ماہرانہ', modeHint: 'عام = سیدھے سادے جواب · ماہرانہ = دلیل اور تمام نظام', modeExpertOn: 'ماہرانہ انداز: دلیل اور تمام نظام دکھائے جا رہے ہیں', modePublicOn: 'عام انداز: صرف سیدھے سادے جواب' },
+    hi: { dock_zaicha: 'कुंडली', sys_zaicha: 'आपकी कुंडली', sysdesc_zaicha: 'जन्म कुंडली, हर ग्रह अपने भाव में, विस्तृत फल, भाव, दृष्टियाँ और योग।',
+      dock_time: 'समय', sys_time: 'समय और दशाएँ', sysdesc_time: 'आप किस दौर में हैं, अच्छा समय कब आएगा, यह साल, यह हफ़्ता और चाँद की कलाएँ।',
+      dock_charts: 'वर्ग कुंडलियाँ', sys_charts: 'वर्ग कुंडलियाँ', sysdesc_charts: 'D9 (विवाह), D2 (धन) और सुदर्शन चक्र — हर चार्ट अपने सवाल के लिए।',
+      dock_tools: 'औज़ार', sys_tools: 'औज़ार', sysdesc_tools: 'कुंडली मिलान, प्रश्न कुंडली और रोज़ का पंचांग।',
+      dock_expert: 'विशेषज्ञ कोना', sys_expert: 'विशेषज्ञ कोना', sysdesc_expert: 'KP, जैमिनी, नाड़ी, लाल किताब, यूनानी, अन्य दशाएँ, बल और अष्टकवर्ग — ज्योतिषियों के लिए, तर्क के साथ।',
+      modePublic: 'सरल', modeExpert: 'विशेषज्ञ', modeHint: 'सरल = सीधे जवाब · विशेषज्ञ = तर्क और सभी प्रणालियाँ', modeExpertOn: 'विशेषज्ञ मोड: तर्क और सभी प्रणालियाँ दिख रही हैं', modePublicOn: 'सरल मोड: सिर्फ़ सीधे जवाब' },
+    ar: { dock_zaicha: 'الطالع', sys_zaicha: 'طالعك', sysdesc_zaicha: 'خريطة الميلاد، كل كوكب في بيته، التفسير، البيوت، النظرات واليوغات.',
+      dock_time: 'الزمن', sys_time: 'الزمن والأدوار', sysdesc_time: 'في أي دور أنت، متى يأتي الوقت الطيب، هذه السنة، هذا الأسبوع وأطوار القمر.',
+      dock_charts: 'الخرائط الفرعية', sys_charts: 'الخرائط الفرعية', sysdesc_charts: 'D9 (الزواج)، D2 (المال) وسودارشان تشاكرا — لكل خريطة سؤالها.',
+      dock_tools: 'أدوات', sys_tools: 'أدوات', sysdesc_tools: 'توافق الزواج، والطالع السؤالي، والتقويم اليومي.',
+      dock_expert: 'ركن الخبير', sys_expert: 'ركن الخبير', sysdesc_expert: 'KP وجايميني وناضي ولال كتاب واليوناني والأدوار الأخرى والقوى والأشتكافارغا — للمنجمين، مع الدليل.',
+      modePublic: 'مبسّط', modeExpert: 'خبير', modeHint: 'مبسّط = أجوبة واضحة · خبير = الدليل وكل الأنظمة', modeExpertOn: 'وضع الخبير: تُعرض الأدلة وكل الأنظمة', modePublicOn: 'الوضع المبسّط: أجوبة واضحة فقط' },
+    zh: { dock_zaicha: '星盘', sys_zaicha: '您的星盘', sysdesc_zaicha: '本命盘、各行星所在宫位、详细解读、宫位、相位与瑜伽组合。',
+      dock_time: '时运', sys_time: '时运与大运', sysdesc_time: '您正处于哪个运期、好运何时到来、今年、本周以及月相。',
+      dock_charts: '分盘', sys_charts: '分盘', sysdesc_charts: 'D9（婚姻）、D2（财富）与苏达山轮——每张盘回答各自的问题。',
+      dock_tools: '工具', sys_tools: '工具', sysdesc_tools: '婚配合盘、卜卦（问事盘）与每日历表。',
+      dock_expert: '专家区', sys_expert: '专家区', sysdesc_expert: 'KP、贾伊米尼、纳迪、Lal Kitab、尤纳尼、其他大运、力量与八分法——给占星师，附依据。',
+      modePublic: '简明', modeExpert: '专家', modeHint: '简明 = 直接答案 · 专家 = 依据与所有体系', modeExpertOn: '专家模式：显示依据与所有体系', modePublicOn: '简明模式：只显示直接答案' }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();

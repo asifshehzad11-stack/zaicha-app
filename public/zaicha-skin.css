@@ -604,3 +604,13 @@ body.lang-ur .zp-btn,body.lang-ur .zp-open,body.lang-ur .zp-chip,body.lang-ur .z
 .zp-menu{z-index:200}
 .zp-open,.zp-chip{line-height:1.6}
 body.lang-ur .zp-open,body.lang-ur .zp-chip{line-height:1.9}
+
+/* Session 9e: عام / ماہرانہ switch */
+.zp-mode{display:flex;align-items:center;height:38px;padding:3px;border-radius:999px;border:1px solid rgba(230,196,122,.3);background:rgba(8,14,12,.6);cursor:pointer;font:inherit;color:inherit}
+.zp-mode span{padding:0 .7rem;height:30px;display:grid;place-items:center;border-radius:999px;font-size:.8rem;opacity:.6;transition:all .25s}
+.zp-mode .zp-mode-a{background:rgba(230,196,122,.18);color:#f1d9a0;opacity:1}
+body.mode-expert .zp-mode .zp-mode-a{background:transparent;color:inherit;opacity:.6}
+body.mode-expert .zp-mode .zp-mode-b{background:rgba(230,196,122,.18);color:#f1d9a0;opacity:1}
+body.lang-ur .zp-mode span{font-family:"Noto Nastaliq Urdu",serif}
+body:not(.mode-expert) .daily-basis{display:none}
+@media (max-width:640px){.zp-mode span{padding:0 .45rem;font-size:.72rem}}

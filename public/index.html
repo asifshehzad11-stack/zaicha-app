@@ -2311,6 +2311,11 @@
   // dasha tab mein, Sudarshan chakra Parashari tab mein. `noData` wale tab
   // (Learn) zaicha banaye baghair bhi khultay hain.
   var DOCK_ICONS = {
+    zaicha: '<rect x="2.2" y="2.2" width="11.6" height="11.6" rx=".6"/><path d="M8 2.2L13.8 8 8 13.8 2.2 8z"/><path d="M2.2 2.2l11.6 11.6M13.8 2.2L2.2 13.8" opacity=".5"/>',
+    time: '<circle cx="8" cy="8" r="5.9"/><path d="M8 4.4V8l2.6 1.8"/>',
+    charts: '<rect x="2" y="2" width="5.2" height="5.2" rx=".6"/><rect x="8.8" y="2" width="5.2" height="5.2" rx=".6"/><rect x="2" y="8.8" width="5.2" height="5.2" rx=".6"/><rect x="8.8" y="8.8" width="5.2" height="5.2" rx=".6"/>',
+    tools: '<path d="M10.2 2.4a3 3 0 0 0-3.6 3.9L2.6 10.3a1.4 1.4 0 0 0 2 2l4-4a3 3 0 0 0 3.9-3.6L10.8 6.4 9.4 6.1 9.1 4.7z"/>',
+    expert: '<path d="M8 1.8l1.6 3.7 4 .4-3 2.7.9 3.9L8 10.5l-3.5 2 .9-3.9-3-2.7 4-.4z"/>',
     home: '<path d="M2.5 7.2L8 2.8l5.5 4.4V13a.6.6 0 0 1-.6.6H3.1a.6.6 0 0 1-.6-.6z"/><path d="M6.4 13.6V9.5h3.2v4.1"/>',
     parashari: '<rect x="2.2" y="2.2" width="11.6" height="11.6" rx=".6"/><path d="M8 2.2L13.8 8 8 13.8 2.2 8z"/><path d="M2.2 2.2l11.6 11.6M13.8 2.2L2.2 13.8" opacity=".55"/>',
     dasha: '<path d="M4 2h8M4 14h8"/><path d="M4.8 2c0 3 3.2 4 3.2 6s-3.2 3-3.2 6M11.2 2c0 3-3.2 4-3.2 6s3.2 3 3.2 6"/>',
@@ -2329,20 +2334,16 @@
     report: '<path d="M4 1.9h5.4l2.6 2.6V14H4z"/><path d="M9.2 1.9v2.8H12M5.9 8h4.2M5.9 10.4h4.2"/>',
   };
   var DOCK_LOGO = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor"><circle cx="24" cy="24" r="19" stroke-width="2.4"/><rect x="11" y="11" width="26" height="26" stroke-width="2"/><polygon points="24,11 37,24 24,37 11,24" stroke-width="2"/><circle cx="24" cy="24" r="3.4" fill="currentColor" stroke="none"/></svg>';
+  // Session 9e (Asif: "lahri nari kp in sab k tabs khatam karo, jumma bazar sa ban gaya hai"):
+  // ab tabs SAWAAL ke hisab se hain, nizaam ke hisab se nahi. Koi screen hataya nahi gaya —
+  // sab nizaam "ماہر کا گوشہ" (expert:true) mein; wo tab sirf "ماہرانہ" mode mein dikhta hai.
   var SYSTEM_TABS = [
     { id: 'home', screens: ['phone-predictions', 'phone-monthly', 'phone-remedies'] },
-    { id: 'parashari', screens: ['phone-chart', 'phone-planets', 'phone-reading', 'phone-sudarshan', 'phone-houses', 'phone-yogas', 'phone-aspects', 'phone-navamsa', 'phone-hora', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-ashtakavarga'] },
-    { id: 'dasha', screens: ['phone-dasha', 'phone-yoginidasha', 'phone-ashtottari'] },
-    { id: 'kp', screens: ['phone-kp'] },
-    { id: 'jaimini', screens: ['phone-jaimini', 'phone-charakaraka', 'phone-charadasha'] },
-    { id: 'nadi', screens: ['phone-nadi'] },
-    { id: 'lalkitab', screens: ['phone-lalkitab'] },
-    { id: 'unani', screens: ['phone-unani'] },
-    { id: 'tajik', screens: ['phone-yearly'] },
-    { id: 'prashna', screens: ['phone-prasna'] },
-    { id: 'milan', screens: ['phone-milan'] },
-    { id: 'panchang', screens: ['phone-panchang', 'phone-weekly', 'phone-moonphases'] },
-    { id: 'other', screens: ['phone-western', 'phone-arabianparts'] },
+    { id: 'zaicha', screens: ['phone-chart', 'phone-planets', 'phone-reading', 'phone-houses', 'phone-aspects', 'phone-yogas'] },
+    { id: 'time', screens: ['phone-dasha', 'phone-yearly', 'phone-weekly', 'phone-moonphases'] },
+    { id: 'charts', screens: ['phone-navamsa', 'phone-hora', 'phone-sudarshan'] },
+    { id: 'tools', screens: ['phone-milan', 'phone-prasna', 'phone-panchang'] },
+    { id: 'expert', expert: true, screens: ['phone-kp', 'phone-jaimini', 'phone-charakaraka', 'phone-charadasha', 'phone-nadi', 'phone-lalkitab', 'phone-unani', 'phone-yoginidasha', 'phone-ashtottari', 'phone-grahabala', 'phone-bhavabala', 'phone-vimshopak', 'phone-ashtakavarga', 'phone-western', 'phone-arabianparts'] },
     { id: 'learn', screens: ['phone-learn'], noData: true },
     { id: 'index', screens: ['phone-index'], noData: true },
     { id: 'report', screens: ['phone-pdfreport'] },
@@ -2368,6 +2369,7 @@
     });
     nav.appendChild(logo);
     SYSTEM_TABS.forEach(function(t){
+      if (t.expert && !document.body.classList.contains('mode-expert')) return;
       var b = document.createElement('button');
       b.type = 'button';
       var isActive = inApp ? t.id === activeTabId : (t.id === (document.body.dataset.openTab || 'learn') && document.body.classList.contains('learn-open'));
@@ -2469,7 +2471,7 @@
     if (activeBtn && activeBtn.parentNode && activeBtn.parentNode.scrollWidth > activeBtn.parentNode.clientWidth + 4) { var nv = activeBtn.parentNode; nv.scrollTo({ left: activeBtn.offsetLeft - nv.clientWidth / 2 + activeBtn.offsetWidth / 2, behavior: 'smooth' }); }
     renderTabIntro(tabId);
     updateBottomNav(tab.screens[0]);
-    if (tabId === 'panchang' && typeof loadForwardCalendar === 'function') loadForwardCalendar();
+    if ((tabId === 'tools' || tabId === 'time') && typeof loadForwardCalendar === 'function') loadForwardCalendar();
     if (window.ZUI && ZUI.onTab) { try { ZUI.onTab(tabId); } catch (e) { console.error('ZUI', e); } }
     if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
     try { history.replaceState(null, '', '#' + tabId); } catch (e) {}
@@ -2478,7 +2480,7 @@
   function updateBottomNav(targetId){
     var map = { 'phone-predictions': 'phone-predictions', 'phone-chart': 'phone-chart', 'phone-dasha': 'phone-dasha', 'phone-profile': 'phone-profile', 'phone-subscribe': 'phone-profile' };
     var tabOf = SCREEN_TAB[targetId];
-    var hi = map[targetId] || (tabOf === 'home' ? 'phone-predictions' : tabOf === 'dasha' ? 'phone-dasha' : tabOf ? 'phone-chart' : null);
+    var hi = map[targetId] || (tabOf === 'home' ? 'phone-predictions' : tabOf === 'time' ? 'phone-dasha' : tabOf ? 'phone-chart' : null);
     document.querySelectorAll('.bottom-nav button').forEach(function(b){ b.classList.toggle('active', b.dataset.target === hi); });
   }
 

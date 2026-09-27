@@ -827,7 +827,7 @@
     if (LK3.frame) lkSend(); else { lkSend(); setTimeout(lkMount, 30); }
     if (LK3.sel || LK3.selH) setTimeout(function(){ lkMark(LK3.sel, LK3.sel ? null : LK3.selH); }, 0);
   };
-  ZUI.onTab = function(tabId){ if (tabId === 'lalkitab') setTimeout(lkMount, 60); };
+  ZUI.onTab = function(tabId){ if (tabId === 'expert' || tabId === 'lalkitab') setTimeout(lkMount, 60); };
   ZUI._lk3d = LK3;
 
   /* ------------------------------------------------------------------
@@ -924,6 +924,7 @@
         return;
       }
       if (!document.body.classList.contains('app-mode') && b.classList.contains('lock')) { if (typeof showEntryForm === 'function') showEntryForm(); ZUI.toast(T('needChartFirst')); return; }
+      if (tab === 'expert' && !document.body.classList.contains('mode-expert')) ZUI.setExpert(true);
       if (typeof activateTab === 'function') activateTab(tab, false);
       setTimeout(function(){ var el = document.getElementById(go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
     });
@@ -998,10 +999,12 @@
     var bar = document.createElement('div'); bar.id = 'zp-bar'; bar.className = 'zp-bar';
     bar.innerHTML = '<button type="button" class="zp-ic" id="zp-home"><svg viewBox="0 0 24 24"><path d="M3.5 11.2 12 4l8.5 7.2V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z"/></svg></button>' +
       '<div class="zp-people"><button type="button" class="zp-btn" id="zp-btn" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"/></svg><span class="zp-name"></span><span aria-hidden="true">▾</span></button><div class="zp-menu" id="zp-menu" hidden></div></div>' +
+      '<button type="button" class="zp-mode" id="zp-mode" aria-pressed="false"><span class="zp-mode-a"></span><span class="zp-mode-b"></span></button>' +
       '<button type="button" class="zp-ic" id="zp-close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';
     acts.insertBefore(bar, acts.firstChild);
     bar.querySelector('#zp-home').addEventListener('click', function(){ closeMenu(); if (typeof activateTab === 'function') activateTab('home', true); });
     bar.querySelector('#zp-close').addEventListener('click', ZUI.closeApp);
+    bar.querySelector('#zp-mode').addEventListener('click', function(){ ZUI.setExpert(!document.body.classList.contains('mode-expert')); });
     bar.querySelector('#zp-btn').addEventListener('click', function(e){ e.stopPropagation(); var m = document.getElementById('zp-menu'); m.hidden = !m.hidden; this.setAttribute('aria-expanded', m.hidden ? 'false' : 'true'); });
     bar.querySelector('#zp-menu').addEventListener('click', function(e){
       e.stopPropagation();
@@ -1032,11 +1035,24 @@
     advLabel();
   }
   function advLabel(){ var s = document.querySelector('#zp-adv > summary'); if (!s) return; var ay = document.getElementById('in-ayanamsa'); var sys = ay && ay.options[ay.selectedIndex] ? ay.options[ay.selectedIndex].textContent : ''; s.innerHTML = E(T('advSettings')) + ' <b>' + E(sys) + '</b>'; }
+  // عام / ماہرانہ — public mode hides the expert corner and the reasoning lines
+  ZUI.setExpert = function(on, silent){
+    document.body.classList.toggle('mode-expert', !!on);
+    try { localStorage.setItem('zaicha.expert', on ? '1' : '0'); } catch (e) {}
+    var b = document.getElementById('zp-mode'); if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    modeLabels();
+    if (silent) return;
+    if (typeof buildSystemTabs === 'function') buildSystemTabs();
+    if (!on && typeof activeTabId !== 'undefined' && activeTabId === 'expert' && typeof activateTab === 'function') activateTab('home', true);
+    if (ZUI.toast) ZUI.toast(on ? T('modeExpertOn') : T('modePublicOn'));
+  };
+  function modeLabels(){ var b = document.getElementById('zp-mode'); if (!b) return; b.querySelector('.zp-mode-a').textContent = T('modePublic'); b.querySelector('.zp-mode-b').textContent = T('modeExpert'); b.title = T('modeHint'); }
   ZUI.initNav = function(){
-    buildNav(); simplifyForm(); renderPeopleUI();
+    var ex = false; try { ex = localStorage.getItem('zaicha.expert') === '1'; } catch (e) {}
+    buildNav(); simplifyForm(); renderPeopleUI(); ZUI.setExpert(ex, true); if (ex && typeof buildSystemTabs === 'function') buildSystemTabs();
     var ay = document.getElementById('in-ayanamsa'); if (ay) ay.addEventListener('change', advLabel);
   };
-  ZUI.navLang = function(){ renderPeopleUI(); advLabel(); };
+  ZUI.navLang = function(){ renderPeopleUI(); advLabel(); modeLabels(); };
 
   /* ------------------------------------------------------------------
      HOOKS
