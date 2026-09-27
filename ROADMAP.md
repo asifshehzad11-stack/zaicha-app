@@ -38,6 +38,15 @@ Asif ki hidayat (verbatim ka khulasa): roadmap check/update karo; international 
 - [x] **Lal Kitab tab:** 3D iframe (lazy — tab khulne par hi load), app ka Lal Kitab SVG chart ab side par floating **mini-map** (chhupao/dikhao). Mini-map par sayyara/khana tap → 3D mein wahi select; 3D mein select → mini-map par highlight. Har naye zaiche par dobara sync + **khud-jaanch**: 3D ke khane vs Lal Kitab khane (farq ho to warning). WebGL na ho to 2D chart bara dikh jata hai. "Poori screen" link (`/orrery.html#zaicha=…`) poora inspector + influence report ke sath. Naye UI alfaz 5 zabanon mein (i18n-s8.js, 12 keys); 3D ke andar ke buttons English (disclosed).
 - [ ] Baad mein: agar Asif asal file dobara bhej dein to engine ko un ke asal code se badal dena (API wahi rahegi, integration nahi badlegi).
 
+**Session 9b–9e (2026-09-26/27, Asif ka "Zaicha 2.0" naqsha — manzoor; Claude Docs: "زائچہ ۲.۰ — نقشۂ کار"):**
+- [x] Bismillah ke neeche Al-Baqarah 2:163 (Nastaliq kitaba); Yunus 10:5 tarjume ke sath; daily cards mein chaand wala jumla ab sirf ek dafa + har shobe ka alag jumla + "دلیل" line (sirf ماہرانہ mode mein).
+- [x] "آیاتِ آسمان" (public/cosmos.html): 3D sooraj/chaand/sitare, 5 manazir + ayaat (25:61, 3:190, 10:5 + 28 manazil + chaand ka roop, 36:40, 3:191); ibtidaiya 5 zabanon mein (preface-content.js) — zaeef hadith hata kar sirf sahih (Abu Dawud 1479, Bukhari 6340).
+- [x] فہرست tab (talaash ke sath); seekhne wala hissa = "تہذیب العلم"; Tehzeeb-ul-Ilm sirf watermark (mehrab logo, tehzeeb-logo.svg); naam sirf tanbeeh mein: "پیشکش: آصف شہزاد مغل، پتوکی، پنجاب، پاکستان".
+- [x] Hafta 1: Home / Close / logon ka switcher (haaliya zaiche, dobara likhna nahi parta), form saada (nizaam/Rahu/time zone "مزید ترتیبات" mein, Lahiri pehle se), tabs ab SAWAAL ke hisab se: ہوم · زائچہ · وقت · چارٹ خانہ · اوزار · (ماہر کا گوشہ — sirf ماہرانہ mode) · تہذیب العلم · فہرست · رپورٹ. Koi screen hataya nahi gaya.
+- [ ] Hafta 2: zindagi ke sawaal (rizq, kaam, shaadi/mohabbat, sehat, aulad, taleem, ghar, safar) — aam jawab + kab + kya karein + dalil; "خوشحالی کا دور" timeline.
+- [ ] Hafta 3: sayyaron ka baab (umeed ke sath), چارٹ خانہ D1–D60 wazahat, روحانی علاج tab (Sarmaya-e-Darvesh ki fehrist ka intezar), chaand ki gardish ke asraat.
+- [ ] Hafta 4: burooj ki "آسمان کی سلطنت" naqsha, page-flip, najoomiyon se jaanch + tassurat (Asif naam baad mein dein ge). Bengali zaban (alag marhala).
+
 **Platform plan (international mayar — ek hi code, har jagah):**
 - [x] Web + installable PWA (Windows/Mac/Linux desktop, Android, iOS) — isi session mein.
 - [ ] Android Play Store: Capacitor scaffold pehle se hai (paused) — isi web app ko wrap; Google Play Billing (subscription portion abhi chhora hua hai).
