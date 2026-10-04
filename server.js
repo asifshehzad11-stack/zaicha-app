@@ -259,6 +259,23 @@ app.post('/api/lock', (req, res) => {
 });
 
 app.use(express.json());
+
+// ---- PATH B cookie-on-page-open (2026-10-05) ---------------------------
+// The guest key used to be minted when a chart was SAVED. If someone fired
+// several chart requests at once before having a cookie, each one minted its
+// own key and all but the last row ended up owned by a key nobody holds —
+// safe, but unreadable. Minting it when the page itself is opened means every
+// later request from that browser already carries the same key.
+// Only for a real page view: a GET that asks for HTML, never /api/*, never an
+// asset. Runs after the lock middleware, so a locked-out visitor gets nothing.
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  const wantsHtml = String(req.headers.accept || '').indexOf('text/html') !== -1;
+  if (!wantsHtml) return next();
+  try { auth.ensureGuestKey(req, res); } catch (e) { /* never block a page load */ }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // DB schema (agar DATABASE_URL .env mein di gayi ho) startup par ensure kar
