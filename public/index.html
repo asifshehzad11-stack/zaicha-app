@@ -5204,17 +5204,12 @@
 
   document.getElementById('load-saved-link').addEventListener('click', async function(e){
     e.preventDefault();
-    // Agar user logged in hai to session hi se apni saved kundliyan mil
-    // jati hain — phone number ki zaroorat nahi (sirf bina-login purane
-    // tareeqe ke liye phone maangte hain).
-    var phone = document.getElementById('in-phone').value.trim();
-    if (!currentUser && !phone) {
-      showError(tr('errEnterPhone'));
-      return;
-    }
+    // PATH B (2026-10-04): the server no longer looks charts up by phone
+    // number — anyone could type someone else's. The saved list now comes
+    // from the account (if signed in) or from this browser's own signed
+    // cookie, so no phone number is needed to ask for it.
     try {
-      var url = currentUser ? '/api/profiles' : '/api/profiles?phone=' + encodeURIComponent(phone);
-      var res = await fetch(url, { credentials: 'same-origin' });
+      var res = await fetch('/api/profiles', { credentials: 'same-origin' });
       var json = await res.json();
       if (!json.available) {
         showError(tr('errSavedNotSetup'));
