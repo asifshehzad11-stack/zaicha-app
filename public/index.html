@@ -4613,18 +4613,21 @@
 
     var header = document.createElement('div');
     header.className = 'pdf-report-header';
+    // SECURITY PASS: esc() on every field that comes from a text input —
+    // the astrologer's name and contact, and the person's own name and city.
+    // Without it a name like <img src=x onerror=...> would run as HTML here.
     var brandDiv = document.createElement('div');
     brandDiv.innerHTML =
-      '<div class="pdf-report-brand">' + (astrologerName ? astrologerName : 'Zaicha') + '</div>' +
-      (astrologerContact ? ('<div class="pdf-report-brand-contact">' + astrologerContact + '</div>') : '');
+      '<div class="pdf-report-brand">' + (astrologerName ? esc(astrologerName) : 'Zaicha') + '</div>' +
+      (astrologerContact ? ('<div class="pdf-report-brand-contact">' + esc(astrologerContact) + '</div>') : '');
     var metaDiv = document.createElement('div');
     metaDiv.className = 'pdf-report-meta';
     var today = new Date();
     metaDiv.innerHTML =
-      '<div>' + tr('pdfGeneratedOn') + ': ' + fmtDate(today.toISOString().slice(0,10)) + '</div>' +
-      (name ? ('<div>' + name + '</div>') : '') +
-      ((dob || time) ? ('<div>' + [dob, time].filter(Boolean).join(' · ') + '</div>') : '') +
-      (city ? ('<div>' + city + '</div>') : '');
+      '<div>' + esc(tr('pdfGeneratedOn')) + ': ' + esc(fmtDate(today.toISOString().slice(0,10))) + '</div>' +
+      (name ? ('<div>' + esc(name) + '</div>') : '') +
+      ((dob || time) ? ('<div>' + esc([dob, time].filter(Boolean).join(' · ')) + '</div>') : '') +
+      (city ? ('<div>' + esc(city) + '</div>') : '');
     header.appendChild(brandDiv);
     header.appendChild(metaDiv);
     wrap.appendChild(header);
@@ -4686,7 +4689,7 @@
     footer.className = 'pdf-report-footer';
     footer.innerHTML =
       '<span>Zaicha — ' + esc(tr('brandSub')) + '</span>' +
-      '<span>' + (astrologerContact ? astrologerContact : '') + '</span>';
+      '<span>' + (astrologerContact ? esc(astrologerContact) : '') + '</span>';
     wrap.appendChild(footer);
 
     return wrap;
