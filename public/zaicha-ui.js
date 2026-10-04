@@ -1555,6 +1555,97 @@
     });
   };
 
+
+  /* =====================================================================
+     PASS 3 (2026-10-04) — sample preview, "Learn more" links, WhatsApp
+     share. Front end only; no calculation or existing-text changes.
+     ===================================================================== */
+  function p3First(name){ return String(name || '').trim().split(/\s+/)[0] || ''; }
+
+  // #2 the sample card's three facts (sample values, in the app's own names)
+  function p3SampleFacts(){
+    var box = document.getElementById('p3-sample-facts'); if (!box) return;
+    var SN2 = (typeof SN === 'function') ? SN : function(i){ return String(i); };
+    var PN2 = (typeof PN === 'function') ? PN : function(p){ return p; };
+    var rows = [
+      [T('ascLabel'), SN2(4)],        // Leo ascendant
+      [T('factMoon'), SN2(7)],        // Moon in Scorpio
+      [T('factDasha'), PN2('Jupiter')]
+    ];
+    box.innerHTML = rows.map(function(r){
+      return '<span class="p3-fact"><span class="k">' + E(r[0]) + '</span><span class="v">' + E(r[1]) + '</span></span>';
+    }).join('');
+  }
+
+  // #5 share today's message — first name, the message and the app link. Nothing else.
+  function p3Share(){
+    var p = document.getElementById('pred-daily-text');
+    var txt = p ? (p.textContent || '').trim() : '';
+    if (!txt) return;
+    // keep the link a sane length — cut at the last sentence end before 900 chars
+    if (txt.length > 900) {
+      var cut = txt.slice(0, 900), stop = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('\u06d4'), cut.lastIndexOf('\u3002'));
+      txt = (stop > 300 ? cut.slice(0, stop + 1) : cut).trim() + ' \u2026';
+    }
+    var nameEl = document.getElementById('in-name');
+    var nm = p3First((nameEl && nameEl.value) || (ZUI.current && ZUI.current.person && ZUI.current.person.name) || '');
+    var msg = T(nm ? 'p3ShareMsg' : 'p3ShareMsgNoName', { name: nm, text: txt }) + '\n' + location.origin + '/';
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  }
+  ZUI.p3ShareSync = function(){
+    var b = document.getElementById('p3-share-btn'); if (!b) return;
+    var p = document.getElementById('pred-daily-text');
+    // index.html marks the real narrative with data-has-real-data
+    var ready = !!(p && (p.textContent || '').trim() && p.dataset.hasRealData === 'true') &&
+                document.body.classList.contains('app-mode');
+    b.hidden = !ready;
+  };
+
+  // #6 "Learn more" -> the matching section (config lives in index.html: P3_LINKS)
+  function p3OpenMore(key){
+    var cfg = (window.P3_LINKS || {})[key]; if (!cfg) return;
+    if (cfg.sec && typeof activateTab === 'function' && typeof v2OpenSection === 'function') {
+      var tab = (cfg.sec === 'transits') ? 'periods' : 'chart';
+      activateTab(tab, false);
+      setTimeout(function(){ v2OpenSection(cfg.sec, true); }, 60);
+      return;
+    }
+    if (cfg.lesson) {
+      var f = findLesson(cfg.lesson); if (!f) return;
+      ZUI.learn.level = f.level; ZUI.learn.lesson = f.ls.id; ZUI.renderLearn(); ZUI.openSheet('learn');
+    }
+  }
+
+  ZUI.initPass3 = function(){
+    p3SampleFacts();
+    // the share button follows today's message: it appears as soon as there is one
+    var pd = document.getElementById('pred-daily-text');
+    if (pd && 'MutationObserver' in window) new MutationObserver(function(){ ZUI.p3ShareSync(); })
+      .observe(pd, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['data-has-real-data'] });
+    ZUI.p3ShareSync();
+    // #2 sample card -> fill the demo details and generate, exactly as the demo link does
+    var samp = document.getElementById('p3-sample');
+    if (samp) samp.addEventListener('click', function(){
+      var dl = document.getElementById('fill-demo-link');
+      if (dl) dl.click();
+      if (typeof runGenerate === 'function') runGenerate();
+    });
+    // #5
+    var sb = document.getElementById('p3-share-btn');
+    if (sb) sb.addEventListener('click', p3Share);
+    // #6 — delegated, so it survives every re-render of the cards
+    document.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('[data-p3more]');
+      if (!b) return;
+      e.preventDefault(); e.stopPropagation();      // don't also toggle the card open
+      p3OpenMore(b.getAttribute('data-p3more'));
+    });
+  };
+  ZUI.p3Lang = function(){
+    p3SampleFacts();
+    document.querySelectorAll('[data-p3more] span').forEach(function(s){ s.textContent = T('p3More'); });
+  };
+
   ZUI.initV2 = function(){
     function on(id, fn){ var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
     on('v2-tb-home', goHome);
@@ -1573,6 +1664,7 @@
     ZUI.renderLessons();
     ZUI.initPass21();
     ZUI.initPass22();
+    ZUI.initPass3();
     // app lock: show "Lock app" in the menu only when the server lock is on
     fetch('/api/lock/status', { credentials: 'same-origin', cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){ ZUI.lockOn = !!(j && j.enabled); if (ZUI.renderMenu) ZUI.renderMenu(); }).catch(function(){});
     on('v2-expert-on', function(){ ZUI.setExpert(true); });
@@ -1622,12 +1714,14 @@
     try { ZUI.lk3dUpdate(data); } catch (e) { console.error('lk3d', e); }
     try { ZUI.rememberPerson(data); } catch (e) { console.error('people', e); }
     try { ZUI.sky3dRefresh(); ZUI.renderHeroCard(); } catch (e) { console.error('3d', e); }
+    try { ZUI.p3ShareSync(); } catch (e) {}
   };
   ZUI.onLanguage = function(){
     if (ZUI.v2Lang) ZUI.v2Lang();
     ZUI.renderLessons();
     if (ZUI.pass21Lang) ZUI.pass21Lang();
     if (ZUI.heroLang) ZUI.heroLang();
+    if (ZUI.p3Lang) ZUI.p3Lang();
     ZUI.renderLearn();
     lkTexts();
     ZUI.renderPreface();

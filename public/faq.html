@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عام سوالات — Zaicha</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap');
+
+  :root{
+    --bg:#0E1160; --card:#1E2390; --accent:#B8A9FF; --muted:#B9B7E6;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+    --text:#FFFFFF; --warn:#F2C14E;
+    color-scheme:dark;
+  }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq",serif;
+    line-height:2; -webkit-font-smoothing:antialiased;
+    padding:2.4rem 1.1rem 4rem;
+  }
+  .wrap{ max-width:780px; margin:0 auto; }
+  header{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    margin-bottom:1.6rem; padding-bottom:1.2rem; border-bottom:1px solid var(--line-soft); }
+  .brand{ display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:1.3rem; font-family:"Poppins",sans-serif; }
+  .brand svg{ width:28px; height:28px; color:var(--accent); }
+  .updated{ color:var(--muted); font-size:.85rem; }
+  h1{ font-size:1.9rem; margin:0 0 1.4rem; color:var(--accent); }
+  details{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:.4rem 1.1rem; margin-bottom:.8rem; }
+  details[open]{ border-color:rgba(184,169,255,.45); }
+  summary{ cursor:pointer; list-style:none; padding:.8rem 0; font-size:1.02rem; font-weight:600; color:var(--accent); min-height:44px; display:flex; align-items:center; }
+  summary::-webkit-details-marker{ display:none; }
+  details p, details li{ font-size:.97rem; color:var(--text); }
+  details > p:last-child{ margin-bottom:1rem; }
+  ul{ padding-inline-start:1.4rem; margin:.4rem 0 1rem; }
+  li{ margin-bottom:.4rem; }
+  a{ color:var(--accent); }
+  footer{ margin-top:2.4rem; padding-top:1.4rem; border-top:1px solid var(--line-soft); color:var(--muted); font-size:.85rem; text-align:center; }
+  .back{ display:inline-flex; align-items:center; min-height:44px; margin-top:1.6rem; padding:0 1.1rem;
+    border:1.5px solid var(--accent); border-radius:999px; color:var(--accent); text-decoration:none; font-size:.95rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 48 48" role="img" aria-label="زائچہ کا لوگو">
+        <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <line x1="24" y1="7" x2="24" y2="41" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+        <line x1="7" y1="24" x2="41" y2="24" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
+        <line x1="12.5" y1="12.5" x2="35.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+        <line x1="35.5" y1="12.5" x2="12.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
+        <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
+      </svg>
+      Zaicha
+    </div>
+    <div class="updated">آخری تجدید: اکتوبر 2026</div>
+  </header>
+
+  <h1>عام سوالات</h1>
+
+  <details open>
+    <summary>زائچہ کس بنیاد پر بنتا ہے؟</summary>
+    <p>آپ کی اصل پیدائشی تاریخ، وقت اور مقام سے، لائیو فلکیاتی حساب کے ذریعے۔ بنیادی نظام ویدک (پاراشری) ہے اور ڈیفالٹ ایانامسا لاہری ہے۔ ساتھ میں KP، جیمنی، ناڑی، لال کتاب اور یونانی کے جائزے بھی موجود ہیں۔</p>
+  </details>
+
+  <details>
+    <summary>کیا پیدائش کا درست وقت ضروری ہے؟</summary>
+    <p>جی ہاں۔ طالع (Ascendant) اور خانوں کی تقسیم وقت پر ہی منحصر ہے — چند منٹ کا فرق بھی پورا زائچہ بدل سکتا ہے۔ اگر وقت یقینی نہ ہو تو نتائج کو تخمینہ سمجھیں۔</p>
+  </details>
+
+  <details>
+    <summary>کیا میری معلومات محفوظ ہیں؟</summary>
+    <p>پاس ورڈ ہمیشہ خفیہ (hashed) صورت میں رکھا جاتا ہے اور تمام رابطہ HTTPS پر ہوتا ہے۔ تفصیل کے لیے <a href="/privacy.html">پرائیویسی پالیسی</a> دیکھیں۔</p>
+  </details>
+
+  <details>
+    <summary>مفت میں کیا کچھ ملتا ہے؟</summary>
+    <ul>
+      <li>روزانہ پیشگوئی</li>
+      <li>پیدائشی کنڈلی</li>
+      <li>دشا کے ادوار</li>
+      <li>تدابیر</li>
+      <li>پنچانگ</li>
+    </ul>
+    <p>سبسکرپشن میں ہفتہ وار کیلنڈر، اس مہینے اور اس سال کا رجحان، اور اشٹک ورگ شامل ہیں۔</p>
+  </details>
+
+  <details>
+    <summary>ایپ کن زبانوں میں ہے؟</summary>
+    <p>اردو، انگریزی، ہندی، عربی اور چینی — پانچ زبانیں۔ زبان اوپر والے مینو سے کسی بھی وقت بدلی جا سکتی ہے۔</p>
+  </details>
+
+  <details>
+    <summary>کیا یہ پیشگوئیاں حتمی ہیں؟</summary>
+    <p>نہیں۔ یہ روایتی علمِ نجوم کی روشنی میں رہنمائی ہیں، حتمی فیصلہ نہیں۔ غیب کا علم صرف اللہ تعالیٰ کے پاس ہے۔</p>
+  </details>
+
+  <details>
+    <summary>موبائل ایپ کب آئے گی؟</summary>
+    <p>اینڈرائیڈ ایپ زیرِ تکمیل ہے۔</p>
+  </details>
+
+  <details>
+    <summary>کوئی مسئلہ یا تجویز ہو تو؟</summary>
+    <p>ای میل کریں: <a href="mailto:asifshehzad11@gmail.com">asifshehzad11@gmail.com</a></p>
+  </details>
+
+  <a class="back" href="/">← زائچہ پر واپس</a>
+
+  <footer>© 2026 Zaicha — پیشکش: آصف شہزاد مغل، پتوکی، پنجاب، پاکستان</footer>
+</div>
+</body>
+</html>

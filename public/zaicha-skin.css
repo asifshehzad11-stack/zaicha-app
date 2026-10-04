@@ -1544,3 +1544,98 @@ body.lang-ur .v2-seg3d button{ font-size:.95rem; line-height:1.9; }
 
 /* ---------- print: always the 2D chart ---------- */
 @media print{ .v2-chartbar, .v2-sky3d, .v2-hero{ display:none !important; } }
+
+/* =====================================================================
+   v0.2 PASS 3 (2026-10-04) — patterns borrowed from a well-structured
+   booking app: topic chips, sample preview, how-it-works, trust strip,
+   WhatsApp share, "Learn more" links, Free vs Paid, footer links.
+   Front end only. No calculation or existing-text changes.
+   ===================================================================== */
+
+/* ---------- 1. topic chips: the tapped card flashes (Pass 2.1 added the
+   class but only .v2-sec had the animation) ---------- */
+.v2-topic-card.flash{ animation:flash 1.1s ease; }
+@media (prefers-reduced-motion: reduce){ .v2-topic-card.flash{ animation:none; outline:2px solid var(--accent); outline-offset:2px; } }
+
+/* ---------- 2. "See a sample zaicha" card on the landing page ---------- */
+.p3-sample{ display:block; width:100%; max-width:var(--v2-col, 960px); margin:18px auto 0; padding:16px; border-radius:22px; text-align:start;
+  background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); color:var(--text); font:inherit; cursor:pointer; }
+.p3-sample:hover{ background:var(--card-hover); }
+body.app-mode .p3-sample, .p3-sample[hidden]{ display:none !important; }
+.p3-sample-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.p3-sample-head .p3-sample-h{ margin:0; font-size:1rem; font-weight:700; color:var(--accent); font-family:var(--font-ui); }
+body.lang-ur .p3-sample-head .p3-sample-h, body.lang-ar .p3-sample-head .p3-sample-h{ line-height:2; }
+.p3-badge{ flex:none; min-height:24px; display:inline-flex; align-items:center; padding:0 10px; border-radius:999px; font-size:.68rem; font-weight:700; letter-spacing:.06em;
+  background:rgba(184,169,255,.16); color:var(--accent); border:1px solid rgba(184,169,255,.4); font-family:var(--font-ui); }
+.p3-sample-body{ display:grid; grid-template-columns:116px 1fr; gap:14px; align-items:start; }
+.p3-sample-chart{ width:116px; height:116px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid var(--line); overflow:hidden; }
+.p3-sample-chart svg{ display:block; width:100%; height:100%; }
+.p3-sample-facts{ display:grid; gap:7px; min-width:0; }
+.p3-fact{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:6px 10px; border-radius:12px; background:rgba(255,255,255,.05); }
+.p3-fact .k{ font-size:.72rem; color:var(--muted); font-family:var(--font-ui); letter-spacing:.04em; }
+.p3-fact .v{ font-size:.86rem; font-weight:700; color:var(--text); text-align:end; }
+body.lang-ur .p3-fact .k, body.lang-ur .p3-fact .v{ line-height:1.9; }
+.p3-sample-today{ grid-column:1 / -1; margin:2px 0 0; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.05); border-inline-start:3px solid var(--accent);
+  font-size:.86rem; line-height:1.6; color:var(--text); }
+body.lang-ur .p3-sample-today, body.lang-ar .p3-sample-today{ line-height:2; }
+.p3-sample-go{ display:block; margin-top:12px; text-align:center; font-size:.84rem; font-weight:700; color:var(--accent); font-family:var(--font-ui); }
+@media (max-width:420px){ .p3-sample-body{ grid-template-columns:92px 1fr; } .p3-sample-chart{ width:92px; height:92px; } }
+
+/* ---------- 3. How it works — three numbered steps ---------- */
+.p3-steps{ max-width:var(--v2-col, 960px); margin:26px auto 0; padding:0 2px; }
+body.app-mode .p3-steps, body.app-mode .p3-trust{ display:none !important; }
+.p3-steps-h{ margin:0 0 12px; font-size:.78rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); font-family:var(--font-ui); }
+body.lang-ur .p3-steps-h, body.lang-ar .p3-steps-h{ text-transform:none; letter-spacing:0; font-size:.95rem; line-height:2; }
+.p3-steps-row{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+@media (max-width:640px){ .p3-steps-row{ grid-template-columns:1fr; } }
+.p3-step{ padding:14px; border-radius:18px; background:var(--card); border:1px solid var(--line); }
+.p3-step .n{ display:block; font-size:1.3rem; font-weight:700; color:var(--accent); font-family:var(--font-ui); letter-spacing:.04em; }
+.p3-step h4{ margin:.3rem 0 .2rem; font-size:.92rem; font-weight:700; color:var(--text); }
+.p3-step p{ margin:0; font-size:.82rem; line-height:1.55; color:var(--muted); }
+body.lang-ur .p3-step h4, body.lang-ur .p3-step p, body.lang-ar .p3-step h4, body.lang-ar .p3-step p{ line-height:2; }
+
+/* ---------- 4. trust strip ---------- */
+.p3-trust{ max-width:var(--v2-col, 960px); margin:16px auto 0; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+.p3-trust span{ display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:0 12px; border-radius:999px;
+  background:rgba(255,255,255,.05); border:1px solid var(--line); font-size:.76rem; color:var(--muted); font-family:var(--font-ui); }
+body.lang-ur .p3-trust span, body.lang-ar .p3-trust span{ font-size:.88rem; line-height:1.9; }
+.p3-trust svg{ width:14px; height:14px; flex:none; color:var(--accent); }
+
+/* ---------- 5. share on WhatsApp ---------- */
+.p3-share{ display:inline-flex; align-items:center; gap:8px; min-height:40px; margin-top:10px; padding:0 14px; border-radius:999px;
+  border:1.5px solid var(--accent); background:transparent; color:var(--accent); font:inherit; font-size:.82rem; font-weight:600; font-family:var(--font-ui); cursor:pointer; }
+.p3-share:hover{ background:rgba(184,169,255,.12); }
+.p3-share svg{ width:16px; height:16px; }
+.p3-share[hidden]{ display:none !important; }
+body.lang-ur .p3-share{ font-size:.95rem; }
+
+/* ---------- 6. "Learn more" link at the end of each prediction card ---------- */
+.p3-more{ display:inline-flex; align-items:center; gap:5px; min-height:32px; margin-top:6px; padding:0; border:0; background:none;
+  color:var(--accent); font:inherit; font-size:.78rem; font-weight:600; font-family:var(--font-ui); text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.p3-more:hover{ color:#fff; }
+.p3-more svg{ width:13px; height:13px; }
+body.lang-ur .p3-more, body.lang-ar .p3-more{ font-size:.9rem; line-height:1.9; }
+[dir="rtl"] .p3-more svg{ transform:scaleX(-1); }
+
+/* ---------- 7. Free vs Paid on the subscription sheet ---------- */
+.p3-plans{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 1rem; }
+@media (max-width:420px){ .p3-plans{ grid-template-columns:1fr; } }
+.p3-plan{ padding:12px; border-radius:16px; background:var(--card); border:1px solid var(--line); }
+.p3-plan.is-paid{ border-color:rgba(184,169,255,.5); }
+.p3-plan h4{ display:flex; align-items:center; gap:7px; margin:0 0 8px; font-size:.84rem; font-weight:700; color:var(--accent); font-family:var(--font-ui); }
+.p3-plan h4 svg{ width:15px; height:15px; flex:none; }
+.p3-plan ul{ margin:0; padding:0; list-style:none; display:grid; gap:5px; }
+.p3-plan li{ display:flex; align-items:flex-start; gap:7px; font-size:.78rem; line-height:1.5; color:var(--text); }
+body.lang-ur .p3-plan li, body.lang-ar .p3-plan li{ font-size:.9rem; line-height:1.9; }
+.p3-plan li svg{ width:13px; height:13px; flex:none; margin-top:.28em; color:var(--accent); }
+
+/* ---------- 9. footer links ---------- */
+.p3-foot-links{ display:flex; flex-wrap:wrap; justify-content:center; gap:4px 14px; margin-top:.2rem; }
+.p3-foot-links a{ color:var(--accent); font-size:.76rem; text-decoration:none; min-height:32px; display:inline-flex; align-items:center; }
+.p3-foot-links a:hover{ text-decoration:underline; }
+body.lang-ur .p3-foot-links a, body.lang-ar .p3-foot-links a{ font-size:.88rem; }
+
+.p3-sample svg:not(.p3-sample-chart svg), .p3-trust svg, .p3-share svg, .p3-more svg, .p3-plan svg{ flex:none; }
+
+/* ---------- print: none of the Pass 3 controls ---------- */
+@media print{ .p3-sample, .p3-steps, .p3-trust, .p3-share, .p3-more, .p3-foot-links{ display:none !important; } }

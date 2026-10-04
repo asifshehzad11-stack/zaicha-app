@@ -761,6 +761,47 @@
         <div id="error-box"></div>
       </div>
     </div>
+    <!-- PASS 3 #2: a sample zaicha before the visitor types anything (tap = demo fill + generate) -->
+    <button type="button" class="p3-sample" id="p3-sample" aria-labelledby="p3-sample-h">
+      <span class="p3-sample-head"><span class="p3-sample-h" id="p3-sample-h" data-i18n="p3SampleH">See a sample zaicha</span><span class="p3-badge" data-i18n="p3SampleTag">SAMPLE</span></span>
+      <span class="p3-sample-body">
+        <span class="p3-sample-chart" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="var(--chart-line)" stroke-width="1">
+            <rect x="4" y="4" width="92" height="92"/>
+            <path d="M4 4 96 96M96 4 4 96M50 4 96 50 50 96 4 50Z"/>
+            <g fill="var(--muted)" stroke="none" font-size="8" font-weight="600" font-family="system-ui, sans-serif" text-anchor="middle">
+              <text x="50" y="20">5</text><text x="27" y="30">6</text><text x="16" y="42">7</text><text x="27" y="55">8</text>
+              <text x="50" y="54">9</text><text x="73" y="55">10</text><text x="84" y="42">11</text><text x="73" y="30">12</text>
+            </g>
+            <g fill="var(--accent)" stroke="none" font-size="9" font-family="system-ui, sans-serif" text-anchor="middle">
+              <text x="50" y="30">&#9737;</text><text x="16" y="52">&#9790;</text><text x="84" y="52">&#9795;</text>
+            </g>
+          </svg>
+        </span>
+        <span class="p3-sample-facts" id="p3-sample-facts"></span>
+        <span class="p3-sample-today" data-i18n="p3SampleToday">A steady day — good for finishing what you have already started.</span>
+      </span>
+      <span class="p3-sample-go" data-i18n="p3SampleGo">Open this sample chart &rarr;</span>
+    </button>
+
+    <!-- PASS 3 #3: how it works -->
+    <section class="p3-steps" id="p3-steps" aria-labelledby="p3-steps-h">
+      <h3 class="p3-steps-h" id="p3-steps-h" data-i18n="p3StepsH">How it works</h3>
+      <div class="p3-steps-row">
+        <div class="p3-step"><span class="n ltr">01</span><h4 data-i18n="p3Step1t">Enter birth details</h4><p data-i18n="p3Step1d">Date, time and city of birth.</p></div>
+        <div class="p3-step"><span class="n ltr">02</span><h4 data-i18n="p3Step2t">See your chart</h4><p data-i18n="p3Step2d">Your full chart, built by live calculation.</p></div>
+        <div class="p3-step"><span class="n ltr">03</span><h4 data-i18n="p3Step3t">Read your guidance</h4><p data-i18n="p3Step3d">Today's message, your periods and remedies.</p></div>
+      </div>
+    </section>
+
+    <!-- PASS 3 #4: trust strip — only statements that are true of this app -->
+    <div class="p3-trust" id="p3-trust">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Trust1">Live astronomical calculation</span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Trust2">Lahiri ayanamsa by default</span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Trust3">5 languages</span></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Trust4">Free daily guidance</span></span>
+    </div>
+
     <button type="button" class="land-learn" id="v2-learn-card">
       <img class="tz-logo sm" src="/tehzeeb-logo.svg" alt="" width="64" height="64">
       <span class="land-learn-txt"><b data-i18n="learnH3">Tehzeeb-ul-Ilm</b><small data-i18n="learnSub"></small></span>
@@ -814,10 +855,15 @@
           <p id="pred-daily-text" data-i18n="dailyDefaultText">Press "Generate chart" first.</p>
         </div>
         <p class="sub" id="daily-weekday-note"></p>
+        <!-- PASS 3 #5: share today's message (first name + text + app link only — never birth details) -->
+        <button type="button" class="p3-share" id="p3-share-btn" hidden>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.36c0-4.54 3.7-8.23 8.25-8.23 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.82c0 4.54-3.7 8.21-8.24 8.21zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.13-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.23.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
+          <span data-i18n="p3Share">Share on WhatsApp</span>
+        </button>
       </div>
       <div class="v2-sum-facts" id="v2-facts"></div>
       <div class="v2-topics v2-tile v2-full" id="v2-topics" hidden>
-        <h3 class="v2-sum-h" data-i18n="topicsH">Your day by topic</h3>
+        <h3 class="v2-sum-h" data-i18n="p3AskH">What do you want to know?</h3>
         <div class="v2-topic-row" id="v2-topic-row"></div>
       </div>
       <div class="v2-week v2-tile v2-full" id="v2-week" hidden>
@@ -1434,6 +1480,10 @@
   <footer>
     <span data-i18n="footerNote1">یہ زائچہ حقیقی پیدائشی تفصیلات اور لائیو فلکیاتی حساب سے تیار ہوتا ہے۔</span>
     <span class="founder-line disclaimer-line" data-i18n="founderLine">Disclaimer: this chart and its predictions are guidance in the light of traditional astrology, not a final verdict. — Presented by Asif Shehzad Mughal, Pattoki, Punjab, Pakistan</span>
+    <span class="p3-foot-links">
+      <a href="/faq.html" target="_blank" rel="noopener" data-i18n="p3Faq">FAQ</a>
+      <a href="/privacy.html" target="_blank" rel="noopener" data-i18n="p3Privacy">Privacy policy</a>
+    </span>
     <span class="ltr" id="v2-version">Zaicha v0.2</span>
   </footer>
 
@@ -1565,6 +1615,29 @@
           <div style="display:flex;">
             <button type="button" class="currency-btn selected" data-currency="PKR" style="flex:1; padding:.5rem; border:none; cursor:pointer; font-family:inherit;">PKR</button>
             <button type="button" class="currency-btn" data-currency="USD" style="flex:1; padding:.5rem; border:none; cursor:pointer; font-family:inherit;">USD ($)</button>
+          </div>
+        </div>
+        <!-- PASS 3 #7: what is free and what the subscription adds. Display only —
+             the payment flow (lib/safepay-client.js, /api/subscribe/*) is untouched. -->
+        <div class="p3-plans" id="p3-plans">
+          <div class="p3-plan">
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3FreeH">Free</span></h4>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Free1">Daily prediction</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Free2">Birth chart</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Free3">Dasha periods</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Free4">Remedies</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Free5">Panchang</span></li>
+            </ul>
+          </div>
+          <div class="p3-plan is-paid">
+            <h4><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01z"/></svg><span data-i18n="p3PaidH">Paid</span></h4>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Paid1">Weekly calendar</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Paid2">Monthly outlook</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Paid3">Yearly outlook</span></li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3Paid4">Ashtakavarga</span></li>
+            </ul>
           </div>
         </div>
         <div id="subscribe-plans" class="plan-grid"></div>
@@ -4096,15 +4169,19 @@
     if (tw && trow) {
       var chips = [];
       if (routine.mood) chips.push({ key: 'mood', label: tr('moodToday') });
-      (routine.categories || []).forEach(function(c){ chips.push({ key: c.key, label: c.label }); });
+      // PASS 3 #1: fixed order — Career · Marriage/relationships · Wealth · Health · Family
+      // (anything the engine adds later keeps its own order at the end)
+      var cats = (routine.categories || []).slice();
+      cats.sort(function(a, b){ return P3_TOPIC_ORDER(a.key) - P3_TOPIC_ORDER(b.key); });
+      cats.forEach(function(c){ chips.push({ key: c.key, label: c.label }); });
       trow.innerHTML = chips.map(function(c){ var tp = V2_TOPICS[c.key] || { c: '#C3B4FF', ic: 'star' };
         return '<button type="button" class="v2-topic" data-topic="' + esc(c.key) + '" style="--tc:' + tp.c + '">' + v2Icon(tp.ic) + '<span>' + esc(c.label) + '</span></button>'; }).join('');
       tw.hidden = !chips.length;
     }
-    var moodHtml = routine.mood ? '<div class="pred-card icon-card daily-mood v2-topic-card" data-topic="mood" style="--tc:' + V2_TOPICS.mood.c + '"><span class="icon-card-badge">' + v2Icon('moon') + '</span><div class="icon-card-body"><span class="tag">' + esc(tr('dailyMoodTag', { n: routine.mood.house })) + '</span><p>' + esc(routine.mood.text) + '</p></div></div>' : '';
-    box.innerHTML = moodHtml + (routine.categories || []).map(function(c){
+    var moodHtml = routine.mood ? '<div class="pred-card icon-card daily-mood v2-topic-card" data-topic="mood" style="--tc:' + V2_TOPICS.mood.c + '"><span class="icon-card-badge">' + v2Icon('moon') + '</span><div class="icon-card-body"><span class="tag">' + esc(tr('dailyMoodTag', { n: routine.mood.house })) + '</span><p>' + esc(routine.mood.text) + '</p>' + p3MoreLink('mood') + '</div></div>' : '';
+    box.innerHTML = moodHtml + cats.map(function(c){
       var tp = V2_TOPICS[c.key] || { c: '#C3B4FF', ic: 'star' };
-      return '<div class="pred-card icon-card v2-topic-card" data-topic="' + esc(c.key) + '" style="--tc:' + tp.c + '"><span class="icon-card-badge">' + v2Icon(tp.ic) + '</span><div class="icon-card-body"><span class="tag">' + esc(c.label) + '</span><p>' + esc(c.text) + '</p>' + (c.basis ? '<p class="daily-basis">' + esc(c.basis) + '</p>' : '') + '</div></div>';
+      return '<div class="pred-card icon-card v2-topic-card" data-topic="' + esc(c.key) + '" style="--tc:' + tp.c + '"><span class="icon-card-badge">' + v2Icon(tp.ic) + '</span><div class="icon-card-body"><span class="tag">' + esc(c.label) + '</span><p>' + esc(c.text) + '</p>' + (c.basis ? '<p class="daily-basis">' + esc(c.basis) + '</p>' : '') + p3MoreLink(c.key) + '</div></div>';
     }).join('');
   }
 
@@ -4811,6 +4888,29 @@
     return '<svg class="v2-svg' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + d + '</svg>';
   }
   // topic colours (meaning, not decoration)
+  // ================= PASS 3 (2026-10-04) =================
+  // Where a daily card's "Learn more" goes, and the fixed chip order.
+  // ONE place on purpose: Pass 4 can point `q` at the Najm assistant as a
+  // pre-written question without touching anything else.
+  var P3_LINKS = {
+    career:        { sec: 'houses', house: 10, lesson: 'l4-bhavas', q: 'careerQ' },
+    wealth:        { sec: 'houses', house: 2,  lesson: 'l4-bhavas', q: 'wealthQ' },
+    relationships: { sec: 'houses', house: 7,  lesson: 'l4-bhavas', q: 'marriageQ' },
+    marriage:      { sec: 'houses', house: 7,  lesson: 'l4-bhavas', q: 'marriageQ' },
+    health:        { sec: 'houses', house: 6,  lesson: 'l4-bhavas', q: 'healthQ' },
+    family:        { sec: 'houses', house: 4,  lesson: 'l4-bhavas', q: 'familyQ' },
+    mood:          { sec: 'transits', lesson: 'l2-grahas', q: 'moodQ' }
+  };
+  var P3_ORDER = ['career', 'relationships', 'marriage', 'wealth', 'health', 'family'];
+  function P3_TOPIC_ORDER(k){ var i = P3_ORDER.indexOf(k); return i === -1 ? 99 : i; }
+  function p3MoreLink(key){
+    if (!P3_LINKS[key]) return '';
+    return '<button type="button" class="p3-more" data-p3more="' + esc(key) + '">' +
+      '<span>' + esc(tr('p3More')) + '</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>';
+  }
+  window.P3_LINKS = P3_LINKS;
+
   var V2_TOPICS = {
     career: { c: '#F5B942', ic: 'briefcase' }, relationships: { c: '#FF7EB6', ic: 'heart' }, marriage: { c: '#FF7EB6', ic: 'heart' },
     health: { c: '#4FD1A5', ic: 'leaf' }, wealth: { c: '#FFA25F', ic: 'coins' }, family: { c: '#6EC8FF', ic: 'home' }, mood: { c: '#C3B4FF', ic: 'moon' }
@@ -5229,6 +5329,7 @@
     buildSystemTabs();
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     var gate = (typeof TESTING_SKIP_AUTH !== 'undefined' && !TESTING_SKIP_AUTH && !currentUser);
+    if (gate) p3MarkReturn();                       // PASS 3 #8
     showScreen(gate ? 'screen-welcome' : 'phone-entry');
     if (window.ZUI && ZUI.renderPeople) ZUI.renderPeople();
     var f = document.getElementById(gate ? 'screen-welcome' : 'phone-entry');
@@ -5486,6 +5587,21 @@
     }
   }
 
+  // ---- PASS 3 #8: remember where the user was before the sign-in screen ----
+  var p3ReturnTo = null;
+  function p3MarkReturn(){
+    if (document.body.classList.contains('app-mode')) { p3ReturnTo = { app: true, tab: activeTabId }; return; }
+    var cur = document.querySelector('.land-form .phone.screen-active');
+    p3ReturnTo = { app: false, screen: (cur && cur.id !== 'screen-welcome') ? cur.id : null };
+  }
+  function p3AuthReturn(){
+    var r = p3ReturnTo; p3ReturnTo = null;
+    if (r && r.app && lastZaichaData) { v2ResumeApp(); if (r.tab) activateTab(r.tab, false); return; }
+    if (r && !r.app && r.screen) { showScreen(r.screen); return; }
+    if (lastZaichaData) { v2ResumeApp(); return; }
+    showScreen('phone-entry');
+  }
+
   async function doAuthRequest(url, body, errorBoxId, btnId){
     var btn = document.getElementById(btnId);
     setAuthError(errorBoxId, null);
@@ -5506,7 +5622,8 @@
       currentUser = out.user;
       updateProfileAccountUI();
       refreshSubscriptionStatus();
-      showScreen('phone-entry');
+      // PASS 3 #8: come back to the screen the user was on before signing in
+      p3AuthReturn();
       return true;
     } catch (err) {
       setAuthError(errorBoxId, tr('errNetwork'));
