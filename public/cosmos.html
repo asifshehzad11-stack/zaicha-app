@@ -66,6 +66,9 @@ html[lang=ur] .note{font-family:'Noto Nastaliq Urdu',serif;line-height:2}
 .fallback{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--mute)}
 @media (max-width:640px){.cap{bottom:58px;padding:10px 12px 8px}.cap .tr{font-size:12.5px}html[lang=ur] .cap .tr{font-size:13px;line-height:2}.inset{width:104px}.inset canvas{width:64px;height:64px}.note{display:none}.stitle{font-size:14px}html[lang=ur] .stitle{font-size:15px}.lab.m{font-size:10px}}
 @media (prefers-reduced-motion:reduce){.cap,.lab{transition:none}}
+/* v0.2 pass 2.3: ?hero=1 — only the moving sky, as the app's opening screen (the app draws its own text on top) */
+html.hero .top,html.hero .cap,html.hero .bar,html.hero .note,html.hero .inset{display:none!important}
+html.hero .vign{background:radial-gradient(130% 100% at 50% 40%,transparent 50%,rgba(0,0,0,.45))}
 .twm{display:flex;align-items:center;gap:6px;position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:9;pointer-events:none;color:#e6c47a;opacity:.28;font:600 12px/1.9 'Noto Nastaliq Urdu',Amiri,Lexend,sans-serif;letter-spacing:.06em;white-space:nowrap}
 </style>
 </head>
@@ -90,6 +93,8 @@ html[lang=ur] .note{font-family:'Noto Nastaliq Urdu',serif;line-height:2}
 const Q = new URLSearchParams(location.search);
 const LANGS = ['ur', 'en', 'hi', 'ar', 'zh'];
 const LANG = LANGS.includes(Q.get('lang')) ? Q.get('lang') : 'ur';
+const HERO = Q.get('hero') === '1';
+if (HERO) document.documentElement.classList.add('hero');
 document.documentElement.lang = LANG;
 document.documentElement.dir = (LANG === 'ur' || LANG === 'ar') ? 'rtl' : 'ltr';
 const D2R = Math.PI / 180, TAU = Math.PI * 2;
@@ -513,7 +518,7 @@ function frame(now) {
   // camera
   sceneTarget(cur, sceneT);
   user.idle += dt; if (user.idle > 5) { user.yaw *= (1 - k * .5); user.pitch *= (1 - k * .5); user.zoom += (1 - user.zoom) * k * .5; }
-  const off = tmp.copy(tPos).sub(tLook); const rr = off.length() * user.zoom * (camera.aspect < 1 ? (cur === 1 || cur === 2 ? 1.9 : 1.35) : 1);
+  const off = tmp.copy(tPos).sub(tLook); const rr = off.length() * user.zoom * (camera.aspect < 1 ? (HERO ? 0.95 : (cur === 1 || cur === 2 ? 1.9 : 1.35)) : 1);
   let az = Math.atan2(off.z, off.x) + user.yaw, el = Math.asin(Math.max(-.999, Math.min(.999, off.y / off.length()))) + user.pitch; el = Math.max(-1.35, Math.min(1.45, el));
   tPos.set(tLook.x + rr * Math.cos(el) * Math.cos(az), tLook.y + rr * Math.sin(el), tLook.z + rr * Math.cos(el) * Math.sin(az));
   const kc = 1 - Math.exp(-dt * 1.7); camPos.lerp(tPos, kc); camLook.lerp(tLook, kc);

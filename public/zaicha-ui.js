@@ -684,8 +684,8 @@
         else if (act === 'back') { ZUI.learn.lesson = null; ZUI.renderLearn(); }
         else if (act === 'try') {
           var tab = b.getAttribute('data-tab');
-          if (document.body.classList.contains('app-mode')) activateTab(tab, true);
-          else { ZUI.toast(T('needChartFirst')); var hs = document.getElementById('hero-start'); if (hs) hs.click(); }
+          if (ZUI.closeSheets) ZUI.closeSheets();
+          if (typeof activateTab === 'function') activateTab(tab, true);   // v0.2: old ids are mapped (issue 6)
         }
       });
     }
@@ -828,6 +828,7 @@
     if (LK3.sel || LK3.selH) setTimeout(function(){ lkMark(LK3.sel, LK3.sel ? null : LK3.selH); }, 0);
   };
   ZUI.onTab = function(tabId){ if (tabId === 'expert' || tabId === 'lalkitab') setTimeout(lkMount, 60); };
+  ZUI.lk3dMount = function(){ setTimeout(lkMount, 60); };   // v0.2: called when the Lal Kitab section opens
   ZUI._lk3d = LK3;
 
   /* ------------------------------------------------------------------
@@ -877,29 +878,26 @@
   var IDX_Q = '';
   function idxText(el){ return el ? el.textContent.replace(/\s+/g, ' ').trim() : ''; }
   ZUI.renderIndex = function(){
-    var box = document.getElementById('index-content'); if (!box || typeof SYSTEM_TABS === 'undefined') return;
+    var box = document.getElementById('index-content'); if (!box || typeof V2_TABS === 'undefined') return;
     var inApp = document.body.classList.contains('app-mode');
     var groups = [];
     groups.push({ id: 'front', name: T('indexFront'), items: [
-      { go: 'cosmos', title: T('cosmosTitle'), desc: '', free: true },
-      { go: 'preface', title: (window.ZAICHA_PREFACE && (ZAICHA_PREFACE[lang()] || ZAICHA_PREFACE.en).title) || 'Preface', desc: '', free: true }
+      { go: 'cosmos', title: T('cosmosTitle'), desc: T('secd_cosmos3d'), free: true },
+      { go: 'sky3d', title: T('idxSky3d'), desc: T('sky3d') + ' · ' + T('chart2d'), free: false },
+      { go: 'preface', title: (window.ZAICHA_PREFACE && (ZAICHA_PREFACE[lang()] || ZAICHA_PREFACE.en).title) || 'Preface', desc: '', free: true },
+      { go: 'learn', title: T('learnH3'), desc: T('learnSub'), free: true }
     ] });
-    SYSTEM_TABS.forEach(function(t){
-      if (t.id === 'index') return;
-      var items = t.screens.map(function(sid){
-        var el = document.getElementById(sid); if (!el) return null;
-        var title = idxText(el.querySelector('.feed-head')).replace(/^[^\p{L}\p{N}]+/u, '');
-        var d = idxText(el.querySelector('p.sub')); if (d.length > 120) d = d.slice(0, 118) + '…';
-        return title ? { go: sid, tab: t.id, title: title, desc: d, free: !!t.noData } : null;
-      }).filter(Boolean);
-      if (items.length) groups.push({ id: t.id, name: T('sys_' + t.id), items: items });
+    function secItem(tabId, sid, expert){ return { go: 'sec', sec: sid, tab: tabId, expert: !!expert, title: T('sec_' + sid), desc: T('secd_' + sid) }; }
+    V2_TABS.forEach(function(t){
+      if (t.sections) groups.push({ id: t.id, name: T('v2tab_' + t.id), items: t.sections.map(function(sid){ return secItem(t.id, sid, t.expert); }) });
+      (t.groups || []).forEach(function(g){ groups.push({ id: g.id, name: T('v2tab_' + t.id) + ' · ' + T(g.id), items: g.sections.map(function(sid){ return secItem(t.id, sid, true); }) }); });
     });
-    var h = '<div class="idx-search"><input type="search" id="idx-q" placeholder="' + E(T('indexSearch')) + '" value="' + E(IDX_Q) + '"></div><div class="idx-grid">';
+    var h = '<div class="idx-search"><input type="search" id="idx-q" placeholder="' + E(T('indexSearch')) + '" value="' + E(IDX_Q) + '" aria-label="' + E(T('indexSearch')) + '"></div><div class="idx-grid">';
     groups.forEach(function(g){
       h += '<section class="idx-group" data-g="' + E(g.id) + '"><h4>' + E(g.name) + '</h4><ul>';
       g.items.forEach(function(it){
         var lock = !inApp && !it.free;
-        h += '<li><button type="button" class="idx-item' + (lock ? ' lock' : '') + '" data-go="' + E(it.go) + '" data-tab="' + E(it.tab || '') + '" data-s="' + E((g.name + ' ' + it.title + ' ' + it.desc).toLowerCase()) + '"><b>' + E(it.title) + '</b>' + (it.desc ? '<small>' + E(it.desc) + '</small>' : '') + (lock ? '<i>' + E(T('indexNeeds')) + '</i>' : '') + '</button></li>';
+        h += '<li><button type="button" class="idx-item' + (lock ? ' lock' : '') + '" data-go="' + E(it.go) + '" data-sec="' + E(it.sec || '') + '" data-tab="' + E(it.tab || '') + '" data-expert="' + (it.expert ? '1' : '') + '" data-s="' + E((g.name + ' ' + it.title + ' ' + it.desc).toLowerCase()) + '"><b>' + E(it.title) + '</b>' + (it.desc ? '<small>' + E(it.desc) + '</small>' : '') + (lock ? '<i>' + E(T('indexNeeds')) + '</i>' : '') + '</button></li>';
       });
       h += '</ul></section>';
     });
@@ -910,23 +908,40 @@
       box.querySelectorAll('.idx-group').forEach(function(sec){ var n = 0; sec.querySelectorAll('.idx-item').forEach(function(b){ var ok = !v || b.getAttribute('data-s').indexOf(v) >= 0; b.parentNode.hidden = !ok; if (ok) n++; }); sec.hidden = !n; if (n) any = true; });
       box.querySelector('.idx-empty').hidden = any; }
     q.addEventListener('input', filter); filter();
+    if (box._v2wired) return;                       // one click handler only (issue 8)
+    box._v2wired = 1;
     box.addEventListener('click', function(e){
       var b = e.target.closest('.idx-item'); if (!b) return;
-      var go = b.getAttribute('data-go'), tab = b.getAttribute('data-tab');
+      var go = b.getAttribute('data-go'), tab = b.getAttribute('data-tab'), sec = b.getAttribute('data-sec'), expert = b.getAttribute('data-expert') === '1';
+      var inAppNow = document.body.classList.contains('app-mode');
+      if (go === 'learn') { ZUI.openSheet('learn'); return; }
+      if (go === 'sky3d') {   // v0.2 pass 2.2: the chart's own 3D sky
+        if (!inAppNow) { if (typeof showEntryForm === 'function') showEntryForm({ focus: true }); ZUI.toast(T('needChartFirst')); return; }
+        ZUI.closeSheets(); if (ZUI.setChartMode) ZUI.setChartMode('3d', true);
+        var ch = document.querySelector('.v2-sum-chart'); if (ch) setTimeout(function(){ ch.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 30);
+        return;
+      }
       if (go === 'cosmos' || go === 'preface') {
-        if (document.body.classList.contains('app-mode')) {   // landing is hidden inside the app
-          if (go === 'cosmos') { window.open('/cosmos.html?lang=' + encodeURIComponent(lang()), '_blank', 'noopener'); return; }
+        if (inAppNow) {   // the landing page is hidden inside the app
+          if (go === 'cosmos') { ZUI.closeSheets(); if (typeof activateTab === 'function') activateTab('periods', false); if (typeof v2OpenSection === 'function') v2OpenSection('cosmos3d', true); return; }
           var ip = document.getElementById('idx-preface'); if (!ip) { ip = document.createElement('div'); ip.id = 'idx-preface'; ip.className = 'preface-sec'; box.appendChild(ip); }
           PREF_OPEN = true; ZUI.renderPreface('idx-preface'); ip.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
         }
-        document.body.classList.remove('learn-open');
-        var tgt = document.getElementById(go === 'cosmos' ? 'cosmos-sec' : 'preface-sec'); if (tgt) tgt.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ZUI.closeSheets();
+        if (go === 'cosmos') { setTimeout(function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); }, 30); return; }   // the opening sky (hero)
+        var tgt = document.getElementById('preface-sec'); if (tgt) setTimeout(function(){ tgt.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30);
         return;
       }
-      if (!document.body.classList.contains('app-mode') && b.classList.contains('lock')) { if (typeof showEntryForm === 'function') showEntryForm(); ZUI.toast(T('needChartFirst')); return; }
-      if (tab === 'expert' && !document.body.classList.contains('mode-expert')) ZUI.setExpert(true);
+      if (!inAppNow) {
+        try { window.v2PendingTab = { tab: tab, section: sec, expert: expert }; } catch (e2) {}
+        if (typeof showEntryForm === 'function') showEntryForm({ focus: true });
+        ZUI.toast(T('needChartFirst'));
+        return;
+      }
+      ZUI.closeSheets();
+      if (expert && !document.body.classList.contains('mode-expert')) ZUI.setExpert(true);
       if (typeof activateTab === 'function') activateTab(tab, false);
-      setTimeout(function(){ var el = document.getElementById(go); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+      if (typeof v2OpenSection === 'function') v2OpenSection(sec, true);
     });
   };
 
@@ -940,13 +955,15 @@
   function val(id){ var el = document.getElementById(id); return el ? el.value : ''; }
   function currentForm(){ return { name: val('in-name').trim(), dob: val('in-dob'), time: val('in-time'), city: val('in-city'), lat: val('in-lat'), lon: val('in-lon'), tz: val('in-tz'), off: val('in-offset'), ay: val('in-ayanamsa'), node: val('in-node-type') }; }
   function pKey(p){ return [p.name, p.dob, p.time, (+p.lat).toFixed(3), (+p.lon).toFixed(3)].join('|'); }
-  ZUI.rememberPerson = function(){
+  ZUI.rememberPerson = function(data){
     var p = currentForm(); if (!p.dob || !p.time || !p.lat || !p.lon) return;
+    if (data && data.natal && typeof data.natal.ascendantRasiId === 'number') p.asc = data.natal.ascendantRasiId;
     var list = peopleLoad().filter(function(x){ return pKey(x) !== pKey(p); });
     list.unshift(p); peopleSave(list); ZUI.current = p; renderPeopleUI();
   };
   function setV(id, v){ var el = document.getElementById(id); if (el && v != null) el.value = v; }
   ZUI.openPerson = function(p){
+    if (ZUI.closeSheets) ZUI.closeSheets();
     setV('in-name', p.name); setV('in-dob', p.dob); setV('in-time', p.time); setV('in-city', p.city); setV('in-lat', p.lat); setV('in-lon', p.lon); setV('in-tz', p.tz);
     if (typeof updateBirthOffset === 'function') updateBirthOffset();
     if (p.off) setV('in-offset', p.off); if (p.ay) setV('in-ayanamsa', p.ay); if (p.node) setV('in-node-type', p.node);
@@ -955,24 +972,19 @@
     closeMenu();
     if (typeof runGenerate === 'function') runGenerate();
   };
-  function removePerson(i){ var l = peopleLoad(); l.splice(i, 1); peopleSave(l); renderPeopleUI(); }
+  function removePerson(i){ var l = peopleLoad(); l.splice(i, 1); peopleSave(l); renderPeopleUI(); if (ZUI.renderMenu) ZUI.renderMenu(); }
   ZUI.newZaicha = function(){
-    closeMenu(); document.body.classList.remove('app-mode', 'learn-open');
-    ['in-name', 'in-dob', 'in-time', 'in-city', 'in-lat', 'in-lon', 'in-tz'].forEach(function(id){ setV(id, ''); });
-    try { window.loadedProfileId = null; } catch (e) {}
-    if (typeof updateCoordHint === 'function') updateCoordHint();
-    if (typeof showScreen === 'function') showScreen('phone-entry');
-    if (typeof buildSystemTabs === 'function') buildSystemTabs();
-    var f = document.getElementById('phone-entry'); if (f) setTimeout(function(){ f.scrollIntoView({ behavior: 'smooth', block: 'start' }); var n = document.getElementById('in-name'); if (n) n.focus(); }, 60);
+    closeMenu();
+    if (typeof showEntryForm === 'function') showEntryForm({ clear: true, focus: true, reset: true });   // the old chart stays in Recent charts
   };
   ZUI.closeApp = function(){
-    closeMenu(); document.body.classList.remove('app-mode', 'learn-open');
-    if (typeof buildSystemTabs === 'function') buildSystemTabs();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeMenu();
+    if (typeof showEntryForm === 'function') showEntryForm({ clear: true, top: true, reset: true });
   };
   function closeMenu(){ var m = document.getElementById('zp-menu'); if (m) m.hidden = true; var b = document.getElementById('zp-btn'); if (b) b.setAttribute('aria-expanded', 'false'); }
   function personLine(p){ return E(p.name || '—') + '<small>' + E(p.dob) + ' · ' + E(p.time) + (p.city ? ' · ' + E(p.city.split(',')[0]) : '') + '</small>'; }
   function renderPeopleUI(){
+    if (ZUI.renderHeroCard) setTimeout(ZUI.renderHeroCard, 0);
     var list = peopleLoad(), cur = ZUI.current;
     // header bar
     var bar = document.getElementById('zp-bar');
@@ -991,7 +1003,14 @@
     var rc = document.getElementById('zp-recent');
     if (rc) {
       if (!list.length) { rc.hidden = true; rc.innerHTML = ''; }
-      else { rc.hidden = false; rc.innerHTML = '<div class="zp-cap">' + E(T('peopleRecent')) + '</div><div class="zp-chips">' + list.slice(0, 8).map(function(p, i){ return '<button type="button" class="zp-chip" data-i="' + i + '">' + personLine(p) + '</button>'; }).join('') + '</div>'; }
+      else {
+        rc.hidden = false;
+        rc.innerHTML = '<div class="zp-cap">' + E(T('peopleRecent')) + '</div><div class="zp-chips zp-cards">' + list.slice(0, 8).map(function(p, i){
+          var nm = p.name || '—', ini = String(nm).trim().charAt(0) || '✦';
+          var asc = (typeof p.asc === 'number' && typeof SNfull === 'function') ? E(T('ascLabel')) + ': ' + E(SNfull(p.asc)) : '<span class="ltr">' + E(p.dob) + '</span>';
+          return '<button type="button" class="zp-chip zp-card" data-i="' + i + '" style="--_h:' + ((i * 47) % 360) + '"><span class="zp-av" aria-hidden="true">' + E(ini) + '</span><span class="zp-card-t"><b>' + E(nm) + '</b><small>' + asc + '</small></span></button>';
+        }).join('') + '</div>';
+      }
     }
   }
   function buildNav(){
@@ -1019,7 +1038,7 @@
     var entry = document.getElementById('phone-entry'); if (!entry || document.getElementById('zp-adv')) return;
     // recent chips on top of the form
     var rc = document.createElement('div'); rc.id = 'zp-recent'; rc.className = 'zp-recent'; rc.hidden = true;
-    var sub = entry.querySelector('p.sub'); if (sub && sub.parentNode) sub.parentNode.insertBefore(rc, sub.nextSibling);
+    if (entry.parentNode) entry.parentNode.insertBefore(rc, entry.nextSibling);   // v0.2 pass 2: under the form
     rc.addEventListener('click', function(e){ var c = e.target.closest('.zp-chip'); if (c) ZUI.openPerson(peopleLoad()[+c.getAttribute('data-i')]); });
     // fold advanced options (system / Rahu type / UTC offset) — Lahiri stays the default
     var adv = document.createElement('details'); adv.id = 'zp-adv'; adv.className = 'zp-adv';
@@ -1032,27 +1051,563 @@
     if (!fAy || !gen) return;
     gen.parentNode.insertBefore(adv, gen);
     [fAy, fNode, fOff].forEach(function(f){ if (f) body.appendChild(f); });
+    entry.querySelectorAll('.zp-adv-move').forEach(function(f){ body.appendChild(f); });   // v0.2
     advLabel();
   }
-  function advLabel(){ var s = document.querySelector('#zp-adv > summary'); if (!s) return; var ay = document.getElementById('in-ayanamsa'); var sys = ay && ay.options[ay.selectedIndex] ? ay.options[ay.selectedIndex].textContent : ''; s.innerHTML = E(T('advSettings')) + ' <b>' + E(sys) + '</b>'; }
+  function advLabel(){ var s = document.querySelector('#zp-adv > summary'); if (!s) return; var ay = document.getElementById('in-ayanamsa'); var sys = ay && ay.options[ay.selectedIndex] ? ay.options[ay.selectedIndex].textContent : ''; s.innerHTML = '<span class="adv-long">' + E(T('advSettings')) + '</span><span class="adv-short">' + E(T('advShort')) + ' ·</span> <b>' + E(sys) + '</b>'; }
   // عام / ماہرانہ — public mode hides the expert corner and the reasoning lines
   ZUI.setExpert = function(on, silent){
     document.body.classList.toggle('mode-expert', !!on);
     try { localStorage.setItem('zaicha.expert', on ? '1' : '0'); } catch (e) {}
     var b = document.getElementById('zp-mode'); if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false');
     modeLabels();
+    if (ZUI.renderMenu) ZUI.renderMenu();
+    if (on && typeof activeTabId !== 'undefined' && activeTabId === 'expert' && typeof v2FireOpenSections === 'function') setTimeout(function(){ v2FireOpenSections('expert'); }, 40);
     if (silent) return;
-    if (typeof buildSystemTabs === 'function') buildSystemTabs();
-    if (!on && typeof activeTabId !== 'undefined' && activeTabId === 'expert' && typeof activateTab === 'function') activateTab('home', true);
     if (ZUI.toast) ZUI.toast(on ? T('modeExpertOn') : T('modePublicOn'));
   };
   function modeLabels(){ var b = document.getElementById('zp-mode'); if (!b) return; b.querySelector('.zp-mode-a').textContent = T('modePublic'); b.querySelector('.zp-mode-b').textContent = T('modeExpert'); b.title = T('modeHint'); }
   ZUI.initNav = function(){
     var ex = false; try { ex = localStorage.getItem('zaicha.expert') === '1'; } catch (e) {}
-    buildNav(); simplifyForm(); renderPeopleUI(); ZUI.setExpert(ex, true); if (ex && typeof buildSystemTabs === 'function') buildSystemTabs();
+    simplifyForm(); renderPeopleUI(); ZUI.setExpert(ex, true);   // v0.2: the #zp-bar nav is replaced by the top bar + menu
     var ay = document.getElementById('in-ayanamsa'); if (ay) ay.addEventListener('change', advLabel);
   };
   ZUI.navLang = function(){ renderPeopleUI(); advLabel(); modeLabels(); };
+  ZUI.renderPeople = renderPeopleUI;
+  ZUI._people = { load: peopleLoad, remove: function(i){ removePerson(i); }, line: personLine };
+
+  /* ------------------------------------------------------------------
+     v0.2 (2026-10-01) — top bar, sheets (menu / Tehzeeb-ul-Ilm / Index /
+     PDF / Profile / Subscription), summary buttons, Escape + outside tap
+     ------------------------------------------------------------------ */
+  var OPEN_SHEET = null, SHEET_FOCUS = null;
+  function sheetEl(id){ return document.getElementById('sheet-' + id); }
+  function inApp(){ return document.body.classList.contains('app-mode'); }
+  function hasChart(){ return !!window.lastZaichaData; }   // a chart exists even while its form is open for editing
+  ZUI.openSheet = function(id){
+    var el = sheetEl(id); if (!el) return;
+    if (OPEN_SHEET && OPEN_SHEET !== id) ZUI.closeSheets(true);
+    if (!OPEN_SHEET) SHEET_FOCUS = document.activeElement;
+    if (id === 'learn') ZUI.renderLearn();
+    if (id === 'index') ZUI.renderIndex();
+    if (id === 'menu') ZUI.renderMenu();
+    if (id === 'subscribe' && typeof renderSubscribeScreen === 'function') renderSubscribeScreen();
+    if (id === 'profile' && typeof updateProfileAccountUI === 'function') updateProfileAccountUI();
+    el.hidden = false;
+    OPEN_SHEET = id;
+    document.body.classList.add('sheet-open');
+    var body = el.querySelector('.v2-sheet-body'); if (body) body.scrollTop = 0;
+    var x = el.querySelector('.v2-x'); if (x) setTimeout(function(){ try { x.focus({ preventScroll: true }); } catch (e) { x.focus(); } }, 30);
+  };
+  ZUI.closeSheets = function(keepFocus){
+    document.querySelectorAll('.v2-sheet').forEach(function(s){ s.hidden = true; });
+    document.body.classList.remove('sheet-open');
+    OPEN_SHEET = null;
+    if (!keepFocus && SHEET_FOCUS && SHEET_FOCUS.focus && document.contains(SHEET_FOCUS)) { try { SHEET_FOCUS.focus({ preventScroll: true }); } catch (e) {} }
+    if (!keepFocus) SHEET_FOCUS = null;
+  };
+
+  function engineLine(){
+    var b = document.getElementById('status-badge');
+    var t = b && b.textContent ? b.textContent.trim() : '';
+    var v = document.getElementById('v2-version');
+    return (t ? E(T('menuEngine')) + ': ' + E(t) + ' · ' : '') + E(v ? v.textContent.trim() : '');
+  }
+  ZUI.renderMenu = function(){
+    var box = document.getElementById('v2-menu-body'); if (!box) return;
+    var PPL = ZUI._people, list = PPL ? PPL.load() : [], app = hasChart(), ex = document.body.classList.contains('mode-expert');
+    var h = '<section class="v2-menu-sec"><h3 class="v2-menu-h">' + E(T('peopleRecent')) + '</h3>' +
+      '<button type="button" class="zp-new" data-act="new">＋ ' + E(T('peopleNew')) + '</button>';
+    list.forEach(function(p, i){ h += '<div class="zp-row"><button type="button" class="zp-open" data-i="' + i + '">' + PPL.line(p) + '</button><button type="button" class="zp-del" data-del="' + i + '" aria-label="' + E(T('peopleRemove')) + '" title="' + E(T('peopleRemove')) + '">×</button></div>'; });
+    h += '</section>';
+    if (app) {
+      h += '<section class="v2-menu-sec">' +
+        '<button type="button" class="v2-menu-item" data-act="close">' + E(T('menuClose')) + '</button>' +
+        '<div class="v2-menu-mode"><span class="v2-menu-label">' + E(T('menuMode')) + '</span>' +
+        '<div class="v2-seg" role="radiogroup" aria-label="' + E(T('menuMode')) + '">' +
+        '<button type="button" role="radio" aria-checked="' + (!ex) + '" data-act="simple">' + E(T('modePublic')) + '</button>' +
+        '<button type="button" role="radio" aria-checked="' + ex + '" data-act="expert">' + E(T('modeExpert')) + '</button></div></div>' +
+        '<p class="v2-menu-hint">' + E(T('modeHint')) + '</p>' +
+        '<button type="button" class="v2-menu-item" data-act="pdf">' + E(T('tabPdfReport')) + '</button>' +
+        '</section>';
+    }
+    h += '<section class="v2-menu-sec">' +
+      '<button type="button" class="v2-menu-item" data-act="profile">' + E(T('profileH3')) + '</button>' +
+      '<button type="button" class="v2-menu-item" data-act="subscribe">' + E(T('subscribeH3')) + '</button>' +
+      (ZUI.lockOn ? '<button type="button" class="v2-menu-item v2-menu-lock" data-act="lock">' + E(T('menuLock')) + '</button>' : '') +
+      '</section><p class="v2-menu-small">' + engineLine() + '</p>';
+    box.innerHTML = h;
+  };
+  function wireMenu(){
+    var box = document.getElementById('v2-menu-body'); if (!box || box._w) return; box._w = 1;
+    box.addEventListener('click', function(e){
+      var d = e.target.closest('[data-del]'); if (d) { ZUI._people.remove(+d.getAttribute('data-del')); return; }
+      var o = e.target.closest('.zp-open'); if (o) { ZUI.openPerson(ZUI._people.load()[+o.getAttribute('data-i')]); return; }
+      var a = e.target.closest('[data-act]'); if (!a) return;
+      var act = a.getAttribute('data-act');
+      if (act === 'new') ZUI.newZaicha();
+      else if (act === 'close') ZUI.closeApp();
+      else if (act === 'simple' || act === 'expert') ZUI.setExpert(act === 'expert');
+      else if (act === 'pdf' || act === 'profile' || act === 'subscribe') ZUI.openSheet(act);
+      else if (act === 'lock') {   // v0.2 pass 2.2: clear the unlock cookie on the server, then show the lock page
+        a.disabled = true;
+        fetch('/api/lock', { method: 'POST', credentials: 'same-origin' }).catch(function(){}).then(function(){ location.replace('/'); });
+      }
+    });
+  }
+
+  function goHome(){
+    ZUI.closeSheets();
+    if (!inApp() && hasChart() && typeof v2ResumeApp === 'function') { v2ResumeApp(); return; }
+    if (inApp()) {
+      var sm = document.getElementById('v2-summary'), tb = document.getElementById('v2-topbar');
+      var top = sm ? sm.getBoundingClientRect().top + window.pageYOffset - (tb ? tb.offsetHeight : 0) - 8 : 0;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    } else if (typeof showEntryForm === 'function') showEntryForm({});
+  }
+  function setTopVar(){
+    var tb = document.getElementById('v2-topbar');
+    if (tb) document.documentElement.style.setProperty('--v2-top', tb.offsetHeight + 'px');
+  }
+  ZUI.v2Lang = function(){
+    var code = document.getElementById('lang-code'); if (code) code.textContent = lang().toUpperCase();
+    [['v2-tb-home', 'navHome'], ['v2-tb-learn', 'learnH3'], ['v2-tb-index', 'indexH3'], ['v2-tb-menu', 'tbMenu']].forEach(function(x){
+      var b = document.getElementById(x[0]); if (b) { b.setAttribute('aria-label', T(x[1])); b.title = T(x[1]); }
+    });
+    var brand = document.getElementById('v2-brand'); if (brand) brand.setAttribute('aria-label', T('navHome'));
+    document.querySelectorAll('.v2-x').forEach(function(x){ x.setAttribute('aria-label', T('loadClose')); x.title = T('loadClose'); });
+    var lp = document.getElementById('lang-picker-btn'); if (lp) lp.setAttribute('aria-label', T('langPickerAria'));
+    if (OPEN_SHEET === 'menu') ZUI.renderMenu();
+    setTimeout(setTopVar, 0);
+  };
+  /* ------------------------------------------------------------------
+     v0.2 PASS 2.1 — section icons, emoji -> line icons, motion,
+     long-text "Read more", chart planet pills, sliding tab pill
+     ------------------------------------------------------------------ */
+  var RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var SEC_ICON = { today: ['sun', '#C3B4FF'], weekly: ['calendar', '#6EC8FF'], monthly: ['phase', '#8EC5FF'], yearly: ['star', '#F5B942'],
+    dasha: ['clock', '#B8A9FF'], transits: ['orbit', '#6EC8FF'], sudarshan: ['wheel', '#FFA25F'], moonphases: ['moon', '#C3B4FF'], cosmos3d: ['planet', '#8EC5FF'],
+    positions: ['table', '#8EC5FF'], planets: ['planet', '#FFA25F'], houses: ['home', '#6EC8FF'], aspects: ['eye', '#FF7EB6'], yogas: ['sparkle', '#F5B942'], divisional: ['layers', '#7BD389'], reading: ['book', '#C3B4FF'],
+    remedies: ['shield', '#4FD1A5'], milan: ['rings', '#FF7EB6'], prasna: ['question', '#6EC8FF'], panchang: ['calendar', '#F5B942'],
+    charadasha: ['clock', '#B8A9FF'], yoginidasha: ['clock', '#B8A9FF'], ashtottari: ['clock', '#B8A9FF'],
+    grahabala: ['bars', '#4FD1A5'], bhavabala: ['bars', '#4FD1A5'], vimshopak: ['bars', '#4FD1A5'], ashtakavarga: ['table', '#4FD1A5'],
+    jaimini: ['crown', '#F5B942'], charakaraka: ['crown', '#F5B942'], kp: ['compass', '#6EC8FF'], nadi: ['link', '#FFA25F'],
+    lalkitab: ['book', '#FF8A5B'], unani: ['star', '#7BD389'], western: ['globe', '#8EC5FF'], arabianparts: ['sparkle', '#FF7EB6'] };
+  function icon(n){ return (typeof v2Icon === 'function') ? v2Icon(n) : ''; }
+  function decorateSections(){
+    document.querySelectorAll('details.v2-sec').forEach(function(sec){
+      var h = sec.querySelector('.v2-sec-head'); if (!h || h.querySelector('.v2-sec-ic')) return;
+      var m = SEC_ICON[sec.getAttribute('data-sec')] || ['star', '#B8A9FF'];
+      var sp = document.createElement('span'); sp.className = 'v2-sec-ic'; sp.setAttribute('aria-hidden', 'true');
+      sp.style.setProperty('--ic', m[1]); sp.innerHTML = icon(m[0]); h.insertBefore(sp, h.firstChild);
+    });
+  }
+  // emoji in the UI -> the same line-icon set
+  var EMOJI_ICON = { '⚠️': 'alert', '⚠': 'alert', '🌐': 'globe', '🔮': 'sparkle', '⏳': 'hourglass', '⭐': 'star', '📍': 'pin', '🌙': 'moon', '🔒': 'lock',
+    '💼': 'briefcase', '💰': 'coins', '🌿': 'leaf', '❤️': 'heart', '❤': 'heart', '🏠': 'home', '🗓️': 'calendar', '🗓': 'calendar', '📅': 'calendar',
+    '🌗': 'phase', '🌑': 'moonNew', '🌕': 'moonFull', '🪐': 'planet', '🔭': 'telescope', '✨': 'sparkle', '💠': 'diamond', '📜': 'scroll', '🟡': 'dot',
+    '🧭': 'compass', '🔬': 'target', '⚖️': 'scale', '⚖': 'scale', '🔺': 'triangle', '🧿': 'shield', '💞': 'heart', '❓': 'question', '🌀': 'orbit',
+    '🏛️': 'columns', '🏛': 'columns', '🔟': 'bars', '📊': 'bars', '🪞': 'mirror', '💍': 'rings', '📋': 'list', '🎯': 'target', '🔑': 'key',
+    '🌊': 'wave', '🔗': 'link', '📕': 'book', '🍀': 'leaf', '🖨️': 'printer', '🖨': 'printer', '👑': 'crown', '🧩': 'layers', '👤': 'user',
+    '☀️': 'sun', '⚙️': 'gear', '⚙': 'gear', '🧘': 'user', '💡': 'sparkle', '📖': 'book' };
+  var EMOJI_RE = new RegExp(Object.keys(EMOJI_ICON).sort(function(a, b){ return b.length - a.length; }).map(function(k){ return k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|'), 'g');
+  var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, OPTION: 1, SELECT: 1, TITLE: 1 };
+  function iconize(root){
+    if (!root || !root.nodeType) return;
+    if (root.nodeType === 3) root = root.parentNode;
+    if (!root || root.nodeType !== 1) return;
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, todo = [];
+    while ((n = w.nextNode())) {
+      var par = n.parentNode;
+      if (!par || SKIP[par.nodeName] || par.namespaceURI !== 'http://www.w3.org/1999/xhtml') continue;
+      if (par.closest && par.closest('.kitaba, .ayah-card, #pdf-print-sheet, .lk3d, [contenteditable]')) continue;
+      EMOJI_RE.lastIndex = 0; if (EMOJI_RE.test(n.nodeValue)) todo.push(n);
+    }
+    todo.forEach(function(t){
+      var frag = document.createDocumentFragment(), s = t.nodeValue, last = 0, m; EMOJI_RE.lastIndex = 0;
+      while ((m = EMOJI_RE.exec(s))) {
+        if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'v2-ic v2-ic-' + EMOJI_ICON[m[0]]; sp.innerHTML = icon(EMOJI_ICON[m[0]]); frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+      if (t.parentNode) t.parentNode.replaceChild(frag, t);
+    });
+  }
+  // bars grow from 0 when they come into view
+  var barIO = (!RM && 'IntersectionObserver' in window) ? new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('v2-in'); barIO.unobserve(e.target); } });
+  }, { threshold: 0.15 }) : null;
+  function growBars(root){
+    if (!barIO || !root || !root.querySelectorAll) return;
+    root.querySelectorAll('.bala-bar-fill:not(.v2-grow), .deg-bar-fill:not(.v2-grow), .pbar i:not(.v2-grow), .v2-prog i:not(.v2-grow)').forEach(function(b){ b.classList.add('v2-grow'); barIO.observe(b); });
+  }
+  // chart planets as small coloured pills (D1, D9, D2, transit, Lal Kitab, Western)
+  function pillChips(){
+    document.querySelectorAll('.chart-wrap svg g[id$="planet-chips"]').forEach(function(g){
+      if (!g.firstChild || g.querySelector('rect.v2-chip-bg')) return;
+      var texts = [].slice.call(g.querySelectorAll('text')); if (!texts.length) return;
+      var b0; try { b0 = texts[0].getBBox(); } catch (e) { return; }
+      if (!b0 || !b0.width) return;                                   // hidden: try again when it is shown
+      texts.forEach(function(t){
+        var b; try { b = t.getBBox(); } catch (e) { return; }
+        var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        r.setAttribute('class', 'v2-chip-bg');
+        r.setAttribute('x', (b.x - 3).toFixed(1)); r.setAttribute('y', (b.y - 0.5).toFixed(1));
+        r.setAttribute('width', (b.width + 6).toFixed(1)); r.setAttribute('height', (b.height + 1).toFixed(1));
+        r.setAttribute('rx', ((b.height + 1) / 2).toFixed(1));
+        var col = t.style.fill || t.getAttribute('fill') || '#fff'; r.style.fill = col; r.style.stroke = col;
+        g.insertBefore(r, t);
+      });
+      g.classList.add('v2-pilled');
+    });
+  }
+  // long texts: 3 lines + "Read more"
+  var CLAMP_SKIP = '#daily-routine-list, table, .teaser-blurred-inner, .lesson, .v2-lessons, .keypoints, .disputes, .v2-sum-today, .field, .zp-adv, #pdf-print-sheet, .modal-overlay, .v2-sheet';
+  function clampLong(root){
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll('.v2-sec-body p:not([data-v2c])').forEach(function(p){
+      if (!p.offsetParent) return;                                    // measure only when visible
+      p.setAttribute('data-v2c', '1');
+      if (p.closest(CLAMP_SKIP) || (p.textContent || '').trim().length < 200) return;
+      p.classList.add('v2-clamp3');
+      if (p.scrollHeight <= p.clientHeight + 2) { p.classList.remove('v2-clamp3'); return; }
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'v2-more v2-more-long'; b.textContent = T('readMore'); b.setAttribute('aria-expanded', 'false');
+      b.addEventListener('click', function(){ var closed = p.classList.toggle('v2-clamp3'); b.textContent = T(closed ? 'readMore' : 'readLess'); b.setAttribute('aria-expanded', String(!closed)); });
+      p.parentNode.insertBefore(b, p.nextSibling);
+    });
+  }
+  // sliding active-tab pill
+  function moveInd(){
+    var nav = document.getElementById('v2-tabbar'); if (!nav) return;
+    var ind = nav.querySelector('.v2-tab-ind');
+    if (!ind) { ind = document.createElement('span'); ind.className = 'v2-tab-ind'; ind.setAttribute('aria-hidden', 'true'); nav.insertBefore(ind, nav.firstChild); }
+    var a = nav.querySelector('.v2-tab.active');
+    if (!a || !a.offsetWidth) { ind.style.opacity = '0'; return; }
+    ind.style.opacity = '1';
+    ind.style.width = a.offsetWidth + 'px'; ind.style.height = a.offsetHeight + 'px';
+    ind.style.transform = 'translate(' + a.offsetLeft + 'px,' + a.offsetTop + 'px)';
+    if (!nav.classList.contains('v2-ind-ready')) requestAnimationFrame(function(){ nav.classList.add('v2-ind-ready'); });
+  }
+  ZUI.moveInd = moveInd;
+  var passTimer = null, passRoots = [];
+  function runPass(){
+    passTimer = null; var roots = passRoots; passRoots = [];
+    if (mo) mo.disconnect();
+    try {
+      decorateSections();
+      roots.forEach(function(r){ iconize(r); growBars(r.nodeType === 1 ? r : r.parentNode); });
+      pillChips();
+      clampLong(document.querySelector('.v2-panels'));
+    } catch (e) { console.error('v2 pass', e); }
+    if (mo) mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+  function queuePass(root){ passRoots.push(root || document.body); if (!passTimer) passTimer = setTimeout(runPass, 40); }
+  var mo = ('MutationObserver' in window) ? new MutationObserver(function(recs){
+    recs.forEach(function(r){ queuePass(r.target); });
+  }) : null;
+  ZUI.initPass21 = function(){
+    queuePass(document.body);
+    // tab change: pill, entrance animation, measure what just became visible
+    var prevOnTab = ZUI.onTab;
+    ZUI.onTab = function(tabId){
+      if (prevOnTab) prevOnTab(tabId);
+      moveInd();
+      var pn = document.getElementById('panel-' + tabId);
+      if (pn && !RM) { pn.classList.remove('v2-enter'); void pn.offsetWidth; pn.classList.add('v2-enter'); setTimeout(function(){ pn.classList.remove('v2-enter'); }, 700); }
+      queuePass(pn || document.body);
+    };
+    document.addEventListener('toggle', function(e){ if (e.target && e.target.matches && e.target.matches('details.v2-sec')) queuePass(e.target); }, true);
+    window.addEventListener('resize', function(){ moveInd(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInd);
+    var nav = document.getElementById('v2-tabbar');
+    if (nav && 'MutationObserver' in window) new MutationObserver(function(){ if (!nav.querySelector('.v2-tab-ind')) moveInd(); }).observe(nav, { childList: true });
+    // topic chips -> that card in "Today in detail"
+    var trow = document.getElementById('v2-topic-row');
+    if (trow) trow.addEventListener('click', function(e){
+      var c = e.target.closest('.v2-topic'); if (!c || typeof activateTab !== 'function') return;
+      activateTab('predictions', false); v2OpenSection('today', false);
+      setTimeout(function(){
+        var card = document.querySelector('#daily-routine-list [data-topic="' + c.getAttribute('data-topic') + '"]'); if (!card) return;
+        card.classList.add('is-open');
+        card.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center', inline: 'center' });
+        card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+      }, 120);
+    });
+    // daily-routine cards: tap to expand (phones show one line per topic)
+    var drl = document.getElementById('daily-routine-list');
+    if (drl) drl.addEventListener('click', function(e){ var c = e.target.closest('.v2-topic-card'); if (c) c.classList.toggle('is-open'); });
+    // header: parallax hills
+    if (!RM) {
+      var sky = document.querySelector('.v2-sky'), ticking = false;
+      window.addEventListener('scroll', function(){
+        if (ticking || !sky) return; ticking = true;
+        requestAnimationFrame(function(){ ticking = false; sky.style.setProperty('--py', Math.min(240, window.pageYOffset || 0)); });
+      }, { passive: true });
+    }
+  };
+  ZUI.pass21Lang = function(){
+    document.querySelectorAll('.v2-more-long').forEach(function(b){ b.textContent = T(b.getAttribute('aria-expanded') === 'true' ? 'readLess' : 'readMore'); });
+    setTimeout(moveInd, 30);
+  };
+
+  /* ------------------------------------------------------------------
+     v0.2 PASS 2.2 / 2.3 — 3D everywhere it was asked for, reusing the
+     existing pages: /orrery.html for the chart, /cosmos.html for the sky.
+     ------------------------------------------------------------------ */
+  function hasWebGL(){ try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch (e) { return false; } }
+  function reduceMotion(){ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  function slowNet(){ var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection; return !!(c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))); }
+  function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+  function zHash(data){
+    var z = data && ZUI.toOrreryZaicha ? ZUI.toOrreryZaicha(data) : null; if (!z) return '';
+    try { return '#zaicha=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(z))))); } catch (e) { return ''; }
+  }
+
+  /* ---- A. summary chart: 2D chart | 3D sky ---- */
+  var SKY3D = { frame: null, ready: false, timer: null, hash: '' };
+  function sky3dBox(){ return document.getElementById('v2-sky3d'); }
+  function sky3dFail(){
+    if (SKY3D.frame) { SKY3D.frame.remove(); SKY3D.frame = null; }
+    SKY3D.ready = false; clearTimeout(SKY3D.timer);
+    var b = sky3dBox(); if (b) b.classList.remove('is-ready');
+    ZUI.setChartMode('2d', true, true);
+    ZUI.toast(T('sky3dFail'));
+  }
+  function sky3dLoad(){
+    var b = sky3dBox(); if (!b || SKY3D.frame) return;
+    if (!hasWebGL()) { sky3dFail(); return; }
+    var data = window.lastZaichaData; SKY3D.hash = zHash(data);
+    var f = document.createElement('iframe'); f.className = 'v2-sky3d-frame'; f.title = T('sky3d'); f.setAttribute('allow', 'fullscreen'); f.loading = 'lazy';
+    f.src = '/orrery.html?embed=1&mini=0' + SKY3D.hash;          // same #zaicha= hand-off as the Lal Kitab "open" link
+    b.appendChild(f); SKY3D.frame = f;
+    SKY3D.timer = setTimeout(function(){ if (!SKY3D.ready) sky3dFail(); }, 20000);
+  }
+  function sky3dUpdate(){               // a new chart while 3D is loaded: same hash, page updates itself
+    if (!SKY3D.frame) return;
+    var h = zHash(window.lastZaichaData); if (!h || h === SKY3D.hash) return;
+    SKY3D.hash = h;
+    try { SKY3D.frame.contentWindow.location.replace('/orrery.html?embed=1&mini=0' + h); } catch (e) { SKY3D.frame.src = '/orrery.html?embed=1&mini=0' + h; }
+  }
+  window.addEventListener('message', function(e){
+    if (!SKY3D.frame || e.source !== SKY3D.frame.contentWindow || e.origin !== location.origin) return;
+    var m = e.data || {};
+    if (m.type === 'orrery:ready') { SKY3D.ready = true; clearTimeout(SKY3D.timer); var b = sky3dBox(); if (b) b.classList.add('is-ready'); }
+  });
+  ZUI.setChartMode = function(mode, save, quiet){
+    mode = mode === '3d' ? '3d' : '2d';
+    if (mode === '3d' && !hasWebGL()) { if (!quiet) ZUI.toast(T('sky3dFail')); mode = '2d'; save = true; }   // no WebGL: stay on 2D
+    var seg = document.getElementById('v2-seg3d'), box = sky3dBox(), wrap = document.querySelector('#phone-chart .chart-wrap'), full = document.getElementById('v2-full3d');
+    if (!seg || !box || !wrap) return;
+    seg.querySelectorAll('[data-mode]').forEach(function(b){ b.setAttribute('aria-checked', String(b.getAttribute('data-mode') === mode)); });
+    var pc = document.getElementById('phone-chart'); if (pc) pc.classList.toggle('is-3d', mode === '3d');
+    box.hidden = mode !== '3d'; if (full) full.hidden = mode !== '3d';
+    ZUI.chartMode = mode;
+    if (save !== false) lsSet('zaicha.chartMode', mode);
+    if (mode === '3d') { sky3dLoad(); sky3dUpdate(); }
+  };
+  ZUI.sky3dRefresh = function(){            // called after each new chart
+    var want = lsGet('zaicha.chartMode') === '3d' ? '3d' : '2d';
+    ZUI.setChartMode(want, false);
+    sky3dUpdate();
+  };
+  function wireChartSwitch(){
+    var seg = document.getElementById('v2-seg3d'); if (!seg || seg._w) return; seg._w = 1;
+    seg.addEventListener('click', function(e){ var b = e.target.closest('[data-mode]'); if (b) ZUI.setChartMode(b.getAttribute('data-mode'), true); });
+    seg.addEventListener('keydown', function(e){ if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); ZUI.setChartMode(ZUI.chartMode === '3d' ? '2d' : '3d', true); var on = seg.querySelector('[aria-checked="true"]'); if (on) on.focus(); });
+    var full = document.getElementById('v2-full3d');
+    if (full) full.addEventListener('click', function(){ window.open('/orrery.html' + zHash(window.lastZaichaData), '_blank', 'noopener'); });
+  }
+
+  /* ---- B. آیاتِ آسمان inside the Periods tab (lazy, when the section opens) ---- */
+  var C3D = { frame: null, lang: null };
+  ZUI.cosmos3dMount = function(){
+    var st = document.getElementById('cosmos3d-stage'); if (!st || !st.offsetParent) return;
+    if (C3D.frame) { if (C3D.lang !== lang()) { C3D.lang = lang(); C3D.frame.src = '/cosmos.html?lang=' + encodeURIComponent(C3D.lang); st.classList.remove('is-ready'); } return; }
+    if (!hasWebGL()) { st.classList.add('is-failed'); st.setAttribute('data-msg', T('cosmosFail')); return; }
+    var f = document.createElement('iframe'); f.className = 'v2-3d-frame'; f.title = T('cosmosTitle'); f.setAttribute('allow', 'fullscreen'); f.allowFullscreen = true;
+    C3D.lang = lang(); f.src = '/cosmos.html?lang=' + encodeURIComponent(C3D.lang); st.appendChild(f); C3D.frame = f;
+  };
+
+  /* ---- 2.3 opening screen: full-screen sky (poster first), "Create your Zaicha" card ---- */
+  var HERO = { frame: null, ready: false, timer: null, lang: null, failed: false };
+  function heroEl(id){ return document.getElementById(id); }
+  function heroFallback(){            // poster stays, with a slow CSS twinkle — never an empty black box
+    HERO.failed = true; clearTimeout(HERO.timer);
+    if (HERO.frame) { HERO.frame.remove(); HERO.frame = null; }
+    var sky = heroEl('v2-hero-sky'); if (sky) { sky.classList.remove('is-live'); sky.classList.add('is-still'); }
+  }
+  function heroLoad(){
+    var sky = heroEl('v2-hero-sky'); if (!sky || HERO.frame) return;
+    if (!hasWebGL()) { heroFallback(); return; }
+    HERO.failed = false;
+    var f = document.createElement('iframe'); f.className = 'v2-hero-frame'; f.title = T('cosmosTitle'); f.setAttribute('loading', 'eager'); f.setAttribute('tabindex', '-1');
+    HERO.lang = lang(); f.src = '/cosmos.html?hero=1&lang=' + encodeURIComponent(HERO.lang);
+    sky.appendChild(f); HERO.frame = f; HERO.ready = false;
+    HERO.timer = setTimeout(function(){ if (!HERO.ready) heroFallback(); }, 8000);
+  }
+  window.addEventListener('message', function(e){
+    if (e.origin !== location.origin) return;
+    var m = e.data || {};
+    if (HERO.frame && e.source === HERO.frame.contentWindow) {
+      if (m.type === 'cosmos:ready') { HERO.ready = true; clearTimeout(HERO.timer); var sky = heroEl('v2-hero-sky'); if (sky) { sky.classList.add('is-live'); sky.classList.remove('is-still'); } }
+      if (m.type === 'cosmos:error') heroFallback();
+    }
+    if (C3D.frame && e.source === C3D.frame.contentWindow) {
+      var st = document.getElementById('cosmos3d-stage');
+      if (m.type === 'cosmos:ready' && st) st.classList.add('is-ready');
+      if (m.type === 'cosmos:error' && st) { st.classList.add('is-failed'); st.setAttribute('data-msg', T('cosmosFail')); C3D.frame.remove(); C3D.frame = null; }
+    }
+  });
+  function toForm(){
+    var entry = document.getElementById('phone-entry'), gate = document.getElementById('screen-welcome');
+    var target = (entry && entry.offsetParent) ? entry : (gate && gate.offsetParent ? gate : entry);
+    if (!target) return;
+    target.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    var n = document.getElementById('in-name');
+    if (n && target === entry) setTimeout(function(){ try { n.focus({ preventScroll: true }); } catch (e) { n.focus(); } }, reduceMotion() ? 0 : 450);
+  }
+  ZUI.renderHeroCard = function(){
+    var people = (ZUI._people ? ZUI._people.load() : []).slice(0, 3);
+    var t = heroEl('v2-hero-t'), line = heroEl('v2-hero-line'), box = heroEl('v2-hero-people'), go = heroEl('v2-hero-go');
+    if (!t || !box || !go) return;
+    var back = people.length > 0;
+    heroEl('v2-hero-card').classList.toggle('is-back', back);
+    t.textContent = T(back ? 'heroWelcome' : 'heroTitle');
+    line.textContent = T(back ? 'heroWelcomeLine' : 'heroLine');
+    go.textContent = T(back ? 'heroNew' : 'heroBtn');
+    box.hidden = !back;
+    box.innerHTML = people.map(function(p, i){
+      var nm = p.name || '—', ini = String(nm).trim().charAt(0) || '✦';
+      var asc = (typeof p.asc === 'number' && typeof SNfull === 'function') ? E(SNfull(p.asc)) : '<span class="ltr">' + E(p.dob) + '</span>';
+      return '<button type="button" class="v2-hero-person" data-i="' + i + '" style="--_h:' + ((i * 47) % 360) + '"><span class="zp-av" aria-hidden="true">' + E(ini) + '</span><span><b>' + E(nm) + '</b><small>' + asc + '</small></span></button>';
+    }).join('');
+  };
+  ZUI.initHero = function(){
+    var hero = heroEl('v2-hero'); if (!hero || hero._w) return; hero._w = 1;
+    ZUI.renderHeroCard();
+    heroEl('v2-hero-go').addEventListener('click', toForm);
+    heroEl('v2-hero-learn').addEventListener('click', function(){ ZUI.openSheet('learn'); });
+    heroEl('v2-hero-scroll').addEventListener('click', toForm);
+    heroEl('v2-hero-people').addEventListener('click', function(e){ var b = e.target.closest('.v2-hero-person'); if (b) ZUI.openPerson(ZUI._people.load()[+b.getAttribute('data-i')]); });
+    // the card: about 1.5 s after opening (at once with reduced motion); built without waiting for 3D
+    var card = heroEl('v2-hero-card');
+    setTimeout(function(){ card.classList.add('is-in'); }, reduceMotion() ? 0 : 1500);
+    // the sky: poster now; 3D behind it unless reduced motion / slow connection
+    var sky = heroEl('v2-hero-sky');
+    if (reduceMotion()) { sky.classList.add('is-poster-only'); return; }
+    if (slowNet()) {
+      sky.classList.add('is-still');
+      var mv = heroEl('v2-hero-move'); mv.hidden = false;
+      mv.addEventListener('click', function(){ mv.hidden = true; heroLoad(); });
+      return;
+    }
+    var start = function(){ heroLoad(); };
+    if (document.readyState === 'complete') setTimeout(start, 50); else window.addEventListener('load', function(){ setTimeout(start, 50); });
+    // pause the 3D when the hero is off screen
+    if ('IntersectionObserver' in window) new IntersectionObserver(function(en){
+      en.forEach(function(x){ if (HERO.frame && HERO.frame.contentWindow) HERO.frame.contentWindow.postMessage({ type: 'cosmos:visible', visible: x.isIntersecting }, location.origin); });
+    }).observe(hero);
+  };
+  ZUI.heroLang = function(){
+    ZUI.renderHeroCard();
+    if (HERO.frame && HERO.lang !== lang()) { HERO.lang = lang(); HERO.frame.src = '/cosmos.html?hero=1&lang=' + encodeURIComponent(HERO.lang); }
+    var sc = heroEl('v2-hero-scroll'); if (sc) sc.setAttribute('aria-label', T('heroScroll'));
+    var seg = document.getElementById('v2-seg3d'); if (seg) seg.setAttribute('aria-label', T('chartModeAria'));
+    if (C3D.frame) ZUI.cosmos3dMount();
+  };
+  ZUI.initPass22 = function(){ wireChartSwitch(); ZUI.initHero(); ZUI.heroLang(); };
+
+  /* v0.2 pass 2: "Recommended lessons" rows (Tehzeeb-ul-Ilm area + end of Remedies) — 3 lessons from learn-content.js */
+  var LESSON_ART = [
+    ['#9A90EC', '#4A4FD0', '<circle cx="60" cy="40" r="15" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"/><circle cx="60" cy="40" r="27" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/><circle cx="87" cy="40" r="4" fill="#F2C14E"/>'],
+    ['#B8A9FF', '#2A30B8', '<path d="M66 22a18 18 0 1 0 14 30a15 15 0 1 1-14-30z" fill="#FFF6DD"/><circle cx="34" cy="26" r="1.6" fill="#fff"/><circle cx="92" cy="58" r="1.3" fill="#fff"/><circle cx="24" cy="56" r="1.1" fill="#fff"/>'],
+    ['#7F86F0', '#171C8E', '<path d="M0 64C30 48 52 50 72 58S104 66 120 56V80H0Z" fill="#2A30B8"/><g fill="#fff"><circle cx="30" cy="22" r="1.6"/><circle cx="58" cy="14" r="1.2"/><circle cx="86" cy="28" r="1.8"/><circle cx="102" cy="16" r="1.1"/></g>']
+  ];
+  function findLesson(id){
+    var book = window.ZAICHA_LEARN, out = null;
+    (book && book.levels || []).forEach(function(lv){ (lv.chapters || []).forEach(function(ch){ (ch.lessons || []).forEach(function(ls){ if (ls.id === id) out = { level: lv.id, ls: ls }; }); }); });
+    return out;
+  }
+  ZUI.renderLessons = function(){
+    document.querySelectorAll('.v2-lessons[data-lessons]').forEach(function(box){
+      var row = box.querySelector('.v2-lessons-row'); if (!row) return;
+      var ids = box.getAttribute('data-lessons').split(',');
+      row.innerHTML = ids.map(function(id, i){
+        var f = findLesson(id); if (!f || f.ls.comingSoon) return '';
+        var art = LESSON_ART[i % LESSON_ART.length];
+        return '<button type="button" class="v2-lesson" data-lesson="' + E(id) + '">' +
+          '<span class="v2-lesson-art" aria-hidden="true"><svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="lg-' + E(box.id) + '-' + i + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + art[0] + '"/><stop offset="1" stop-color="' + art[1] + '"/></linearGradient></defs><rect width="120" height="80" fill="url(#lg-' + E(box.id) + '-' + i + ')"/>' + art[2] + '</svg></span>' +
+          '<span class="v2-lesson-t">' + E(L(f.ls.title)) + '</span>' +
+          (f.ls.minutes ? '<span class="v2-pill">' + E(T('lessonPill', { n: f.ls.minutes })) + '</span>' : '') +
+          '</button>';
+      }).join('');
+      if (!row._v2wired) {
+        row._v2wired = true;
+        row.addEventListener('click', function(e){
+          var b = e.target.closest('.v2-lesson'); if (!b) return;
+          var f = findLesson(b.getAttribute('data-lesson')); if (!f) return;
+          ZUI.learn.level = f.level; ZUI.learn.lesson = f.ls.id;
+          ZUI.renderLearn(); ZUI.openSheet('learn');
+        });
+      }
+    });
+  };
+
+  ZUI.initV2 = function(){
+    function on(id, fn){ var el = document.getElementById(id); if (el) el.addEventListener('click', fn); }
+    on('v2-tb-home', goHome);
+    on('v2-tb-learn', function(){ ZUI.openSheet('learn'); });
+    on('v2-tb-index', function(){ ZUI.openSheet('index'); });
+    on('v2-tb-menu', function(){ ZUI.openSheet('menu'); });
+    on('v2-learn-card', function(){ ZUI.openSheet('learn'); });
+    on('v2-edit-btn', function(){ if (typeof showEntryForm === 'function') showEntryForm({ focus: true }); });
+    on('v2-pdf-btn', function(){ ZUI.openSheet('pdf'); });
+    on('v2-mood', function(){ if (typeof activateTab === 'function') { activateTab('predictions', false); v2OpenSection('today', true); } });
+    var wk = document.getElementById('v2-week-days');
+    if (wk) wk.addEventListener('click', function(e){ var b = e.target.closest('.v2-day[data-i]'); if (b && typeof v2OpenDay === 'function') v2OpenDay(+b.getAttribute('data-i')); });
+    // top bar: transparent at the top of the page, solid once the page is scrolled
+    var onScroll = function(){ document.body.classList.toggle('v2-scrolled', (window.pageYOffset || 0) > 8); };
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    ZUI.renderLessons();
+    ZUI.initPass21();
+    ZUI.initPass22();
+    // app lock: show "Lock app" in the menu only when the server lock is on
+    fetch('/api/lock/status', { credentials: 'same-origin', cache: 'no-store' }).then(function(r){ return r.json(); }).then(function(j){ ZUI.lockOn = !!(j && j.enabled); if (ZUI.renderMenu) ZUI.renderMenu(); }).catch(function(){});
+    on('v2-expert-on', function(){ ZUI.setExpert(true); });
+    var brand = document.getElementById('v2-brand');
+    if (brand) { brand.addEventListener('click', goHome); brand.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); } }); }
+    // sheets: ✕ and outside tap
+    document.querySelectorAll('.v2-sheet').forEach(function(sh){
+      sh.addEventListener('click', function(e){ if (e.target === sh || e.target.closest('[data-close]')) ZUI.closeSheets(); });
+    });
+    // upgrade popup: ✕ and outside tap (Escape below)
+    var um = document.getElementById('upgrade-modal');
+    if (um) um.addEventListener('click', function(e){ if (e.target === um || e.target.closest('#upgrade-modal-x')) um.hidden = true; });
+    wireMenu();
+    // Escape closes the top-most layer: planet menu → upgrade popup → loader error → sheet → language list
+    document.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape') return;
+      var pm = document.getElementById('planet-menu-modal'); if (pm && !pm.hidden) { pm.hidden = true; return; }
+      if (um && !um.hidden) { um.hidden = true; return; }
+      var ld = document.getElementById('v2-loader'); if (ld && !ld.hidden && ld.classList.contains('is-error')) { ld.hidden = true; return; }
+      if (OPEN_SHEET) { ZUI.closeSheets(); return; }
+      var lm = document.getElementById('lang-menu'); if (lm) lm.classList.remove('open');
+    });
+    // tab bar: arrow keys move between tabs (mirrored in RTL)
+    var bar = document.getElementById('v2-tabbar');
+    if (bar) bar.addEventListener('keydown', function(e){
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var tabs = Array.prototype.slice.call(bar.querySelectorAll('.v2-tab')); var i = tabs.indexOf(document.activeElement); if (i < 0) return;
+      var fwd = (e.key === 'ArrowRight') !== (document.documentElement.dir === 'rtl');
+      var n = tabs[(i + (fwd ? 1 : -1) + tabs.length) % tabs.length]; n.focus(); n.click(); e.preventDefault();
+    });
+    window.addEventListener('resize', setTopVar);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setTopVar);
+    ZUI.v2Lang();
+    setTopVar();
+  };
 
   /* ------------------------------------------------------------------
      HOOKS
@@ -1065,9 +1620,14 @@
     ZUI.renderSudarshan(data);
     ZUI.renderLearn();
     try { ZUI.lk3dUpdate(data); } catch (e) { console.error('lk3d', e); }
-    try { ZUI.rememberPerson(); } catch (e) { console.error('people', e); }
+    try { ZUI.rememberPerson(data); } catch (e) { console.error('people', e); }
+    try { ZUI.sky3dRefresh(); ZUI.renderHeroCard(); } catch (e) { console.error('3d', e); }
   };
   ZUI.onLanguage = function(){
+    if (ZUI.v2Lang) ZUI.v2Lang();
+    ZUI.renderLessons();
+    if (ZUI.pass21Lang) ZUI.pass21Lang();
+    if (ZUI.heroLang) ZUI.heroLang();
     ZUI.renderLearn();
     lkTexts();
     ZUI.renderPreface();
@@ -1080,7 +1640,6 @@
 
   function boot(){
     initSky();
-    buildHeroWheel();
     wireHero();
     var nav = document.getElementById('system-tabs');
     if (typeof buildSystemTabs === 'function') buildSystemTabs();
@@ -1089,8 +1648,9 @@
     ZUI.renderPreface();
     ZUI.initCosmos();
     ZUI.initNav();
-    // PWA shortcut / share link: /#learn seedha Learn kholta hai
-    if (location.hash === '#learn' && typeof activateTab === 'function') setTimeout(function(){ activateTab('learn', false); }, 60);
+    if (ZUI.initV2) ZUI.initV2();
+    // v0.2: every hash link (#learn, #periods, #unani …) is routed by index.html v2RouteHash
+    if (typeof v2RouteHash === 'function') setTimeout(v2RouteHash, 60);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
