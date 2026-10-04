@@ -456,17 +456,16 @@ app.post('/api/kundli', async (req, res) => {
     let effective = { name, dob, time, lat, lon, ayanamsa, utcOffset };
     let profileRow = null;
 
+    const guestKey = auth.readGuestKey(req);
     if (profileId) {
       profileRow = await db.getProfileById(profileId);
-      if (!profileRow) {
-        return res.status(404).json({ error: 'ye saved profile nahi mili — ho sakta hai delete ho gayi ho.' });
-      }
-      // Agar ye profile kisi account (user_id) se judi hai, to sirf usi
-      // account ka session ise dobara generate kar sakta hai — koi aur
-      // logged-in ya bina-login user sirf ID guess kar ke kisi doosre ki
-      // saved kundli access nahi kar sakta (Step 2 ka asal privacy fayda).
-      if (profileRow.user_id && (!session || session.uid !== profileRow.user_id)) {
-        return res.status(403).json({ error: 'ye saved kundli sirf iske malik ke account se hi dekhi ja sakti hai — pehle sign in karein.' });
+      // PATH B: one answer for "no such row" and "not yours", so counting ids
+      // upward tells an outsider nothing — not even whether a row exists.
+      const NOT_FOUND = 'ye saved profile nahi mili — ho sakta hai delete ho gayi ho.';
+      const ownedByAccount = profileRow && profileRow.user_id && session && session.uid === profileRow.user_id;
+      const ownedByBrowser = profileRow && profileRow.owner_key && guestKey && profileRow.owner_key === guestKey;
+      if (!profileRow || !(ownedByAccount || ownedByBrowser)) {
+        return res.status(404).json({ error: NOT_FOUND });
       }
       effective = {
         name: profileRow.name,
@@ -562,12 +561,17 @@ app.post('/api/kundli', async (req, res) => {
     // (2) user logged in ho (session) — is soorat mein phone ke bagair bhi
     // profile khud-b-khud us ke account se jud kar save ho jati hai.
     let savedProfileId = profileId || null;
-    if (!profileId && (phone || session) && db.isDbConfigured()) {
+    // PATH B: every new row is stamped with this browser's guest key (minted
+    // here if it has none), so the natal cache keeps working for people who
+    // are not logged in — while staying unreadable to everyone else.
+    if (!profileId && db.isDbConfigured() && auth.isGuestEnabled()) {
       try {
+        const ownerKey = auth.ensureGuestKey(req, res);
         const saved = await db.saveProfile({
           phone: phone || null, name: effective.name || 'صارف', dob: effective.dob, time: effective.time,
           lat: effective.lat, lon: effective.lon, cityLabel, utcOffset: offset, ayanamsa: ayanamsaVal,
           userId: session ? session.uid : null,
+          ownerKey,
         });
         savedProfileId = saved.id;
         await db.cacheNatalData(saved.id, natalBundle);
@@ -978,9 +982,12 @@ app.get('/api/profiles', async (req, res) => {
       const profiles = await db.listProfilesByUserId(session.uid);
       return res.json({ available: true, profiles });
     }
-    const phone = (req.query.phone || '').trim();
-    if (!phone) return res.json({ available: true, profiles: [] });
-    const profiles = await db.listProfilesByPhone(phone);
+    // PATH B: the ?phone= lookup is GONE. Anyone could type someone else's
+    // number and read their saved charts. A request with no session now only
+    // ever sees the rows made by its own browser (signed guest cookie), and a
+    // request with neither sees nothing at all.
+    const guest = auth.readGuestKey(req);
+    const profiles = guest ? await db.listProfilesByOwnerKey(guest) : [];
     res.json({ available: true, profiles });
   } catch (err) {
     console.error(err);
