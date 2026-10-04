@@ -406,9 +406,41 @@ async function fetchNatalBundle(person) {
  *         karne ke liye, is soorat mein natal_cache istemal hoga agar
  *         mojood ho) }
  */
+
+// ---- SECURITY PASS (2026-10-04): a small per-IP limiter, same shape as the
+// lock one above (in memory, resets on restart). `app.set('trust proxy', 1)`
+// is already set, so req.ip is the real client IP behind Render's proxy.
+const rateBuckets = new Map();
+function rateOk(name, ip, max, windowMs) {
+  const now = Date.now();
+  const key = name + '|' + (ip || 'unknown');
+  let r = rateBuckets.get(key);
+  if (!r || r.reset < now) { r = { n: 0, reset: now + windowMs }; rateBuckets.set(key, r); }
+  r.n += 1;
+  if (rateBuckets.size > 20000) for (const [k, v] of rateBuckets) if (v.reset < now) rateBuckets.delete(k);
+  return r.n <= max;
+}
+const RATE = {
+  kundli: { max: 30, windowMs: 15 * 60 * 1000 },   // 30 charts per IP / 15 min
+  login:  { max: 10, windowMs: 15 * 60 * 1000 },   // 10 sign-in attempts per IP / 15 min
+};
+// Our own cap — worded separately from the engine's own rate limit, which is
+// a different thing and already has its own message further down.
+const TOO_MANY = {
+  en: 'A lot of charts have been created from this device in a short time. Please wait a few minutes and try again.',
+  ur: 'اس ڈیوائس سے تھوڑے وقت میں کئی زائچے بن چکے ہیں۔ براہ کرم چند منٹ انتظار کر کے دوبارہ کوشش کریں۔',
+  hi: 'इस डिवाइस से थोड़े समय में कई कुंडलियाँ बन चुकी हैं। कृपया कुछ मिनट रुककर दोबारा कोशिश करें।',
+  ar: 'تم إنشاء عدد كبير من الخرائط من هذا الجهاز خلال وقت قصير. يُرجى الانتظار بضع دقائق ثم المحاولة مرة أخرى.',
+  zh: '短时间内从此设备创建了过多星盘。请等待几分钟后再试。',
+};
+
 app.post('/api/kundli', async (req, res) => {
   try {
     const { name, dob, time, lat, lon, ayanamsa, utcOffset, phone, profileId, cityLabel, lang } = req.body;
+    if (!rateOk('kundli', req.ip, RATE.kundli.max, RATE.kundli.windowMs)) {
+      const l = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(lang) !== -1 ? lang : 'en';
+      return res.status(429).json({ error: TOO_MANY[l] || TOO_MANY.en, errorCode: 'tooMany' });
+    }
     const session = auth.readSession(req);
     // ---- Multi-language foundation: frontend jo bhi language bhejay (en/ur/hi)
     // usi mein saara narrative/prediction content generate hoga. Default English
@@ -840,9 +872,16 @@ app.post('/api/kundli', async (req, res) => {
  * sakta, bas har request ke sath khud-b-khud chali jati hai.
  */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// SECURITY PASS: without JWT_SECRET a live server would have to sign sessions
+// with the fallback secret that sits in this public repo — so login/register
+// are switched off instead of running insecurely (lib/auth.js).
+const SESSIONS_OFF = 'لاگ اِن کا نظام ابھی بند ہے — سرور پر JWT_SECRET سیٹ نہیں۔ (Server: set JWT_SECRET to enable sign-in.)';
 
 app.post('/api/auth/register', async (req, res) => {
   try {
+    if (!auth.isSessionEnabled()) {
+      return res.status(503).json({ error: SESSIONS_OFF });
+    }
     if (!db.isDbConfigured()) {
       return res.status(400).json({ error: 'اکاؤنٹ کا نظام ابھی سرور پر configure نہیں (DATABASE_URL .env میں سیٹ کریں)۔' });
     }
@@ -872,6 +911,12 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
+    if (!auth.isSessionEnabled()) {
+      return res.status(503).json({ error: SESSIONS_OFF });
+    }
+    if (!rateOk('login', req.ip, RATE.login.max, RATE.login.windowMs)) {
+      return res.status(429).json({ error: 'سائن اِن کی بہت زیادہ کوششیں ہو چکی ہیں۔ براہ کرم 15 منٹ بعد دوبارہ کوشش کریں۔' });
+    }
     if (!db.isDbConfigured()) {
       return res.status(400).json({ error: 'اکاؤنٹ کا نظام ابھی سرور پر configure نہیں (DATABASE_URL .env میں سیٹ کریں)۔' });
     }
@@ -1083,57 +1128,10 @@ app.post('/api/subscribe/webhook', async (req, res) => {
   }
 });
 
-/**
- * Debug route — real raw Prokerala response dekhne ke liye, taake
- * astro-engine.js ke "SHAPE TODO" comments (dasha_periods ka exact field
- * naming) confirm kiye ja saken jab real credentials se test ho.
- * Production mein ye route hata dena chahiye ya password se protect karna
- * chahiye — abhi ke liye sirf local development ke liye hai.
- */
-app.post('/api/debug/kundli-raw', async (req, res) => {
-  try {
-    const { dob, time, lat, lon, ayanamsa, utcOffset } = req.body;
-    const offset = utcOffset || '+05:00';
-    const person = {
-      datetime: `${dob}T${time}:00${offset}`,
-      coordinates: `${lat},${lon}`,
-      ayanamsa: ayanamsa || 1,
-    };
-    const raw = await prokerala.getKundliAdvanced(person);
-    res.json(raw);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * Debug route — Ashtakavarga/Sarvashtakavarga ka asal endpoint aur
- * response shape abhi live confirm nahi ho saka (README/prokerala-client.js
- * mein tafseel hai). Ye route har candidate path ka result (kamyaab ya
- * error) alag alag dikhata hai — jab real credentials se ek dafa test
- * hoga, jo path kaam karay uska asal JSON shape dekh kar hum
- * astro-engine.js/narrative.js mein house-wise numbers nikalne wala code
- * theek se likh sakenge. Production mein hata dena chahiye.
- */
-app.post('/api/debug/ashtakavarga-raw', async (req, res) => {
-  try {
-    const { dob, time, lat, lon, ayanamsa, utcOffset } = req.body;
-    const offset = utcOffset || '+05:00';
-    const person = {
-      datetime: `${dob}T${time}:00${offset}`,
-      coordinates: `${lat},${lon}`,
-      ayanamsa: ayanamsa || 1,
-    };
-    // getSarvashtakavargaBestEffort khud saaray candidate paths try karta
-    // hai aur agar sab fail hon to har ek ki alag error message ek sath
-    // laut ata hai (prokerala-client.js dekhein) — is liye yahan sirf ek
-    // hi call kaafi hai.
-    const result = await prokerala.getSarvashtakavargaBestEffort(person);
-    res.json({ workingPath: result.path, data: result.data });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// SECURITY PASS (2026-10-04): the two /api/debug/* routes that used to sit
+// here (kundli-raw, ashtakavarga-raw) are REMOVED. They answered anyone on
+// the open internet with no password and spent engine credits on every call.
+// They were only ever meant for local shape-checking during development.
 
 // ---- Roz-ba-roz calendar (forward-looking, aglay kuch dinon ka gochar) ----
 
@@ -1416,6 +1414,9 @@ app.get('/api/health', (req, res) => {
       : !!(process.env.PROKERALA_CLIENT_ID && process.env.PROKERALA_CLIENT_SECRET),
     credentialsConfigured: !!(process.env.PROKERALA_CLIENT_ID && process.env.PROKERALA_CLIENT_SECRET),
     dbConfigured: db.isDbConfigured(),
+    // boolean only — the value of JWT_SECRET is never exposed
+    jwtSecretConfigured: auth.isJwtSecretConfigured(),
+    sessionsEnabled: auth.isSessionEnabled(),
     safepayConfigured: safepay.isSafepayConfigured(),
   });
 });
