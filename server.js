@@ -151,8 +151,114 @@ function withLockFlag(section, isPremium) {
   return Object.assign({}, section, { locked: true });
 }
 
-app.use(express.json());
 app.use(cookieParser());
+
+/* ---------------------------------------------------------------------
+ * APP LOCK (v0.2 pass 2.2) — whole app behind one password.
+ * - The password lives ONLY in the Render environment variable APP_PASSWORD.
+ *   Nothing about it is in the code, the repo or anything sent to browsers.
+ * - APP_PASSWORD not set  -> lock is OFF (app open, as before).
+ * - APP_PASSWORD set      -> every page, static file and /api route needs a
+ *   valid unlock cookie. Page requests get public/lock.html (401); /api gets 401.
+ * - Exempt: /api/unlock, /api/lock, /api/lock/status (the lock itself),
+ *   /sw.js (so an old service worker can always update itself), and
+ *   /api/subscribe/webhook (server-to-server call from Safepay — it carries
+ *   no cookie; blocking it would break payments).
+ * ------------------------------------------------------------------- */
+const crypto = require('crypto');
+const LOCK_COOKIE = 'zaicha_unlock';
+const LOCK_DAYS = 30;
+const LOCK_EXEMPT = new Set(['/api/unlock', '/api/lock', '/api/lock/status', '/sw.js', '/api/subscribe/webhook']);
+function lockPassword() { return process.env.APP_PASSWORD || ''; }
+function lockEnabled() { return lockPassword().length > 0; }
+// Signing key is derived from the password (+ JWT_SECRET if set): changing the
+// password on Render logs every device out automatically.
+function lockKey() { return crypto.createHash('sha256').update('zaicha-lock-v1|' + lockPassword() + '|' + (process.env.JWT_SECRET || '')).digest(); }
+function lockSign(exp) { return crypto.createHmac('sha256', lockKey()).update('unlock|' + exp).digest('base64url'); }
+function lockSafeEqual(a, b) {
+  const ha = crypto.createHash('sha256').update(String(a)).digest();
+  const hb = crypto.createHash('sha256').update(String(b)).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+function lockCookieValid(v) {
+  if (!v || typeof v !== 'string') return false;
+  const i = v.indexOf('.'); if (i < 1) return false;
+  const exp = v.slice(0, i), sig = v.slice(i + 1);
+  if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
+  return lockSafeEqual(sig, lockSign(exp));
+}
+function lockIsPageRequest(req) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return false;
+  if (req.path.startsWith('/api/')) return false;
+  const accept = String(req.headers.accept || '');
+  return req.path === '/' || /\.html?$/i.test(req.path) || accept.includes('text/html');
+}
+function lockSafeNext(n) {
+  n = String(n || '/');
+  return (n.startsWith('/') && !n.startsWith('//') && !n.startsWith('/\\') && !n.startsWith('/api/')) ? n : '/';
+}
+let lockPageCache = null;
+function lockPage() {
+  if (!lockPageCache) lockPageCache = require('fs').readFileSync(path.join(__dirname, 'public', 'lock.html'), 'utf8');
+  return lockPageCache;
+}
+// at most 10 attempts per IP per 15 minutes (in memory; resets on restart)
+const lockAttempts = new Map();
+function lockRateOk(ip) {
+  const now = Date.now(), win = 15 * 60 * 1000;
+  let r = lockAttempts.get(ip);
+  if (!r || r.reset < now) { r = { n: 0, reset: now + win }; lockAttempts.set(ip, r); }
+  r.n += 1;
+  if (lockAttempts.size > 5000) for (const [k, v] of lockAttempts) if (v.reset < now) lockAttempts.delete(k);
+  return r.n <= 10;
+}
+// Render sits behind one proxy: needed for the real client IP (rate limit) and req.secure.
+app.set('trust proxy', 1);
+app.use((req, res, next) => {
+  if (!lockEnabled()) return next();
+  res.setHeader('X-Zaicha-Lock', 'on');
+  if (LOCK_EXEMPT.has(req.path)) return next();
+  if (lockCookieValid(req.cookies && req.cookies[LOCK_COOKIE])) return next();
+  res.setHeader('Cache-Control', 'no-store');
+  if (lockIsPageRequest(req)) {
+    res.status(401).type('html').setHeader('X-Zaicha-Locked', '1');
+    return res.send(lockPage());
+  }
+  return res.status(401).json({ error: 'locked' });
+});
+app.get('/api/lock/status', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ enabled: lockEnabled(), unlocked: !lockEnabled() || lockCookieValid(req.cookies && req.cookies[LOCK_COOKIE]) });
+});
+app.post('/api/unlock', express.urlencoded({ extended: false, limit: '4kb' }), express.json({ limit: '4kb' }), (req, res) => {
+  const wantsJson = String(req.headers.accept || '').includes('application/json') || !!req.is('application/json');
+  const next = lockSafeNext(req.body && req.body.next);
+  if (!lockEnabled()) return wantsJson ? res.json({ ok: true, next }) : res.redirect(303, next);
+  const ip = req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+  if (!lockRateOk(ip)) {
+    return setTimeout(() => {
+      if (wantsJson) return res.status(429).json({ ok: false, error: 'too_many' });
+      res.redirect(303, '/?locked=too_many&next=' + encodeURIComponent(next));
+    }, 1000);
+  }
+  const given = (req.body && typeof req.body.password === 'string') ? req.body.password : '';
+  if (given && lockSafeEqual(given, lockPassword())) {
+    lockAttempts.delete(ip);
+    const exp = String(Date.now() + LOCK_DAYS * 24 * 60 * 60 * 1000);
+    res.cookie(LOCK_COOKIE, exp + '.' + lockSign(exp), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: LOCK_DAYS * 24 * 60 * 60 * 1000 });
+    return wantsJson ? res.json({ ok: true, next }) : res.redirect(303, next);
+  }
+  setTimeout(() => {
+    if (wantsJson) return res.status(401).json({ ok: false, error: 'wrong' });
+    res.redirect(303, '/?locked=wrong&next=' + encodeURIComponent(next));
+  }, 1000);
+});
+app.post('/api/lock', (req, res) => {
+  res.clearCookie(LOCK_COOKIE, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
+  res.json({ ok: true });
+});
+
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // DB schema (agar DATABASE_URL .env mein di gayi ho) startup par ensure kar
