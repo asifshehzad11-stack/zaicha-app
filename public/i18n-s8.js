@@ -1990,3 +1990,66 @@ window.I18N_S8 = {
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
 })();
+
+/* =====================================================================
+   LOADING SCREEN (2026-10-05) — the timed status lines and the rotating
+   tip under the solar-system icon. loadPreparing / loadWaking /
+   loadRetry / loadErr already exist and are reused, not duplicated.
+   All 5 languages. Existing keys are untouched.
+   ===================================================================== */
+(function(){
+  var add = {
+    "en": {
+      "zlReading": "Reading the planets' positions…",
+      "zlLong": "This is taking longer than usual",
+      "zlBack": "Back to the form",
+      "zlTip1": "Your chart is calculated live, from the planets' real positions.",
+      "zlTip2": "Lahiri ayanamsa is used by default — you can change it in the form.",
+      "zlTip3": "Saved zaichas stay on this device until you make an account.",
+      "zlTip4": "The daily message is free. The weekly and monthly outlooks are paid.",
+      "zlTip5": "Zaicha reads in five languages — switch at the top of the page."
+    },
+    "ur": {
+      "zlReading": "سیاروں کی موجودہ جگہیں پڑھی جا رہی ہیں…",
+      "zlLong": "اس بار معمول سے زیادہ وقت لگ رہا ہے",
+      "zlBack": "فارم پر واپس جائیں",
+      "zlTip1": "آپ کا زائچہ سیاروں کی اصل موجودہ جگہوں سے، اسی وقت حساب کر کے بنتا ہے۔",
+      "zlTip2": "پہلے سے لاہیری ایان امسا استعمال ہوتا ہے — فارم میں بدل سکتے ہیں۔",
+      "zlTip3": "محفوظ زائچے اسی ڈیوائس پر رہتے ہیں، جب تک آپ اکاؤنٹ نہ بنائیں۔",
+      "zlTip4": "روز کا پیغام مفت ہے۔ ہفتہ وار اور ماہانہ جائزہ ادائیگی کے ساتھ۔",
+      "zlTip5": "زائچہ پانچ زبانوں میں پڑھا جا سکتا ہے — صفحے کے اوپر سے زبان بدلیں۔"
+    },
+    "hi": {
+      "zlReading": "ग्रहों की वर्तमान स्थिति पढ़ी जा रही है…",
+      "zlLong": "इस बार सामान्य से ज़्यादा समय लग रहा है",
+      "zlBack": "फ़ॉर्म पर वापस जाएँ",
+      "zlTip1": "आपकी कुंडली ग्रहों की वास्तविक स्थिति से, उसी समय गणना करके बनती है।",
+      "zlTip2": "डिफ़ॉल्ट रूप से लाहिड़ी अयनांश लिया जाता है — फ़ॉर्म में बदल सकते हैं।",
+      "zlTip3": "सुरक्षित कुंडलियाँ इसी डिवाइस पर रहती हैं, जब तक आप खाता न बनाएँ।",
+      "zlTip4": "रोज़ का संदेश मुफ़्त है। साप्ताहिक और मासिक विवरण सशुल्क हैं।",
+      "zlTip5": "ज़ाइचा पाँच भाषाओं में पढ़ा जा सकता है — ऊपर से भाषा बदलें।"
+    },
+    "ar": {
+      "zlReading": "تُقرأ الآن مواضع الكواكب…",
+      "zlLong": "يستغرق هذا وقتًا أطول من المعتاد",
+      "zlBack": "العودة إلى النموذج",
+      "zlTip1": "يُحسب طالعك في اللحظة نفسها، من مواضع الكواكب الحقيقية.",
+      "zlTip2": "يُستخدم أيانامسا لاهيري افتراضيًا — ويمكنك تغييره في النموذج.",
+      "zlTip3": "الطوالع المحفوظة تبقى على هذا الجهاز حتى تُنشئ حسابًا.",
+      "zlTip4": "رسالة اليوم مجانية. أما التوقعات الأسبوعية والشهرية فمدفوعة.",
+      "zlTip5": "يمكن قراءة التطبيق بخمس لغات — غيّر اللغة من أعلى الصفحة."
+    },
+    "zh": {
+      "zlReading": "正在读取行星的位置…",
+      "zlLong": "这次比平常花的时间更久",
+      "zlBack": "返回表单",
+      "zlTip1": "您的星盘是根据行星的真实位置即时计算的。",
+      "zlTip2": "默认使用拉希里岁差 — 可在表单中更改。",
+      "zlTip3": "已保存的星盘只留在本设备上，直到您注册账户。",
+      "zlTip4": "每日信息免费。每周与每月运势为付费内容。",
+      "zlTip5": "本应用支持五种语言 — 可在页面顶部切换。"
+    }
+  };
+  var S = window.I18N_S8 = window.I18N_S8 || {};
+  Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
+})();

@@ -1639,3 +1639,102 @@ body.lang-ur .p3-foot-links a, body.lang-ar .p3-foot-links a{ font-size:.88rem; 
 
 /* ---------- print: none of the Pass 3 controls ---------- */
 @media print{ .p3-sample, .p3-steps, .p3-trust, .p3-share, .p3-more, .p3-foot-links{ display:none !important; } }
+/* =====================================================================
+   ZAICHA — LOADING SCREEN (2026-10-05)
+   A simple 2D solar system: one warm sun, one planet, one thin orbit ring.
+   Pure CSS. No images, no fonts, no scripts, no stars, no decoration.
+   The old shimmer skeleton and the ring spinner are both retired here.
+   ===================================================================== */
+
+/* the skeleton and the old spinner are gone -- the icon replaces both */
+.v2-loader .v2-skel{ display:none !important; }
+.v2-loader .v2-spinner{ display:none !important; }
+
+.v2-loader-card{ display:flex; flex-direction:column; align-items:center; }
+
+/* ---- the solar system: ~120px, centred on the night background ---- */
+.zl-sol{
+  position:relative; width:120px; height:120px;
+  margin:0 auto 1.25rem; flex:none;
+}
+
+/* the orbit ring: thin and faint, it only hints at the path */
+.zl-sol::before{
+  content:''; position:absolute; inset:0; border-radius:50%;
+  border:1px solid rgba(184,169,255,.22);
+}
+
+/* the sun: a soft warm radial gradient with a gentle glow */
+.zl-sun{
+  position:absolute; top:50%; left:50%; width:30px; height:30px;
+  margin:-15px 0 0 -15px; border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,
+    #fff6e0 0%, #ffd98a 38%, #f5a93c 68%, rgba(245,169,60,0) 100%);
+  box-shadow:0 0 18px 6px rgba(245,169,60,.30), 0 0 42px 14px rgba(245,169,60,.12);
+}
+
+/* the arm that carries the planet: rotating it walks the planet round the
+   ring at a constant speed -- one full orbit in 4s. */
+.zl-arm{
+  position:absolute; inset:0; border-radius:50%;
+  animation:zl-orbit 4s linear infinite;
+}
+.zl-planet{
+  position:absolute; top:-5px; left:50%; width:10px; height:10px;
+  margin-left:-5px; border-radius:50%;
+  background:radial-gradient(circle at 34% 32%, #e8e2ff 0%, #b8a9ff 55%, #8e7de0 100%);
+  box-shadow:0 0 9px 2px rgba(184,169,255,.45);
+}
+
+@keyframes zl-orbit{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+@keyframes zl-pulse{
+  0%,100%{ transform:scale(1);    opacity:1; }
+  50%    { transform:scale(1.07); opacity:.92; }
+}
+.zl-sun{ animation:zl-pulse 3.2s ease-in-out infinite; }
+
+/* Reduced motion: slow the orbit right down, never remove it.
+   The theme carries a blanket "*{ animation:none !important }" for reduced
+   motion (p21), which would freeze the planet dead and leave the user staring
+   at a still picture with no sign that anything is happening. These two rules
+   deliberately win it back -- higher specificity, same !important -- because a
+   stopped loading indicator is worse than a slow one. */
+@media (prefers-reduced-motion: reduce){
+  .zl-arm{ animation:zl-orbit 48s linear infinite !important; }
+  .zl-sun{ animation:zl-pulse 14s ease-in-out infinite !important; }
+}
+
+/* ---- the text under the icon ---- */
+.zl-line{
+  margin:0; font-size:1.05rem; line-height:1.6;
+  color:var(--cream, #f3efe6); text-align:center;
+}
+.zl-sub{
+  margin:.55rem 0 0; font-size:.88rem; line-height:1.7;
+  color:var(--text-muted, #b9b7e6); text-align:center;
+  max-width:30ch; margin-inline:auto;
+}
+.zl-tip{
+  margin:1.5rem 0 0; font-size:.76rem; line-height:1.7;
+  color:var(--text-muted, #b9b7e6); opacity:.62; text-align:center;
+  max-width:34ch; margin-inline:auto;
+  transition:opacity .4s ease;
+}
+.zl-tip.is-fading{ opacity:0; }
+body.lang-ur .zl-line, body.lang-ur .zl-sub, body.lang-ur .zl-tip{ line-height:2.1; }
+
+/* ---- the 90-second "taking longer" state ---- */
+.zl-long{ width:100%; max-width:22rem; margin:1.3rem auto 0; }
+.zl-long[hidden]{ display:none !important; }
+.zl-longh{
+  margin:0 0 .6rem; font-size:1.0rem; line-height:1.6;
+  color:var(--cream, #f3efe6); text-align:center;
+}
+.zl-longh[hidden], .zl-sub[hidden], .zl-tip[hidden]{ display:none !important; }
+.zl-long .cta-btn{ width:100%; }
+.zl-long .modal-dismiss-btn{ width:100%; margin-top:.6rem; }
+body.lang-ur .zl-longh{ line-height:2.1; }
+/* at 90 seconds the request is still alive, so the icon keeps turning at full
+   strength. Only a real failure dims it. */
+.v2-loader.is-error .zl-line{ display:none; }
+.v2-loader.is-error .zl-sol{ opacity:.45; }

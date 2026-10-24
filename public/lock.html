@@ -77,7 +77,14 @@
     <input type="hidden" name="next" id="next" value="/">
     <label for="pw" id="t-label">Password</label>
     <div class="pw">
-      <input id="pw" name="password" type="password" required autocomplete="current-password" autofocus spellcheck="false" autocapitalize="off">
+      <!-- Phones: inputmode="numeric" brings up the number keypad straight away
+           (the code is 4 digits). NOTE: pattern="[0-9]*" was tried here and
+           REMOVED on purpose — the browser then refuses to submit anything with
+           a non-digit, so the day APP_PASSWORD is changed to something with a
+           letter in it, the correct password would stop working with only a
+           "Please match the requested format." message. inputmode alone gives
+           the same keypad and never blocks a submit. -->
+      <input id="pw" name="password" type="password" required inputmode="numeric" autocomplete="current-password" autofocus spellcheck="false" autocapitalize="off">
       <button type="button" class="eye" id="eye" aria-pressed="false" aria-controls="pw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path id="eyeSlash" d="M3 3l18 18" style="display:none"/></svg></button>
     </div>
     <p class="msg" id="msg" role="alert" aria-live="assertive"></p>

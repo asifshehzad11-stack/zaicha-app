@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0A0C45">
+<title>Zaicha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+<!-- Zaicha monthly-budget page (2026-10-24). Shown instead of the app once the
+     month's PUBLIC share of the free allowance is spent. Self-contained: no app
+     code, no data, no API call - so serving it costs almost nothing, and the
+     instance can fall idle and sleep, which is when Render stops counting its
+     free hours. Nothing secret is in this file. -->
+<style>
+  :root{ --bg:#0A0C45; --s1:#161B78; --s2:#262EA8; --accent:#B8A9FF; --gold:#F2C14E; --muted:#C9C7F0; --weak:#FF8A8A; color-scheme:dark; }
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; min-height:100%; background:var(--bg); color:#fff; }
+  body{ font-family:"Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size:16px; line-height:1.6; min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px;
+    background:radial-gradient(900px 520px at 80% -10%, rgba(154,144,236,.25), transparent 60%), radial-gradient(700px 520px at 0% 110%, rgba(74,79,208,.3), transparent 60%), var(--bg); }
+  body.l-ur{ font-family:"Noto Nastaliq Urdu", "Noto Naskh Arabic", serif; line-height:2; font-size:17px; }
+  body.l-ar{ font-family:"Noto Naskh Arabic", "Amiri", serif; line-height:1.9; }
+  body.l-hi{ font-family:"Noto Sans Devanagari", "Poppins", sans-serif; }
+  body.l-zh{ font-family:"Noto Sans SC", "Poppins", sans-serif; }
+  .stars{ position:fixed; inset:0; pointer-events:none; opacity:.7; background-image:
+    radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 32% 8%, #fff, transparent), radial-gradient(1.2px 1.2px at 64% 22%, #fff, transparent),
+    radial-gradient(1px 1px at 82% 12%, #fff, transparent), radial-gradient(1.3px 1.3px at 90% 40%, #fff, transparent), radial-gradient(1px 1px at 6% 52%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 48% 70%, #fff, transparent), radial-gradient(1px 1px at 74% 82%, #fff, transparent), radial-gradient(1.1px 1.1px at 22% 88%, #fff, transparent); }
+  .card{ position:relative; width:100%; max-width:400px; padding:26px 22px 22px; border-radius:24px; background:rgba(22,27,120,.66);
+    border:1px solid rgba(255,255,255,.12); box-shadow:0 20px 50px rgba(4,6,40,.55); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); text-align:center; }
+  .logo{ width:56px; height:56px; color:#fff; margin:0 auto 6px; display:block; }
+  .name{ font-family:"Poppins", sans-serif; font-weight:700; font-size:1.5rem; letter-spacing:-.01em; margin:0; }
+  .bism{ font-family:"Amiri", "Noto Naskh Arabic", serif; font-size:1.35rem; line-height:2; margin:6px 0 2px; color:#fff; }
+  .orn{ width:120px; height:1px; margin:0 auto 14px; background:linear-gradient(90deg, transparent, var(--gold), transparent); }
+  h1{ font-size:1.15rem; font-weight:600; margin:0 0 4px; }
+  body.l-ur h1{ font-weight:600; }
+  .sub{ margin:0 0 18px; color:var(--muted); font-size:.9rem; }
+  form{ display:grid; gap:12px; text-align:start; }
+  label{ font-size:.82rem; color:var(--muted); }
+  .pw{ position:relative; }
+  .pw input{ width:100%; min-height:52px; padding:0 52px 0 16px; border-radius:16px; border:1px solid rgba(255,255,255,.45); background:var(--s1); color:#fff;
+    font:inherit; font-size:16px; direction:ltr; text-align:left; }
+  .pw input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(184,169,255,.35); }
+  .eye{ position:absolute; top:4px; right:4px; width:44px; height:44px; display:grid; place-items:center; border:0; border-radius:12px; background:transparent; color:var(--muted); cursor:pointer; }
+  .eye:hover{ background:rgba(255,255,255,.08); color:#fff; }
+  .eye:focus-visible, button:focus-visible, select:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .eye svg{ width:22px; height:22px; }
+  .go{ min-height:52px; border:0; border-radius:999px; background:var(--accent); color:var(--bg); font:inherit; font-weight:700; font-size:1rem; cursor:pointer;
+    box-shadow:0 8px 20px rgba(4,6,40,.4); transition:transform .12s, background-color .2s; }
+  .go:hover{ background:#CFC5FF; }
+  .go:active{ transform:scale(.98); }
+  .go[disabled]{ opacity:.6; cursor:progress; }
+  .msg{ min-height:1.6em; margin:0; font-size:.88rem; color:var(--weak); text-align:center; }
+  .lang{ margin-top:18px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--muted); font-size:.82rem; }
+  .lang select{ min-height:40px; padding:0 10px; border-radius:12px; border:1px solid rgba(255,255,255,.3); background:var(--s1); color:#fff; font:inherit; font-size:.9rem; }
+  .foot{ margin-top:16px; color:var(--muted); font-size:.75rem; text-align:center; opacity:.85; }
+  @media (prefers-reduced-motion: no-preference){ .card{ animation:rise .3s cubic-bezier(.2,.7,.2,1) both; } @keyframes rise{ from{ opacity:0; transform:translateY(8px); } } }
+</style>
+<style>
+  .when{ margin:14px auto 0; padding:10px 14px; border-radius:14px; max-width:320px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    color:#fff; font-size:.9rem; }
+  .when b{ color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="stars" aria-hidden="true"></div>
+<main class="card" role="status" aria-live="polite">
+  <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+    <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <rect x="10.6" y="10.6" width="26.8" height="26.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-opacity=".75"/>
+    <polygon points="24,10.6 37.4,24 24,37.4 10.6,24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-opacity=".75"/>
+    <line x1="10.6" y1="10.6" x2="37.4" y2="37.4" stroke="currentColor" stroke-width="1" stroke-opacity=".5"/>
+    <line x1="37.4" y1="10.6" x2="10.6" y2="37.4" stroke="currentColor" stroke-width="1" stroke-opacity=".5"/>
+    <circle cx="24" cy="24" r="3.2" fill="currentColor"/>
+  </svg>
+  <p class="name" lang="en">Zaicha</p>
+  <p class="bism" lang="ar" dir="rtl">&#1576;&#1616;&#1587;&#1618;&#1605;&#1616; &#1575;&#1604;&#1604;&#1617;&#1648;&#1607;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1648;&#1606;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1616;&#1610;&#1618;&#1605;&#1616;</p>
+  <div class="orn" aria-hidden="true"></div>
+  <h1 id="t-title">This month's free limit is reached</h1>
+  <p class="sub" id="t-sub">Zaicha runs on a free plan with a fixed monthly allowance. It has been used up.</p>
+  <p class="when" id="t-when"></p>
+  <div class="lang"><label for="lang" id="t-lang">Language</label>
+    <select id="lang">
+      <option value="en">English</option><option value="ur">&#1575;&#1585;&#1583;&#1608;</option><option value="hi">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</option><option value="ar">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</option><option value="zh">&#20013;&#25991;</option>
+    </select>
+  </div>
+  <p class="foot" id="t-foot">Presented by Asif Shehzad Mughal, Pattoki</p>
+</main>
+<script>
+(function(){
+  var T = {
+    en: { title: "This month's free limit is reached",
+          sub: 'Zaicha runs on a free plan with a fixed monthly allowance. It has been used up.',
+          when: 'The app opens again on the <b>1st</b>, in <b>{days}</b> days.',
+          when1: 'The app opens again <b>tomorrow</b>.',
+          lang: 'Language', foot: 'Presented by Asif Shehzad Mughal, Pattoki' },
+    ur: { title: '\u0627\u0633 \u0645\u06c1\u06cc\u0646\u06d2 \u06a9\u06cc \u0645\u0641\u062a \u062d\u062f \u0645\u06a9\u0645\u0644 \u06c1\u0648 \u06af\u0626\u06cc',
+          sub: '\u0632\u0627\u0626\u0686\u06c1 \u0627\u06cc\u06a9 \u0645\u0641\u062a \u067e\u0644\u06cc\u0646 \u067e\u0631 \u0686\u0644\u062a\u0627 \u06c1\u06d2 \u062c\u0633 \u06a9\u06cc \u0645\u0627\u06c1\u0627\u0646\u06c1 \u062d\u062f \u0645\u0642\u0631\u0631 \u06c1\u06d2\u06d4 \u0648\u06c1 \u0627\u0633 \u0645\u06c1\u06cc\u0646\u06d2 \u067e\u0648\u0631\u06cc \u06c1\u0648 \u0686\u06a9\u06cc \u06c1\u06d2\u06d4',
+          when: '\u0627\u06cc\u067e \u062f\u0648\u0628\u0627\u0631\u06c1 <b>\u06cc\u06a9\u0645</b> \u062a\u0627\u0631\u06cc\u062e \u06a9\u0648 \u06a9\u06be\u0644\u06d2 \u06af\u06cc \u2014 <b>{days}</b> \u062f\u0646 \u0628\u0639\u062f\u06d4',
+          when1: '\u0627\u06cc\u067e <b>\u06a9\u0644</b> \u062f\u0648\u0628\u0627\u0631\u06c1 \u06a9\u06be\u0644 \u062c\u0627\u0626\u06d2 \u06af\u06cc\u06d4',
+          lang: '\u0632\u0628\u0627\u0646', foot: '\u067e\u06cc\u0634\u06a9\u0634: \u0622\u0635\u0641 \u0634\u06c1\u0632\u0627\u062f \u0645\u063a\u0644\u060c \u067e\u062a\u0648\u06a9\u06cc' },
+    hi: { title: '\u0907\u0938 \u092e\u0939\u0940\u0928\u0947 \u0915\u0940 \u092e\u0941\u092b\u093c\u094d\u0924 \u0938\u0940\u092e\u093e \u092a\u0942\u0930\u0940 \u0939\u094b \u0917\u0908',
+          sub: '\u095b\u093e\u0907\u091a\u093e \u090f\u0915 \u092e\u0941\u092b\u093c\u094d\u0924 \u092a\u094d\u0932\u093e\u0928 \u092a\u0930 \u091a\u0932\u0924\u093e \u0939\u0948 \u091c\u093f\u0938\u0915\u0940 \u092e\u093e\u0938\u093f\u0915 \u0938\u0940\u092e\u093e \u0924\u092f \u0939\u0948\u0964 \u0935\u0939 \u092a\u0942\u0930\u0940 \u0939\u094b \u091a\u0941\u0915\u0940 \u0939\u0948\u0964',
+          when: '\u0910\u092a <b>\u092a\u0939\u0932\u0940</b> \u0924\u093e\u0930\u0940\u0916\u093c \u0915\u094b \u092b\u093f\u0930 \u0916\u0941\u0932\u0947\u0917\u093e \u2014 <b>{days}</b> \u0926\u093f\u0928 \u092c\u093e\u0926\u0964',
+          when1: '\u0910\u092a <b>\u0915\u0932</b> \u092b\u093f\u0930 \u0916\u0941\u0932 \u091c\u093e\u090f\u0917\u093e\u0964',
+          lang: '\u092d\u093e\u0937\u093e', foot: '\u092a\u094d\u0930\u0938\u094d\u0924\u0941\u0924\u093f: \u0906\u0938\u093f\u092b\u093c \u0936\u0939\u095b\u093e\u0926 \u092e\u0941\u095a\u0932, \u092a\u0924\u094d\u0924\u094b\u0915\u0940' },
+    ar: { title: '\u0627\u0646\u062a\u0647\u062a \u0627\u0644\u062d\u0635\u0629 \u0627\u0644\u0645\u062c\u0627\u0646\u064a\u0629 \u0644\u0647\u0630\u0627 \u0627\u0644\u0634\u0647\u0631',
+          sub: '\u064a\u0639\u0645\u0644 \u0627\u0644\u062a\u0637\u0628\u064a\u0642 \u0639\u0644\u0649 \u062e\u0637\u0629 \u0645\u062c\u0627\u0646\u064a\u0629 \u0628\u062d\u0635\u0629 \u0634\u0647\u0631\u064a\u0629 \u0645\u062d\u062f\u0648\u062f\u0629\u060c \u0648\u0642\u062f \u0627\u0646\u062a\u0647\u062a.',
+          when: '\u0633\u064a\u0641\u062a\u062d \u0627\u0644\u062a\u0637\u0628\u064a\u0642 \u0645\u062c\u062f\u062f\u064b\u0627 \u0641\u064a <b>\u0627\u0644\u0623\u0648\u0644</b> \u0645\u0646 \u0627\u0644\u0634\u0647\u0631 \u2014 \u0628\u0639\u062f <b>{days}</b> \u064a\u0648\u0645\u064b\u0627.',
+          when1: '\u0633\u064a\u0641\u062a\u062d \u0627\u0644\u062a\u0637\u0628\u064a\u0642 <b>\u063a\u062f\u064b\u0627</b>.',
+          lang: '\u0627\u0644\u0644\u063a\u0629', foot: '\u062a\u0642\u062f\u064a\u0645: \u0622\u0635\u0641 \u0634\u0647\u0632\u0627\u062f \u0645\u063a\u0644\u060c \u0628\u062a\u0648\u0643\u064a' },
+    zh: { title: '\u672c\u6708\u514d\u8d39\u989d\u5ea6\u5df2\u7528\u5b8c',
+          sub: '\u672c\u5e94\u7528\u8fd0\u884c\u5728\u514d\u8d39\u65b9\u6848\u4e0a\uff0c\u6bcf\u6708\u989d\u5ea6\u6709\u9650\uff0c\u73b0\u5df2\u7528\u5b8c\u3002',
+          when: '\u5e94\u7528\u5c06\u5728\u4e0b\u6708 <b>1 \u65e5</b> \u91cd\u65b0\u5f00\u653e \u2014 \u8fd8\u6709 <b>{days}</b> \u5929\u3002',
+          when1: '\u5e94\u7528\u5c06\u5728<b>\u660e\u5929</b>\u91cd\u65b0\u5f00\u653e\u3002',
+          lang: '\u8bed\u8a00', foot: '\u51fa\u54c1\uff1aAsif Shehzad Mughal\uff0cPattoki' }
+  };
+  var RTL = { ur: 1, ar: 1 };
+  var $ = function(id){ return document.getElementById(id); };
+  var lang = 'en';
+  try { lang = localStorage.getItem('zaicha.lang') || ''; } catch (e) {}
+  if (!T[lang]) { var nl = (navigator.language || 'en').slice(0, 2).toLowerCase(); lang = T[nl] ? nl : 'en'; }
+  function daysLeft(){
+    var now = new Date();
+    var next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+    return Math.max(1, Math.ceil((next - now) / 86400000));
+  }
+  function apply(){
+    var t = T[lang], d = daysLeft();
+    document.documentElement.lang = lang;
+    document.documentElement.dir = RTL[lang] ? 'rtl' : 'ltr';
+    document.body.className = 'l-' + lang;
+    $('t-title').textContent = t.title;
+    $('t-sub').textContent = t.sub;
+    $('t-when').innerHTML = (d === 1 ? t.when1 : t.when.replace('{days}', d));
+    $('t-lang').textContent = t.lang;
+    $('t-foot').textContent = t.foot;
+    $('lang').value = lang;
+  }
+  $('lang').addEventListener('change', function(){
+    lang = this.value;
+    try { localStorage.setItem('zaicha.lang', lang); } catch (e) {}
+    apply();
+  });
+  apply();
+})();
+</script>
+</body>
+</html>

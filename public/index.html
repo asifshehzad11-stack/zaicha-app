@@ -1649,21 +1649,25 @@
 </div>
 <div class="v2-loader" id="v2-loader" role="status" aria-live="polite" hidden>
   <div class="v2-loader-card">
-    <div class="v2-skel" aria-hidden="true">
-      <div class="v2-skel-sky"></div>
-      <div class="v2-skel-row"><i></i><i></i></div>
-      <div class="v2-skel-row"><i></i><i></i></div>
-      <div class="v2-skel-chart"></div>
+    <!-- LOADING SCREEN (2026-10-05): a simple 2D solar system and nothing else
+         — one warm sun, one planet, one thin faint orbit ring, 4s per orbit.
+         Pure CSS (see p4load.css in the theme layer), no images, no fonts, no
+         scripts, so it paints instantly on a slow phone. No stars, no extra
+         planets: Asif asked for exactly this and nothing around it. -->
+    <div class="zl-sol" aria-hidden="true">
+      <span class="zl-sun"></span>
+      <span class="zl-arm"><span class="zl-planet"></span></span>
     </div>
-    <div class="v2-spinner" aria-hidden="true"></div>
-    <p class="v2-loader-t" data-i18n="loadPreparing">Preparing your zaicha…</p>
-    <p class="v2-loader-s" id="v2-loader-slow" data-i18n="loadWaking" hidden></p>
-    <div class="v2-loader-err" id="v2-loader-err" hidden>
-      <p class="v2-loader-msg" data-i18n="loadErr"></p>
+    <p class="zl-line" id="zl-line" data-i18n="loadPreparing">Preparing your zaicha…</p>
+    <p class="zl-sub" id="zl-sub" hidden></p>
+    <div class="zl-long" id="v2-loader-err" hidden>
+      <p class="zl-longh" id="zl-longh" data-i18n="zlLong">This is taking longer than usual</p>
+      <p class="v2-loader-msg" id="zl-errmsg" data-i18n="loadErr" hidden></p>
       <p class="v2-loader-detail" id="v2-loader-detail"></p>
       <button type="button" class="cta-btn" id="v2-retry" data-i18n="loadRetry">Try again</button>
-      <button type="button" class="modal-dismiss-btn" id="v2-loader-close" data-i18n="loadClose">Close</button>
+      <button type="button" class="modal-dismiss-btn" id="v2-loader-close" data-i18n="zlBack">Back to the form</button>
     </div>
+    <p class="zl-tip" id="zl-tip" aria-hidden="true"></p>
   </div>
 </div>
 
@@ -5094,22 +5098,82 @@
 
   // ---- v0.2 loading overlay: spinner + "Preparing your zaicha…"; after 5 s a
   // "server may be waking up" line (Render free tier); friendly error + Try again.
-  var v2Generating = false, v2LastRunOpts = null, v2SlowTimer = null;
+  var v2Generating = false, v2LastRunOpts = null;
+  // ---- LOADING SCREEN (2026-10-05) ----
+  // The wait is real: a cold Render server plus ~15 engine calls. So the
+  // screen tells the truth as it goes instead of showing one frozen line:
+  //   0-10s   "Preparing your zaicha..."
+  //   10-40s  "Reading the planets' positions..."
+  //   40s+    the waking-server line underneath (it IS usually that)
+  //   90s+    "This is taking longer than usual" + Try again / Back to the
+  //           form -- shown WITHOUT cancelling the request, which may still
+  //           land while the user reads it.
+  // Every line carries data-i18n, so switching language mid-wait re-renders
+  // it through applyLanguage() like the rest of the UI.
+  var ZL_TIPS = ['zlTip1', 'zlTip2', 'zlTip3', 'zlTip4', 'zlTip5'];
+  var zlTimers = [], zlTipTimer = null, zlTipIdx = 0;
+  function zlEl(id){ return document.getElementById(id); }
+  function zlSay(el, key){            // set text AND the key, for applyLanguage
+    if (!el) return;
+    el.setAttribute('data-i18n', key);
+    el.textContent = tr(key);
+    el.hidden = false;
+  }
+  function zlQuiet(el){               // hide it and stop it being translated
+    if (!el) return;
+    el.hidden = true; el.removeAttribute('data-i18n'); el.textContent = '';
+  }
+  function zlStop(){
+    zlTimers.forEach(function(t){ clearTimeout(t); });
+    zlTimers = [];
+    if (zlTipTimer) { clearInterval(zlTipTimer); zlTipTimer = null; }
+  }
+  function zlTipsStart(){
+    var tip = zlEl('zl-tip'); if (!tip) return;
+    zlTipIdx = Math.floor(Math.random() * ZL_TIPS.length);
+    zlSay(tip, ZL_TIPS[zlTipIdx]);
+    zlTipTimer = setInterval(function(){
+      var t = zlEl('zl-tip'); if (!t) return;
+      t.classList.add('is-fading');
+      setTimeout(function(){
+        zlTipIdx = (zlTipIdx + 1) % ZL_TIPS.length;
+        zlSay(t, ZL_TIPS[zlTipIdx]);
+        t.classList.remove('is-fading');
+      }, 420);
+    }, 6500);
+  }
   var v2Loader = {
     el: function(id){ return document.getElementById(id); },
     show: function(){
       var L = this.el('v2-loader'); if (!L) return;
+      zlStop();
       L.hidden = false; L.classList.remove('is-error');
-      this.el('v2-loader-err').hidden = true; this.el('v2-loader-slow').hidden = true;
-      clearTimeout(v2SlowTimer);
-      v2SlowTimer = setTimeout(function(){ var sl = document.getElementById('v2-loader-slow'); if (sl) sl.hidden = false; }, 5000);
+      this.el('v2-loader-err').hidden = true;
+      zlQuiet(this.el('zl-errmsg'));
+      this.el('v2-loader-detail').textContent = '';
+      zlSay(this.el('zl-line'), 'loadPreparing');
+      zlQuiet(this.el('zl-sub'));
+      zlTipsStart();
+      var self = this;
+      zlTimers.push(setTimeout(function(){ zlSay(self.el('zl-line'), 'zlReading'); }, 10000));
+      zlTimers.push(setTimeout(function(){ zlSay(self.el('zl-sub'), 'loadWaking'); }, 40000));
+      zlTimers.push(setTimeout(function(){
+        // still running -- offer a way out, but do not kill the request
+        var box = self.el('v2-loader-err'); if (!box) return;
+        zlSay(self.el('zl-longh'), 'zlLong');
+        zlQuiet(self.el('zl-errmsg'));
+        box.hidden = false;
+      }, 90000));
     },
-    hide: function(){ clearTimeout(v2SlowTimer); var L = this.el('v2-loader'); if (L) L.hidden = true; },
+    hide: function(){ zlStop(); var L = this.el('v2-loader'); if (L) L.hidden = true; },
     error: function(detail){
-      clearTimeout(v2SlowTimer);
+      zlStop();
       var L = this.el('v2-loader'); if (!L) return;
       L.hidden = false; L.classList.add('is-error');
-      this.el('v2-loader-slow').hidden = true;
+      zlQuiet(this.el('zl-sub'));
+      zlQuiet(this.el('zl-tip'));
+      zlQuiet(this.el('zl-longh'));
+      zlSay(this.el('zl-errmsg'), 'loadErr');
       this.el('v2-loader-err').hidden = false;
       this.el('v2-loader-detail').textContent = detail || '';
       var rb = this.el('v2-retry'); if (rb) rb.focus();
@@ -5118,7 +5182,12 @@
   (function(){
     var rb = document.getElementById('v2-retry'), cb = document.getElementById('v2-loader-close');
     if (rb) rb.addEventListener('click', function(){ runGenerate(v2LastRunOpts || {}); });
-    if (cb) cb.addEventListener('click', function(){ v2Loader.hide(); });
+    // "Back to the form": close the overlay AND put the user back on the entry
+    // form, which is what they are actually asking for at 90 seconds.
+    if (cb) cb.addEventListener('click', function(){
+      v2Loader.hide();
+      if (typeof showEntryForm === 'function') showEntryForm({ top: true });
+    });
   })();
 
   async function runGenerate(opts){
