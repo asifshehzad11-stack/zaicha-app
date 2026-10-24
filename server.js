@@ -276,14 +276,198 @@ app.use((req, res, next) => {
   next();
 });
 
+/* ---------------------------------------------------------------------
+ * MONTHLY BUDGET GUARD (2026-10-24) — Asif's rule: the public may spend
+ * HALF of each free allowance; the other half is kept for his own testing
+ * and optimisation work, so he can always get in and improve the app
+ * without the month's quota already being gone.
+ *
+ *   PUBLIC_CHART_LIMIT   150   of the ~300 zaichas VedAstro's free tier bears
+ *   PUBLIC_HOUR_BUDGET   350   of Render's 750 free instance-hours
+ *   OWNER_KEY            (secret)  open /?owner=<key> once; the cookie that
+ *                                  is set exempts this device for a year
+ *
+ * Both numbers live in Render's settings, NOT in the code, so they can be
+ * raised in thirty seconds without a deploy. Unset OWNER_KEY and nobody is
+ * exempt; unset the two budgets and the guard is off entirely.
+ *
+ * When a budget is spent, a non-owner gets public/limit.html (503) for a
+ * page and a 503 JSON for an API call — no VedAstro call, no database
+ * write, nothing but a prepared answer. The instance then falls idle and
+ * sleeps after 15 minutes, which is when Render stops counting hours.
+ * ------------------------------------------------------------------- */
+const OWNER_COOKIE = 'zaicha_owner';
+const OWNER_DAYS = 365;
+// Same rule lib/auth.js uses: Secure cookies on Render, plain ones on a
+// local http:// test server (where a Secure cookie would never come back).
+const IS_PROD_HOST = process.env.NODE_ENV === 'production' || !!process.env.RENDER;
+const BUDGET_EXEMPT = new Set([
+  '/api/unlock', '/api/lock', '/api/lock/status', '/sw.js',
+  '/api/subscribe/webhook', '/api/health', '/api/usage',
+]);
+function ownerKey() { return process.env.OWNER_KEY || ''; }
+function budgetChartLimit() { return Number(process.env.PUBLIC_CHART_LIMIT) || 0; }
+function budgetHourLimit() { return Number(process.env.PUBLIC_HOUR_BUDGET) || 0; }
+function budgetEnabled() { return budgetChartLimit() > 0 || budgetHourLimit() > 0; }
+function ownerSign(exp) {
+  return crypto.createHmac('sha256', crypto.createHash('sha256')
+    .update('zaicha-owner-v1|' + ownerKey() + '|' + (process.env.JWT_SECRET || '')).digest())
+    .update('owner|' + exp).digest('base64url');
+}
+function ownerCookieValid(v) {
+  if (!ownerKey() || !v || typeof v !== 'string') return false;
+  const i = v.indexOf('.'); if (i < 1) return false;
+  const exp = v.slice(0, i), sig = v.slice(i + 1);
+  if (!/^\d+$/.test(exp) || Number(exp) < Date.now()) return false;
+  return lockSafeEqual(sig, ownerSign(exp));
+}
+function isOwner(req) { return ownerCookieValid(req.cookies && req.cookies[OWNER_COOKIE]); }
+
+// ---- the live counters, kept in memory and refreshed once a minute so the
+// guard costs nothing per request. Without a database they still work for as
+// long as this process lives (they reset on restart) — honest, and better
+// than no brake at all.
+const BOOT_AT = Date.now();
+let usageMonth = db.usageMonthKey();
+let usageCharts = 0;
+let usageAwakeSeconds = 0;
+let lastHeartbeat = Date.now();
+
+function usageHours() { return usageAwakeSeconds / 3600; }
+function budgetState() {
+  const charts = budgetChartLimit(), hours = budgetHourLimit();
+  const overCharts = charts > 0 && usageCharts >= charts;
+  const overHours = hours > 0 && usageHours() >= hours;
+  return {
+    month: usageMonth,
+    chartsUsed: usageCharts, chartLimit: charts,
+    hoursUsed: Math.round(usageHours() * 100) / 100, hourLimit: hours,
+    over: overCharts || overHours,
+    reason: overCharts ? 'charts' : (overHours ? 'hours' : null),
+  };
+}
+
+// Heartbeat: every minute, add the minute we were awake to this month's row
+// and read the shared totals back (so two instances, or a restart, still see
+// one truthful number). A failure here never affects a request.
+async function usageHeartbeat() {
+  const now = Date.now();
+  const seconds = Math.round((now - lastHeartbeat) / 1000);
+  lastHeartbeat = now;
+  const month = db.usageMonthKey();
+  if (month !== usageMonth) {           // a new month: everything starts again
+    usageMonth = month; usageCharts = 0; usageAwakeSeconds = 0;
+  }
+  usageAwakeSeconds += Math.max(0, seconds);
+  if (!db.isDbConfigured()) return;
+  try {
+    const row = await db.addAwakeSeconds(seconds, month);
+    if (row) {
+      usageAwakeSeconds = Number(row.awake_seconds) || usageAwakeSeconds;
+      usageCharts = Number(row.chart_count) || usageCharts;
+    }
+  } catch (err) {
+    console.error('usage heartbeat nahi likha ja saka:', err.message);
+  }
+}
+async function usageCountChart() {
+  usageCharts += 1;
+  if (!db.isDbConfigured()) return;
+  try {
+    const row = await db.addChartCount(1, usageMonth);
+    if (row) usageCharts = Number(row.chart_count) || usageCharts;
+  } catch (err) {
+    console.error('chart count nahi barh saka:', err.message);
+  }
+}
+let limitPageCache = null;
+function limitPage() {
+  if (!limitPageCache) limitPageCache = require('fs').readFileSync(path.join(__dirname, 'public', 'limit.html'), 'utf8');
+  return limitPageCache;
+}
+
+// ---- /?owner=<key> : one visit sets the year-long exemption cookie. The key
+// itself is never echoed back, and a wrong key is treated as if nothing was
+// asked (no hint that the parameter even exists).
+app.get('/', (req, res, next) => {
+  const given = req.query && req.query.owner;
+  if (!given || !ownerKey()) return next();
+  if (lockSafeEqual(String(given), ownerKey())) {
+    const exp = String(Date.now() + OWNER_DAYS * 24 * 60 * 60 * 1000);
+    res.cookie(OWNER_COOKIE, exp + '.' + ownerSign(exp), {
+      httpOnly: true, sameSite: 'lax', secure: IS_PROD_HOST,
+      path: '/', maxAge: OWNER_DAYS * 24 * 60 * 60 * 1000,
+    });
+  }
+  return res.redirect(303, '/');
+});
+
+const LIMIT_MSG = {
+  en: 'This month\'s free allowance for Zaicha has been used up. The app opens again on the 1st.',
+  ur: 'اس مہینے کے لیے زائچہ کی مفت حد مکمل ہو چکی ہے۔ ایپ یکم تاریخ کو دوبارہ کھل جائے گی۔',
+  hi: 'इस महीने की ज़ाइचा की मुफ़्त सीमा पूरी हो चुकी है। ऐप पहली तारीख़ को फिर खुलेगा।',
+  ar: 'انتهت الحصة المجانية لهذا الشهر. سيفتح التطبيق مرة أخرى في الأول من الشهر.',
+  zh: '本月的免费额度已用完。应用将在下月 1 日重新开放。',
+};
+
+app.use((req, res, next) => {
+  if (!budgetEnabled()) return next();
+  if (BUDGET_EXEMPT.has(req.path)) return next();
+  if (isOwner(req)) { res.setHeader('X-Zaicha-Owner', '1'); return next(); }
+  const state = budgetState();
+  if (!state.over) return next();
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Zaicha-Limit', state.reason);
+  if (lockIsPageRequest(req)) {
+    res.status(503).type('html');
+    return res.send(limitPage());
+  }
+  const lang = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(req.query && req.query.lang) !== -1
+    ? req.query.lang
+    : (['en', 'ur', 'hi', 'ar', 'zh'].indexOf(req.body && req.body.lang) !== -1 ? req.body.lang : 'ur');
+  return res.status(503).json({ error: LIMIT_MSG[lang] || LIMIT_MSG.en, errorCode: 'monthlyLimit' });
+});
+
+// Read-only, never blocked: lets Asif (and /api/health) see where the month
+// stands without opening the app. No secrets, just the four numbers.
+app.get('/api/usage', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const s = budgetState();
+  res.json({
+    month: s.month,
+    charts: { used: s.chartsUsed, publicLimit: s.chartLimit },
+    hours: { used: s.hoursUsed, publicLimit: s.hourLimit, renderFreeTier: 750 },
+    closedToPublic: s.over,
+    reason: s.reason,
+    guardEnabled: budgetEnabled(),
+    thisProcessUpMinutes: Math.round((Date.now() - BOOT_AT) / 60000),
+    you: isOwner(req) ? 'owner' : 'visitor',
+  });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // DB schema (agar DATABASE_URL .env mein di gayi ho) startup par ensure kar
 // lete hain — agar nahi di gayi to "save profile" feature khamoshi se
 // disabled reh jata hai, baaqi app bilkul pehle jaisa chalta hai.
-db.ensureSchema().catch((err) => {
+const schemaReady = db.ensureSchema().catch((err) => {
   console.error('DB schema ensure nahi ho saka (DATABASE_URL check karein):', err.message);
 });
+
+// MONTHLY BUDGET: read this month's totals once the table is certain to
+// exist, then keep them fresh with a heartbeat every minute. unref() so the
+// timer never holds the process open by itself.
+schemaReady.then(async () => {
+  if (!db.isDbConfigured()) return;
+  try {
+    const row = await db.getUsage(usageMonth);
+    if (row) {
+      usageAwakeSeconds = Number(row.awake_seconds) || 0;
+      usageCharts = Number(row.chart_count) || 0;
+    }
+  } catch (err) { console.error('usage padha nahi ja saka:', err.message); }
+});
+setInterval(() => { usageHeartbeat(); }, 60 * 1000).unref();
 
 /**
  * Promise.allSettled ke `reason` field mein Error object hoti hai, jo
@@ -451,7 +635,40 @@ const TOO_MANY = {
   zh: '短时间内从此设备创建了过多星盘。请等待几分钟后再试。',
 };
 
+/**
+ * CHART_TIMEOUT_MS (2026-10-24) — the hard ceiling on ONE whole zaicha.
+ * Per-call timeouts (lib/vedastro-client.js) bound each VedAstro request to
+ * 15s, but a chart makes 11 of them across two waves, and a slow-but-alive
+ * engine could still add up. This is the backstop: at 90 seconds the request
+ * is given up on and the user is told plainly, instead of being left holding
+ * an open connection — which is what kept the Render instance awake for 611
+ * of its 750 free hours in September.
+ */
+const CHART_TIMEOUT_MS = Number(process.env.CHART_TIMEOUT_MS) > 0
+  ? Number(process.env.CHART_TIMEOUT_MS)
+  : 90000;
+class ChartTimeout extends Error {
+  constructor(ms) { super(`chart timed out after ${ms}ms`); this.name = 'ChartTimeout'; }
+}
+/**
+ * One deadline is set when the request arrives and EVERY engine stage races
+ * against that same moment — so two sequential stages can never add up to
+ * two timeouts. 90 seconds means 90 seconds, whatever happens inside.
+ */
+function untilDeadline(promise, deadlineAt) {
+  const left = deadlineAt - Date.now();
+  if (left <= 0) return Promise.reject(new ChartTimeout(CHART_TIMEOUT_MS));
+  let t;
+  const ceiling = new Promise((_, reject) => {
+    t = setTimeout(() => reject(new ChartTimeout(CHART_TIMEOUT_MS)), left);
+    if (t.unref) t.unref();
+  });
+  return Promise.race([promise, ceiling]).finally(() => clearTimeout(t));
+}
+
 app.post('/api/kundli', async (req, res) => {
+  // every engine stage below races against this one moment
+  const chartDeadline = Date.now() + CHART_TIMEOUT_MS;
   try {
     const { name, dob, time, lat, lon, ayanamsa, utcOffset, phone, profileId, cityLabel, lang } = req.body;
     if (!rateOk('kundli', req.ip, RATE.kundli.max, RATE.kundli.windowMs)) {
@@ -479,9 +696,14 @@ app.post('/api/kundli', async (req, res) => {
       // PATH B: one answer for "no such row" and "not yours", so counting ids
       // upward tells an outsider nothing — not even whether a row exists.
       const NOT_FOUND = 'ye saved profile nahi mili — ho sakta hai delete ho gayi ho.';
-      const ownedByAccount = profileRow && profileRow.user_id && session && session.uid === profileRow.user_id;
-      const ownedByBrowser = profileRow && profileRow.owner_key && guestKey && profileRow.owner_key === guestKey;
-      if (!profileRow || !(ownedByAccount || ownedByBrowser)) {
+      // ACCOUNT OWNERSHIP (2026-10-05): once there is a session, ONLY the
+      // account decides. It used to be account-OR-browser, which meant a row
+      // saved while signed in stayed reachable by that device's guest cookie —
+      // so the next person on a shared phone could open it after a sign-out.
+      const owned = session
+        ? !!(profileRow && profileRow.user_id && profileRow.user_id === session.uid)
+        : !!(profileRow && profileRow.owner_key && guestKey && profileRow.owner_key === guestKey);
+      if (!owned) {
         return res.status(404).json({ error: NOT_FOUND });
       }
       effective = {
@@ -535,7 +757,7 @@ app.post('/api/kundli', async (req, res) => {
       natalBundle = profileRow.natal_cache;
       usedCache = true;
     } else {
-      natalBundle = await fetchNatalBundle(person);
+      natalBundle = await untilDeadline(fetchNatalBundle(person), chartDeadline);
     }
     const { kundliAdvanced, kaalSarp, birthPanchangResult, ashtakavargaResult } = natalBundle;
 
@@ -556,7 +778,7 @@ app.post('/api/kundli', async (req, res) => {
       } else {
         try {
           const natalMoonEntry = natalBundle.natalPlanetPosition.data.planet_position.find((p) => p.name === 'Moon');
-          const trueNode = await computeTrueNodeForPerson(person, natalMoonEntry);
+          const trueNode = await untilDeadline(computeTrueNodeForPerson(person, natalMoonEntry), chartDeadline);
           natalPlanetPosition = {
             data: {
               planet_position: natalBundle.natalPlanetPosition.data.planet_position.map((p) => ({ ...p, rasi: { ...p.rasi } })),
@@ -583,7 +805,9 @@ app.post('/api/kundli', async (req, res) => {
     // are not logged in — while staying unreadable to everyone else.
     if (!profileId && db.isDbConfigured() && auth.isGuestEnabled()) {
       try {
-        const ownerKey = auth.ensureGuestKey(req, res);
+        // ACCOUNT OWNERSHIP: a signed-in save belongs to the account and gets
+        // NO owner_key, so it can never be read back through a device cookie.
+        const ownerKey = session ? null : auth.ensureGuestKey(req, res);
         const saved = await db.saveProfile({
           phone: phone || null, name: effective.name || 'صارف', dob: effective.dob, time: effective.time,
           lat: effective.lat, lon: effective.lon, cityLabel, utcOffset: offset, ayanamsa: ayanamsaVal,
@@ -600,7 +824,7 @@ app.post('/api/kundli', async (req, res) => {
     // ---- Ye teeno HAMESHA taaza fetch hote hain — waqt/tareekh ke sath
     // badalte hain, is liye cache nahi ho sakte: aaj ki gochar (current
     // transit) positions, Sade Sati ka current status, aur aaj ka panchang.
-    const [gocharPlanetPosition, sadeSati, todayPanchangSettled] = await freshPromise;
+    const [gocharPlanetPosition, sadeSati, todayPanchangSettled] = await untilDeadline(freshPromise, chartDeadline);
 
     const data = buildZaichaData({
       personName: effective.name || 'صارف',
@@ -778,6 +1002,10 @@ app.post('/api/kundli', async (req, res) => {
       ? await db.getUserPremiumStatus(session.uid)
       : { isPremium: false, premiumUntil: null };
 
+    // MONTHLY BUDGET: one generated zaicha = one unit. Fire-and-forget, so a
+    // slow database can never delay the answer the user is waiting for.
+    usageCountChart().catch(() => {});
+
     res.json({
       ...data,
       narrative,
@@ -854,7 +1082,12 @@ app.post('/api/kundli', async (req, res) => {
     const errReqLang = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(req.body && req.body.lang) !== -1 ? req.body.lang : 'en';
     const rawMsg = String((err && err.message) || '');
     const isRateLimit = /rate limit|too many requests|429/i.test(rawMsg);
-    const isColdStartOrNetwork = /timeout|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ECONNABORTED|EAI_AGAIN|fetch failed|network/i.test(rawMsg);
+    // TIMEOUT (2026-10-24): our OWN ceilings - 15s per VedAstro call, 90s for
+    // the whole chart - now have their own message. Before this they fell into
+    // "generic", which told the user nothing about what to do.
+    const isOurTimeout = err instanceof ChartTimeout || /VedAstro timed out|chart timed out/i.test(rawMsg);
+    const isColdStartOrNetwork = !isOurTimeout
+      && /timeout|timed out|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ECONNABORTED|EAI_AGAIN|fetch failed|network/i.test(rawMsg);
     const FRIENDLY = {
       rateLimit: {
         en: 'The astrology engine is getting a lot of requests right now (this happens when several people try at the same time). Please wait about a minute and try again.',
@@ -870,6 +1103,13 @@ app.post('/api/kundli', async (req, res) => {
         ar: 'كان الخادم في وضع السكون ويستيقظ الآن — قد يستغرق ذلك حتى دقيقة في المرة الأولى. يُرجى المحاولة بعد قليل.',
         zh: '服务器刚才处于休眠状态，正在唤醒——首次可能需要约一分钟。请稍后再试。',
       },
+      slowEngine: {
+        en: 'The astrology engine did not answer in time. This is usually temporary \u2014 please try again in a minute.',
+        ur: '\u0627\u0633\u062a\u0631\u0648\u0644\u0648\u062c\u06cc \u0627\u0646\u062c\u0646 \u0646\u06d2 \u0648\u0642\u062a \u067e\u0631 \u062c\u0648\u0627\u0628 \u0646\u06c1\u06cc\u06ba \u062f\u06cc\u0627\u06d4 \u0639\u0627\u0645 \u0637\u0648\u0631 \u067e\u0631 \u06cc\u06c1 \u0639\u0627\u0631\u0636\u06cc \u06c1\u0648\u062a\u0627 \u06c1\u06d2 \u2014 \u0627\u06cc\u06a9 \u0645\u0646\u0679 \u0628\u0639\u062f \u062f\u0648\u0628\u0627\u0631\u06c1 \u06a9\u0648\u0634\u0634 \u06a9\u0631\u06cc\u06ba\u06d4',
+        hi: '\u091c\u094d\u092f\u094b\u0924\u093f\u0937 \u0907\u0902\u091c\u0928 \u0928\u0947 \u0938\u092e\u092f \u092a\u0930 \u091c\u0935\u093e\u092c \u0928\u0939\u0940\u0902 \u0926\u093f\u092f\u093e\u0964 \u092f\u0939 \u0906\u092e\u0924\u094c\u0930 \u092a\u0930 \u0905\u0938\u094d\u0925\u093e\u092f\u0940 \u0939\u094b\u0924\u093e \u0939\u0948 \u2014 \u090f\u0915 \u092e\u093f\u0928\u091f \u092c\u093e\u0926 \u092b\u093f\u0930 \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u0947\u0902\u0964',
+        ar: '\u0644\u0645 \u064a\u0633\u062a\u062c\u0628 \u0645\u062d\u0631\u0643 \u0627\u0644\u062d\u0633\u0627\u0628\u0627\u062a \u0641\u064a \u0627\u0644\u0648\u0642\u062a \u0627\u0644\u0645\u0646\u0627\u0633\u0628. \u0639\u0627\u062f\u0629\u064b \u0645\u0627 \u064a\u0643\u0648\u0646 \u0647\u0630\u0627 \u0645\u0624\u0642\u062a\u064b\u0627 \u2014 \u062d\u0627\u0648\u0644 \u0628\u0639\u062f \u062f\u0642\u064a\u0642\u0629.',
+        zh: '\u661f\u76d8\u8ba1\u7b97\u5f15\u64ce\u672a\u80fd\u53ca\u65f6\u54cd\u5e94\u3002\u8fd9\u901a\u5e38\u662f\u6682\u65f6\u7684 \u2014 \u8bf7\u4e00\u5206\u949f\u540e\u91cd\u8bd5\u3002',
+      },
       generic: {
         en: 'Something went wrong while generating your kundli. Please try again in a moment.',
         ur: 'آپ کی کنڈلی بناتے وقت کچھ خرابی ہوئی۔ براہ کرم تھوڑی دیر بعد دوبارہ کوشش کریں۔',
@@ -878,7 +1118,7 @@ app.post('/api/kundli', async (req, res) => {
         zh: '生成您的星盘时出现问题。请稍后再试。',
       },
     };
-    const bucket = isRateLimit ? 'rateLimit' : (isColdStartOrNetwork ? 'coldStart' : 'generic');
+    const bucket = isOurTimeout ? 'slowEngine' : (isRateLimit ? 'rateLimit' : (isColdStartOrNetwork ? 'coldStart' : 'generic'));
     res.status(500).json({
       error: FRIENDLY[bucket][errReqLang] || FRIENDLY[bucket].en,
       errorCode: bucket, // frontend chahe to ismein "retry" button jaisa UI bana sake
@@ -892,6 +1132,24 @@ app.post('/api/kundli', async (req, res) => {
  * ho jata hai (lib/auth.js dekhein) — frontend is cookie ko chhoo nahi
  * sakta, bas har request ke sath khud-b-khud chali jati hai.
  */
+/**
+ * claimGuestCharts — ACCOUNT OWNERSHIP: right after a successful register or
+ * login, hand this BROWSER's guest charts to the account. Only rows carrying
+ * this browser's own guest key and not already owned by anybody. Never fatal:
+ * if it fails the sign-in still succeeds, the charts simply stay as they were.
+ */
+async function claimGuestCharts(req, res, user) {
+  try {
+    const guestKey = auth.readGuestKey(req);
+    if (!guestKey || !db.isDbConfigured()) return 0;
+    const ids = await db.claimProfilesForUser(guestKey, user.id);
+    return ids.length;
+  } catch (err) {
+    console.error('guest charts claim nahi ho sakin (login phir bhi kamyaab):', err.message);
+    return 0;
+  }
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // SECURITY PASS: without JWT_SECRET a live server would have to sign sessions
 // with the fallback secret that sits in this public repo — so login/register
@@ -923,7 +1181,8 @@ app.post('/api/auth/register', async (req, res) => {
     const passwordHash = await auth.hashPassword(password);
     const user = await db.createUser({ email, passwordHash, name: name || null });
     auth.setSessionCookie(res, user);
-    res.json({ user: { id: user.id, email: user.email, name: user.name } });
+    const claimed = await claimGuestCharts(req, res, user);
+    res.json({ user: { id: user.id, email: user.email, name: user.name }, claimedCharts: claimed });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'رجسٹریشن ناکام ہوئی۔' });
@@ -952,7 +1211,8 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'ای میل یا پاس ورڈ درست نہیں۔' });
     }
     auth.setSessionCookie(res, user);
-    res.json({ user: { id: user.id, email: user.email, name: user.name } });
+    const claimed = await claimGuestCharts(req, res, user);
+    res.json({ user: { id: user.id, email: user.email, name: user.name }, claimedCharts: claimed });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'لاگ اِن ناکام ہوا۔' });
