@@ -1,7 +1,7 @@
 {
   "name": "Zaicha — Astrology ka Maha Sagar",
   "short_name": "Zaicha",
-  "description": "Vedic, KP, Jaimini, Nadi, Lal Kitab and Unani astrology with a master book to learn — in Urdu, English, Hindi, Arabic and Chinese.",
+  "description": "Vedic, KP, Jaimini, Nadi, Lal Kitab and Unani astrology with a master book to learn — in Urdu, English, Bengali, Hindi, Arabic and Chinese.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",
@@ -10,8 +10,8 @@
     "window-controls-overlay",
     "standalone"
   ],
-  "background_color": "#030b0a",
-  "theme_color": "#041010",
+  "background_color": "#07010f",
+  "theme_color": "#07010f",
   "lang": "en",
   "dir": "auto",
   "categories": [

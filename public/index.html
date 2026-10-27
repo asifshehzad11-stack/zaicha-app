@@ -8,9 +8,7 @@
 <meta name="keywords" content="Zaicha, زائچہ, Zaicha Astrology ka Maha Sagar, آسٹرولوجی کا مہا ساگر, Unani najoom, ilm e najoom, علم نجوم, kundli, Vedic astrology, janam kundli, birth chart, horoscope Urdu, KP astrology, Jaimini, Nadi, Lal Kitab, Vimshottari dasha, kundli milan, panchang">
 <meta name="application-name" content="Zaicha">
 <meta name="apple-mobile-web-app-title" content="Zaicha">
-<meta name="theme-color" content="#0E1160">
-<link rel="preload" as="image" href="/cosmos-poster-m.webp" type="image/webp" media="(max-width: 720px)" fetchpriority="high">
-<link rel="preload" as="image" href="/cosmos-poster.webp" type="image/webp" media="(min-width: 721px)" fetchpriority="high">
+<meta name="theme-color" content="#07010f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,8 +19,11 @@
 <link rel="alternate" hreflang="hi" href="https://zaicha-app.onrender.com/?lang=hi">
 <link rel="alternate" hreflang="ar" href="https://zaicha-app.onrender.com/?lang=ar">
 <link rel="alternate" hreflang="zh" href="https://zaicha-app.onrender.com/?lang=zh">
+<link rel="alternate" hreflang="bn" href="https://zaicha-app.onrender.com/?lang=bn">
 <link rel="alternate" hreflang="x-default" href="https://zaicha-app.onrender.com/">
 <link rel="manifest" href="/manifest.webmanifest">
+
+
 <link rel="icon" type="image/svg+xml" href="/icon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Zaicha">
@@ -534,9 +535,22 @@
   }
 </style>
 <link rel="stylesheet" href="/zaicha-skin.css">
+<link rel="stylesheet" href="/zaicha-newui.css">
 </head>
 
 <body>
+<div id="zsplash" role="presentation"><video playsinline muted preload="auto" poster="data:image/jpeg;base64,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"></video><button type="button">Skip</button></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="zg-p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9a1cff"/><stop offset="1" stop-color="#6a0fd6"/></linearGradient>
+  <linearGradient id="zg-p2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a14d9"/><stop offset="1" stop-color="#4e0e9e"/></linearGradient>
+  <linearGradient id="zg-y" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd90a"/><stop offset="1" stop-color="#feae01"/></linearGradient>
+  <symbol id="zlogo" viewBox="60 30 560 490">
+    <path d="M195 40H432C415 140 300 225 75 252Z" fill="url(#zg-p1)"/>
+    <path d="M75 298C280 310 400 380 432 508H195Z" fill="url(#zg-p2)"/>
+    <path d="M468 42Q500 235 605 283Q500 335 468 508Q440 310 145 274Q440 250 468 42Z" fill="url(#zg-y)" stroke="#0a0214" stroke-width="26" stroke-linejoin="round" paint-order="stroke"/>
+  </symbol>
+</defs></svg>
+<script src="/i18n-bn.js"></script>
 <div class="page">
 
   <!-- Asif ki hidayat (2026-09-25): "sab se uper Bismillah poori likho" —
@@ -552,14 +566,7 @@
   <!-- v0.2 top bar: Home · Tehzeeb-ul-Ilm · Index · language · menu (fits 360px) -->
   <header class="topbar" id="v2-topbar">
     <div class="brand" id="v2-brand" role="button" tabindex="0">
-      <svg viewBox="0 0 48 48" role="img" aria-label="Zaicha">
-        <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
-        <rect x="10.6" y="10.6" width="26.8" height="26.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-opacity=".75"/>
-        <polygon points="24,10.6 37.4,24 24,37.4 10.6,24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-opacity=".75"/>
-        <line x1="10.6" y1="10.6" x2="37.4" y2="37.4" stroke="currentColor" stroke-width="1" stroke-opacity=".5"/>
-        <line x1="37.4" y1="10.6" x2="10.6" y2="37.4" stroke="currentColor" stroke-width="1" stroke-opacity=".5"/>
-        <circle cx="24" cy="24" r="3.2" fill="currentColor"/>
-      </svg>
+      <svg viewBox="60 30 560 490" role="img" aria-label="Zaicha"><use href="#zlogo" width="560" height="490" x="60" y="30"/></svg>
       <div class="brand-text">
         <div class="brand-name latin">Zaicha</div>
         <span class="brand-sub" data-i18n="brandSub">Astrology ka Maha Sagar</span>
@@ -578,6 +585,7 @@
           <button type="button" class="lang-btn" data-lang="hi" role="menuitem"><span>हिन्दी</span><span class="code">HI</span></button>
           <button type="button" class="lang-btn" data-lang="ar" role="menuitem"><span>العربية</span><span class="code">AR</span></button>
           <button type="button" class="lang-btn" data-lang="zh" role="menuitem"><span>中文</span><span class="code">ZH</span></button>
+          <button type="button" class="lang-btn" data-lang="bn" role="menuitem"><span>বাংলা</span><span class="code">BN</span></button>
         </div>
       </div>
       <button type="button" class="v2-tb" id="v2-tb-menu" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="v2-tb-l" data-i18n="tbMenu">Menu</span></button>
@@ -590,8 +598,8 @@
     <div class="v2-hero" id="v2-hero">
       <div class="v2-hero-sky" id="v2-hero-sky" aria-hidden="true">
         <picture>
-          <source media="(max-width: 720px)" srcset="/cosmos-poster-m.webp" type="image/webp">
-          <img class="v2-hero-poster" id="v2-hero-poster" src="/cosmos-poster.webp" alt="" width="1600" height="1000" fetchpriority="high" decoding="async">
+          <source media="(max-width: 720px)" srcset="/hero-m.webp" type="image/webp">
+          <img class="v2-hero-poster" id="v2-hero-poster" src="/hero-d.webp" alt="" width="1600" height="1000" fetchpriority="high" decoding="async">
         </picture>
         <div class="v2-hero-twinkle"></div>
       </div>
@@ -606,6 +614,19 @@
       <button type="button" class="v2-hero-move" id="v2-hero-move" data-i18n="heroMove" hidden>See it move</button>
       <button type="button" class="v2-hero-scroll" id="v2-hero-scroll" aria-label="Scroll down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
+    <section class="zq" id="zq" aria-label="Quick access">
+      <div class="zq-h"><h3>Explore Zaicha</h3><span>Tap any tool</span></div>
+      <div class="zq-grid">
+        <button class="zq-tile" data-go="chart"><span class="zq-ic"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17"/><path d="M3.5 3.5l17 17M20.5 3.5l-17 17M12 3.5l8.5 8.5L12 20.5 3.5 12z"/></svg></span><span class="zq-l">Kundli</span></button>
+        <button class="zq-tile" data-go="predictions"><span class="zq-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg></span><span class="zq-l">Daily</span></button>
+        <button class="zq-tile" data-go="periods"><span class="zq-ic"><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/></svg></span><span class="zq-l">Dasha</span></button>
+        <button class="zq-tile" data-go="tools"><span class="zq-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><span class="zq-l">Panchang</span></button>
+        <button class="zq-tile" data-go="remedies"><span class="zq-ic"><svg viewBox="0 0 24 24"><path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18M9.5 4 8 9l4 11 4-11-1.5-5"/></svg></span><span class="zq-l">Remedies</span></button>
+        <button class="zq-tile" data-go="unani"><span class="zq-ic"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span class="zq-l">Unani</span></button>
+        <button class="zq-tile" data-go="lalkitab"><span class="zq-ic"><svg viewBox="0 0 24 24"><path d="M12 6.3C10 4.6 7 4 3.5 4.3v13.9c3.5-.3 6.5.3 8.5 2 2-1.7 5-2.3 8.5-2V4.3C17 4 14 4.6 12 6.3z"/><path d="M12 6.3v13.9"/></svg></span><span class="zq-l">Lal Kitab</span></button>
+        <button class="zq-tile" data-go="learn"><span class="zq-ic"><svg viewBox="0 0 24 24"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11.3V16c0 1.4 2.5 2.7 5.5 2.7s5.5-1.300 5.5-2.700v-4.700"/></svg></span><span class="zq-l">Learn</span></button>
+      </div>
+    </section>
     <div class="land-title">
       <h1 lang="en">Zaicha<span class="dot">.</span></h1>
       <span class="hero-tagline" data-i18n="brandTagline">Astrology ka Maha Sagar</span>
@@ -613,14 +634,7 @@
     <div class="land-form">
       <div class="phone screen-active" id="screen-welcome">
         <div class="welcome-logo">
-          <svg viewBox="0 0 48 48" role="img" aria-label="Zaicha">
-            <circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.4"/>
-            <line x1="24" y1="7" x2="24" y2="41" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
-            <line x1="7" y1="24" x2="41" y2="24" stroke="currentColor" stroke-width="1.1" stroke-opacity=".7"/>
-            <line x1="12.5" y1="12.5" x2="35.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
-            <line x1="35.5" y1="12.5" x2="12.5" y2="35.5" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45"/>
-            <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
-          </svg>
+          <svg viewBox="60 30 560 490" role="img" aria-label="Zaicha"><use href="#zlogo" width="560" height="490" x="60" y="30"/></svg>
         </div>
         <h3 data-i18n="welcomeH3">زائچہ میں خوش آمدید</h3>
         <p class="sub" data-i18n="welcomeSub">ویدک اصولوں پر مبنی آپ کا ذاتی زائچہ اور روزانہ پیشگوئی</p>
@@ -2414,9 +2428,9 @@
   // ki jaye total app ka interface usi language mein", "har Vedic system ka
   // tab", "latitude/longitude accurate", "degrees parhna aasan aur dilkash".
   // =====================================================================
-  var LANGS = ['en', 'ur', 'hi', 'ar', 'zh'];
+  var LANGS = ['en', 'ur', 'hi', 'ar', 'zh', 'bn'];
   var RTL_LANGS = ['ur', 'ar'];
-  var LANG_NATIVE = { en: 'English', ur: 'اردو', hi: 'हिन्दी', ar: 'العربية', zh: '中文' };
+  var LANG_NATIVE = { en: 'English', ur: 'اردو', hi: 'हिन्दी', ar: 'العربية', zh: '中文', bn: 'বাংলা' };
 
   // Arabic/Chinese (aur naye keys ka Hindi) tarjuma alag files se aata hai
   // (public/i18n-ar.js, i18n-zh.js, i18n-extra.js) — agar file na mile to
@@ -2431,6 +2445,7 @@
     LANGS.forEach(function(l){ merge(l, X[l]); });
     merge('ar', window.I18N_AR);
     merge('zh', window.I18N_ZH);
+    merge('bn', window.I18N_BN);
     merge('hi', window.I18N_HI);
     var S8 = window.I18N_S8 || {};
     LANGS.forEach(function(l){ merge(l, S8[l]); });
@@ -2481,6 +2496,9 @@
     nakLords: ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'],
     abbr: { Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me', Jupiter: 'Ju', Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke', Ascendant: 'Lg' },
   };
+  NAMES.planet.bn = { Sun: 'সূর্য', Moon: 'চন্দ্র', Mars: 'মঙ্গল', Mercury: 'বুধ', Jupiter: 'বৃহস্পতি', Venus: 'শুক্র', Saturn: 'শনি', Rahu: 'রাহু', Ketu: 'কেতু', Ascendant: 'লগ্ন' };
+  NAMES.sign.bn = ['মেষ', 'বৃষ', 'মিথুন', 'কর্কট', 'সিংহ', 'কন্যা', 'তুলা', 'বৃশ্চিক', 'ধনু', 'মকর', 'কুম্ভ', 'মীন'];
+  NAMES.nak.bn = ['অশ্বিনী', 'ভরণী', 'কৃত্তিকা', 'রোহিণী', 'মৃগশিরা', 'আর্দ্রা', 'পুনর্বসু', 'পুষ্যা', 'অশ্লেষা', 'মঘা', 'পূর্বফাল্গুনী', 'উত্তরফাল্গুনী', 'হস্তা', 'চিত্রা', 'স্বাতী', 'বিশাখা', 'অনুরাধা', 'জ্যেষ্ঠা', 'মূলা', 'পূর্বাষাঢ়া', 'উত্তরাষাঢ়া', 'শ্রবণা', 'ধনিষ্ঠা', 'শতভিষা', 'পূর্বভাদ্রপদ', 'উত্তরভাদ্রপদ', 'রেবতী'];
   var SIGN_LORDS_C = ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Saturn', 'Jupiter'];
   var EXALT_C = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6 };
   var DEBIL_C = { Sun: 6, Moon: 7, Mars: 3, Mercury: 11, Jupiter: 9, Venus: 5, Saturn: 0 };
@@ -2685,7 +2703,7 @@
     if (lastForwardCalendarDays && lastForwardCalendarDays.length) v2RenderWeek(lastForwardCalendarDays, lastForwardCalendarLocked);
   }
   // Summary week strip: 7 day circles from the weekly calendar data (today ringed in gold)
-  var V2_LOC = { en: 'en-GB', ur: 'ur-PK', hi: 'hi-IN', ar: 'ar', zh: 'zh-CN' };
+  var V2_LOC = { bn: 'bn-BD', en: 'en-GB', ur: 'ur-PK', hi: 'hi-IN', ar: 'ar', zh: 'zh-CN' };
   function v2RenderWeek(days, locked){
     var wrap = document.getElementById('v2-week'), row = document.getElementById('v2-week-days');
     if (!wrap || !row || !days || !days.length) return;
@@ -2825,6 +2843,7 @@
     try {
       var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       if (/^Asia\/(Karachi)$/.test(tz)) return 'ur';
+      if (/^Asia\/(Dhaka)$/.test(tz)) return 'bn';
       if (/^Asia\/(Kolkata|Calcutta)$/.test(tz)) return 'hi';
       if (/^(Asia\/(Riyadh|Dubai|Qatar|Kuwait|Bahrain|Muscat|Baghdad|Amman|Beirut|Damascus|Aden|Gaza|Hebron)|Africa\/(Cairo|Tripoli|Tunis|Algiers|Casablanca|Khartoum))$/.test(tz)) return 'ar';
       if (/^Asia\/(Shanghai|Chongqing|Harbin|Urumqi|Hong_Kong|Macau|Taipei)$/.test(tz)) return 'zh';
@@ -5455,6 +5474,7 @@
   var lastForwardCalendarPanchang = null;
   var lastForwardCalendarLocked = false;
   var WEEKDAY_NAMES = {
+    bn: ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'],
     ur: ['اتوار', 'پیر', 'منگل', 'بدھ', 'جمعرات', 'جمعہ', 'ہفتہ'],
     ar: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
     zh: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
@@ -5972,6 +5992,567 @@
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); });
   }
+</script>
+
+
+<div class="zn-scrim" id="zn-scrim" hidden></div>
+<nav class="zn" id="zb-nav" aria-label="Main">
+  <div class="zn-sheet" id="zn-sheet" hidden role="menu" aria-label="Sections">
+    <button type="button" data-go="predictions" role="menuitem"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg></i>Daily</button>
+    <button type="button" data-go="periods" role="menuitem"><i><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/></svg></i>Dasha</button>
+    <button type="button" data-go="tools" role="menuitem"><i><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></i>Calendar</button>
+    <button type="button" data-go="remedies" role="menuitem"><i><svg viewBox="0 0 24 24"><path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18"/></svg></i>Remedies</button>
+    <button type="button" data-go="unani" role="menuitem"><i><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></i>Unani</button>
+    <button type="button" data-go="lalkitab" role="menuitem"><i><svg viewBox="0 0 24 24"><path d="M12 6.3C10 4.6 7 4 3.5 4.3v13.9c3.5-.3 6.5.3 8.5 2 2-1.7 5-2.3 8.5-2V4.3C17 4 14 4.6 12 6.3z"/></svg></i>Lal Kitab</button>
+    <button type="button" data-go="index" role="menuitem"><i><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.2"/><path d="m15.2 15.2 5 5"/></svg></i>Index</button>
+    <button type="button" data-go="expert" role="menuitem"><i><svg viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.500-.5z"/></svg></i>Expert</button>
+  </div>
+  <div class="zn-bar" id="zn-bar">
+    <button type="button" data-zb="chart" data-i="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v5.500M12 15v5.500M3.5 12H9M15 12h5.500"/></svg><span>Chart</span></button>
+    <button type="button" data-zb="periods" data-i="1"><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/></svg><span>Dasha</span></button>
+    <button type="button" data-zb="home" data-i="2" class="zn-home"><svg viewBox="60 30 560 490" class="zn-logo"><use href="#zlogo" width="560" height="490" x="60" y="30"/></svg><span>Home</span></button>
+    <button type="button" data-zb="learn" data-i="3"><svg viewBox="0 0 24 24"><path d="M12 6.3C10 4.6 7 4 3.5 4.3v13.9c3.5-.3 6.5.3 8.5 2 2-1.7 5-2.3 8.5-2V4.3C17 4 14 4.6 12 6.3z"/><path d="M12 6.3v13.9"/></svg><span>Learn</span></button>
+    <button type="button" data-zb="profile" data-i="4"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.500 20.500c.8-4 4-6 7.500-6s6.700 2 7.500 6"/></svg><span>Profile</span></button>
+    <div class="zn-c" id="zn-c" role="slider" tabindex="0" aria-label="Section slider: drag to a section, tap for more" aria-valuemin="0" aria-valuemax="4" aria-valuenow="2"></div>
+  </div>
+</nav>
+<script>
+
+/* ---- first-launch language chooser ---- */
+(function(){
+  var L=[['en','English','EN'],['ur','اردو','UR'],['bn','বাংলা','BN'],['hi','हिन्दी','HI'],['ar','العربية','AR'],['zh','中文','ZH']];
+  var done=false; try{ done=localStorage.getItem('zaicha.langChosen')==='1'; }catch(e){}
+  var el=null;
+  function close(){ if(!el) return; var x=el; el=null; x.classList.add('out'); document.documentElement.classList.remove('zl-lock'); setTimeout(function(){ x.remove(); },450); }
+  window.__zlang=function(force){
+    if(el||(done&&!force)) return;
+    var cur=document.documentElement.lang||'en';
+    el=document.createElement('div'); el.id='zlang'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Choose your language');
+    var h='<div class="zl-card"><svg class="zl-logo" viewBox="60 30 560 490"><use href="#zlogo" width="560" height="490" x="60" y="30"/></svg>'+
+      '<h2>Choose your language</h2><p class="zl-s">زبان منتخب کریں &nbsp;·&nbsp; ভাষা বেছে নিন</p><div class="zl-grid">';
+    L.forEach(function(l){ h+='<button type="button" class="zl-opt'+(l[0]===cur?' on':'')+'" data-l="'+l[0]+'"><b>'+l[1]+'</b><i>'+l[2]+'</i></button>'; });
+    h+='</div><p class="zl-n">You can change this anytime from the top bar.</p></div>';
+    el.innerHTML=h; document.body.appendChild(el); document.documentElement.classList.add('zl-lock');
+    el.addEventListener('click',function(e){
+      var b=e.target.closest('.zl-opt'); if(!b) return;
+      var lg=b.getAttribute('data-l'), src=document.querySelector('.lang-btn[data-lang="'+lg+'"]');
+      if(src) src.click();
+      try{ localStorage.setItem('zaicha.langChosen','1'); localStorage.setItem('zaicha.lang',lg); }catch(x){}
+      done=true; close(); try{ window.scrollTo(0,0); }catch(x){}
+    });
+  };
+})();
+(function(){
+  var body=document.body;
+  function inApp(){ return body.classList.contains('app-mode'); }
+  function click(id){ var e=document.getElementById(id); if(e) e.click(); return !!e; }
+  function go(t){
+    if(t==='index'){ click('v2-tb-index'); return; }
+    if(t==='learn'){ click('v2-tb-learn'); return; }
+    if(t==='home'){ click('v2-tb-home'); window.scrollTo({top:0,behavior:'smooth'}); return; }
+    if(t==='menu'||t==='profile'){ click('v2-tb-menu'); return; }
+    try{ location.hash=t; }catch(e){}
+    if(!inApp()) click('v2-hero-go');
+  }
+  window.__znToggle=function(){ toggle(); };
+  function toggle(on){
+    var n=document.getElementById('zb-nav'), sh=document.getElementById('zn-sheet'), sc=document.getElementById('zn-scrim'), c=document.getElementById('zn-c');
+    if(!n) return; var open=(typeof on==='boolean')?on:sh.hidden;
+    sh.hidden=!open; sc.hidden=!open; n.classList.toggle('open',open); c.setAttribute('aria-expanded',open);
+  }
+  document.addEventListener('click',function(e){
+    var q=e.target.closest('[data-go]'); if(q){ toggle(false); go(q.getAttribute('data-go')); return; }
+    if(e.target.closest('#zn-scrim')){ toggle(false); return; }
+    if(q) toggle(false);
+    var b=e.target.closest('[data-zb]'); if(b){ toggle(false); window.__znSelect(+b.getAttribute('data-i'),true); }
+  });
+  // splash — once per session, skippable
+  var sp=document.getElementById('zsplash'); if(!sp){ setTimeout(function(){ window.__zlang&&window.__zlang(); },200); return; }
+  var seen=false; try{ seen=sessionStorage.getItem('zsplash')==='1'; }catch(e){}
+  function end(){ if(sp.classList.contains('out')) return; sp.classList.add('out'); try{sessionStorage.setItem('zsplash','1')}catch(e){} setTimeout(function(){ sp.remove(); },700); setTimeout(function(){ window.__zlang&&window.__zlang(); },450); }
+  if(seen){ sp.remove(); setTimeout(function(){ window.__zlang&&window.__zlang(); },200); return; }
+  var v=sp.querySelector('video');
+  v.src='/zsplash.mp4';   // real file (was a base64 blob in the single-file build)
+  v.addEventListener('error',function(){ end(); });
+  v.muted=true; v.addEventListener('ended',end);
+  var p=v.play(); if(p&&p.catch) p.catch(function(){ setTimeout(end,1800); });
+  sp.querySelector('button').addEventListener('click',end);
+  setTimeout(end,9500);
+})();
+
+/* ---- fluid lens slider (spring physics) ---- */
+(function(){
+  var bar=document.getElementById('zn-bar'), th=document.getElementById('zn-c'); if(!bar||!th) return;
+  var slots=[].slice.call(bar.querySelectorAll('[data-zb]')), tgt=['chart','periods','home','learn','profile'];
+  var cur=2, W=64, x=0, v=0, target=0, g=1, gT=1, drag=null, run=false, last=0, pending=null, ready=false;
+  function goT(t){
+    if(t==='home'){ var h=document.getElementById('v2-tb-home'); h&&h.click(); window.scrollTo({top:0,behavior:'smooth'}); }
+    else if(t==='learn'){ var e=document.getElementById('v2-tb-learn'); e&&e.click(); }
+    else if(t==='profile'){ var m=document.getElementById('v2-tb-menu'); m&&m.click(); }
+    else { try{ location.hash=t; }catch(z){} if(!document.body.classList.contains('app-mode')){ var q=document.getElementById('v2-hero-go'); q&&q.click(); } }
+  }
+  function centerOf(i){ var r=slots[i].getBoundingClientRect(), b=bar.getBoundingClientRect(); return r.left-b.left-bar.clientLeft+r.width/2; }
+  function nearest(px){ var bi=0,bd=1e9; slots.forEach(function(s,i){ var d=Math.abs(centerOf(i)-px); if(d<bd){bd=d;bi=i;} }); return bi; }
+  function mark(i){ slots.forEach(function(s,k){ s.classList.toggle('active',k===i); }); th.setAttribute('aria-valuenow',i); }
+  function magnify(px){ slots.forEach(function(s,i){ var d=px-centerOf(i), k=Math.exp(-d*d/(2*46*46)); s.style.setProperty('--s',(1+.1*k).toFixed(3)); s.style.setProperty('--ty',(0*k).toFixed(1)+'px'); }); }
+  function paint(){
+    var sp=Math.min(Math.abs(v)/3600,.12);
+    th.style.setProperty('transform','translate3d('+(x-W/2).toFixed(1)+'px,0,0) scale('+((1+sp)*g).toFixed(3)+','+((1-sp*.32)*g).toFixed(3)+')','important');
+    magnify(x);
+  }
+  function frame(t){
+    var dt=Math.max(.001,Math.min(.032,((t-last)/1000)||.016)); last=t;
+    var k=drag?520:300, c=drag?38:34;                 // tight while dragging, soft & bouncy on settle
+    var a=(target-x)*k-v*c; v+=a*dt; x+=v*dt;
+    g+=(gT-g)*Math.min(1,dt*14);
+    paint();
+    if(!drag && Math.abs(target-x)<.4 && Math.abs(v)<8 && Math.abs(gT-g)<.005){
+      var ideal=centerOf(cur);                       // layout may have shifted while we moved: re-centre exactly
+      if(Math.abs(ideal-target)>.3){ target=ideal; }
+      else { x=target; v=0; run=false; paint(); mark(cur); return; }
+    }
+    requestAnimationFrame(frame);
+  }
+  function kick(){ if(!run){ run=true; last=performance.now(); requestAnimationFrame(frame); } }
+  window.__znSelect=function(i,go){ cur=i; mark(i); target=centerOf(i); gT=1; kick(); if(go){ clearTimeout(pending); pending=setTimeout(function(){ goT(tgt[i]); },ready?170:0); } };
+  function init(){ target=x=centerOf(cur); v=0; paint(); mark(cur); }
+  window.addEventListener('resize',init); if(window.ResizeObserver){ new ResizeObserver(function(){ if(!drag){ target=centerOf(cur); kick(); } }).observe(bar); } init(); setTimeout(init,300); setTimeout(init,1200); ready=true;
+  function rel(e){ return e.clientX-bar.getBoundingClientRect().left; }
+  function clampX(px){ var lo=centerOf(0), hi=centerOf(slots.length-1);
+    if(px<lo) return lo-Math.min(3,(lo-px)*.15); if(px>hi) return hi+Math.min(3,(px-hi)*.15); return px; }
+  bar.addEventListener('pointerdown',function(e){
+    if(e.button>0) return;
+    try{ bar.setPointerCapture(e.pointerId); }catch(z){}
+    drag={sx:e.clientX,px:rel(e),x0:x,moved:false,onRing:!!e.target.closest('#zn-c'),id:e.pointerId};
+    gT=1.06; bar.classList.add('hot'); th.classList.add('grab'); kick(); e.preventDefault();
+  });
+  bar.addEventListener('pointermove',function(e){
+    if(!drag){ if(e.pointerType==='mouse'){ bar.classList.add('hot'); bar.style.setProperty('--mx',rel(e)+'px'); bar.style.setProperty('--glow',1); } return; }
+    if(Math.abs(e.clientX-drag.sx)>5) drag.moved=true;
+    if(!drag.moved) return;
+    // the lens follows the finger anywhere on the bar, not only when grabbed on the ring
+    target=clampX(rel(e)); mark(nearest(target)); kick();
+  });
+  function end(e){
+    if(!drag) return; var d=drag; drag=null; bar.classList.remove('hot'); th.classList.remove('grab'); gT=1;
+    try{ bar.releasePointerCapture(d.id); }catch(z){}
+    if(!d.moved){
+      if(d.onRing){ mark(cur); target=centerOf(cur); kick(); window.__znToggle(); }
+      else { window.__znSelect(nearest(d.px),true); }
+      return;
+    }
+    window.__znSelect(nearest(x),true);
+  }
+  bar.addEventListener('pointerup',end); bar.addEventListener('pointercancel',end);
+  bar.addEventListener('pointerleave',function(){ if(drag) return; bar.classList.remove('hot'); bar.style.setProperty('--glow',0); });
+  th.addEventListener('keydown',function(e){ if(e.key==='ArrowRight') window.__znSelect(Math.min(4,cur+1),true); if(e.key==='ArrowLeft') window.__znSelect(Math.max(0,cur-1),true); if(e.key==='Enter'||e.key===' ') window.__znToggle(); });
+})();
+
+/* ---- screen manager: every section is its own screen ---- */
+(function(){
+  var B=document.body, userTs=0, want=false;
+  function set(z,ring){ if(B.getAttribute('data-zs')===z) return; B.setAttribute('data-zs',z); B.classList.remove('zs-in'); void B.offsetWidth; B.classList.add('zs-in'); window.scrollTo(0,0); if(ring&&window.__znSelect){ if(z==='form') window.__znSelect(0,false); else if(z==='home') window.__znSelect(2,false); } }
+  window.__zs=set;
+  ['pointerdown','keydown','click'].forEach(function(t){ document.addEventListener(t,function(){ userTs=Date.now(); },true); });
+  B.setAttribute('data-zs','home');
+  var TABS=['predictions','periods','chart','remedies','tools','expert'];
+  function sync(){
+    var app=B.classList.contains('app-mode'), z=B.getAttribute('data-zs');
+    if(app){ if(z==='form'){ var w=want; want=false; set(w?'panel':'home',!w); } }
+    else if(z==='panel'){ set('home'); }
+  }
+  new MutationObserver(sync).observe(B,{attributes:true,attributeFilter:['class']});
+  // hero button / any "create" action opens the form screen
+  document.addEventListener('click',function(e){
+    if(B.classList.contains('app-mode')) return;
+    if(e.target.closest('#v2-hero-go,#v2-hero-scroll')){ e.stopImmediatePropagation(); e.preventDefault(); set('form',e.isTrusted); }
+    else if(e.target.closest('.v2-hero-person')){ set('form'); }
+    if(e.target.closest('#v2-tb-home,[data-zb=home]')) set('home',true);
+  },true);
+  // user taps a section tab / chip inside the app -> show that panel
+  var tb=document.getElementById('v2-tabbar');
+  if(tb) new MutationObserver(function(){ if(B.classList.contains('app-mode') && Date.now()-userTs<800) set('panel'); }).observe(tb,{attributes:true,subtree:true,attributeFilter:['class']});
+  document.addEventListener('click',function(e){
+    if(!B.classList.contains('app-mode')) return;
+    if(e.target.closest('#v2-tb-home,[data-zb=home]')){ set('home'); return; }
+    if(e.target.closest('[data-zb=chart],[data-zb=periods],[data-go]')){ var g=e.target.closest('[data-go]'); var t=g?g.getAttribute('data-go'):null; if(!t||TABS.indexOf(t)>-1||t==='unani'||t==='lalkitab') setTimeout(function(){ set('panel'); },0); }
+  },true);
+  // pre-chart: any section that needs a chart shows the birth form
+  window.addEventListener('hashchange',function(){
+    var h=(location.hash||'').slice(1);
+    if(TABS.indexOf(h)>-1||h==='unani'||h==='lalkitab'){ if(!B.classList.contains('app-mode')) want=true; set(B.classList.contains('app-mode')?'panel':'form'); }
+  });
+  // wrap nav goT: Home must reset the screen
+})();
+
+/* ---- bank-app home cards + horizontal pager ---- */
+(function(){
+  var B=document.body;
+  var IC={
+    predictions:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/>',
+    periods:'<path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/>',
+    chart:'<rect x="3.5" y="3.5" width="17" height="17"/><path d="M3.5 3.5l17 17M20.5 3.5l-17 17M12 3.5l8.5 8.5L12 20.5 3.5 12z"/>',
+    remedies:'<path d="M7 4h10l4 5-9 11L3 9z"/><path d="M3 9h18"/>',
+    tools:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    expert:'<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.500-.5z"/>'
+  };
+  function E(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var home=document.createElement('section'); home.className='zhome'; home.id='zhome';
+  var sum=document.getElementById('v2-summary'), bento=document.getElementById('v2-bento'); if(!sum||!bento) return;
+  sum.insertBefore(home,bento);
+  function build(){
+    var person=(document.getElementById('v2-person-line')||{}).textContent||'';
+    var parts=person.split('·').map(function(s){return s.trim();});
+    var tiles=[].slice.call(document.querySelectorAll('#v2-facts .v2-fact-tile')).map(function(t){
+      var g=t.querySelector('.v2-glyph'), k=t.querySelector('.k'), v=t.querySelector('.v');
+      return {g:(g&&!g.querySelector('svg'))?g.textContent:'✦',k:k?k.textContent:'',v:v?v.textContent:'',s:(t.querySelector('.s')||{}).textContent||''};
+    });
+    var d=document.querySelector('#v2-facts .v2-dasha'); if(!tiles.length||!d) return;
+    var bs=d.querySelectorAll('.v2-dasha-row b'), until=(d.querySelector('.v2-dasha-body > .s')||{}).textContent||'', pct=(d.querySelector('.v2-prog i')||{}).style; pct=pct?pct.width:'0%';
+    var dk=(d.querySelector('.k')||{}).textContent||'';
+    var DS={
+     en:{predictions:'Your day, week, month and year',remedies:'Sadaqa, dhikr and duas for you',expert:'Advanced tools for astrologers',periods:'Dasha timeline and Sade Sati',chart:'Planets, houses, yogas and divisions',tools:'Matching, horary and panchang'},
+     bn:{predictions:'আপনার দিন, সপ্তাহ, মাস ও বছর',remedies:'আপনার জন্য সদকা, যিকির ও দোয়া',expert:'জ্যোতিষীদের জন্য উন্নত সরঞ্জাম',periods:'দশার তালিকা ও সাড়ে সাতি',chart:'গ্রহ, ভাব, যোগ ও বর্গ',tools:'মিলন, প্রশ্ন ও পঞ্চাঙ্গ'},
+     ur:{predictions:'آپ کا دن، ہفتہ، مہینہ اور سال',remedies:'آپ کے لیے صدقہ، ذکر اور دعائیں',expert:'ماہرینِ فلکیات کے لیے جدید ٹولز',periods:'دشا کی ترتیب اور ساڑھے ساتی',chart:'سیارے، بھاو، یوگ اور ورگ',tools:'ملان، پرشنا اور پنچانگ'},
+     hi:{predictions:'आपका दिन, सप्ताह, माह और वर्ष',remedies:'आपके लिए सदक़ा, ज़िक्र और दुआएँ',expert:'ज्योतिषियों के लिए उन्नत उपकरण',periods:'दशा क्रम और साढ़ेसाती',chart:'ग्रह, भाव, योग और वर्ग',tools:'मिलान, प्रश्न और पंचांग'},
+     ar:{predictions:'يومك وأسبوعك وشهرك وسنتك',remedies:'صدقات وأذكار وأدعية لك',expert:'أدوات متقدمة للفلكيين',periods:'تسلسل الداشا وساده ساتي',chart:'الكواكب والبيوت واليوغا والأقسام',tools:'المطابقة والاستفهام والبنشانغ'},
+     zh:{predictions:'你的每日、每周、每月与全年',remedies:'为你准备的施舍、赞念与祈祷',expert:'面向占星师的高级工具',periods:'大运时间线与七年半',chart:'行星、宫位、组合与分盘',tools:'合盘、卜卦与历书'}
+    }[document.documentElement.lang]||{};
+    var ex=B.classList.contains('mode-expert');
+    var ids=ex?['predictions','periods','chart','remedies','tools','expert']:['predictions','remedies','expert'];
+    var tabs=[].slice.call(document.querySelectorAll('#v2-tabbar .v2-tab'));
+    var act=ids.map(function(id){ var t=tabs.filter(function(x){return x.dataset.tab===id;})[0]; if(!t) return ''; var D=DS[id]||(IC[id]?'':'');
+      return '<button type="button" class="zrow" data-ztab="'+E(id)+'" data-k="'+E(id)+'"><span class="zi"><svg viewBox="0 0 24 24">'+(IC[id]||IC.expert)+'</svg></span><span class="zt"><b>'+E(t.textContent.trim())+'</b><small>'+E(D)+'</small></span><svg class="zch" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>'; }).join('');
+    var nm=(parts[0]||'').trim(), ini=(nm.charAt(0)||'✦').toUpperCase();
+    var big=[0,1,2].map(function(k){var t=tiles[k]||{};return '<div class="zb3"><i>'+E(t.g)+'</i><small>'+E(t.k)+'</small><b>'+E(t.v)+'</b></div>';}).join('');
+    home.innerHTML='<div class="zprof"><div class="zp-head"><span class="zav">'+E(ini)+'</span><div class="zp-id"><div class="zp-name">'+E(nm)+'</div><div class="zp-sub">'+E(parts.slice(1).join(' · '))+(tiles[3]?' · '+E(tiles[3].v):'')+'</div></div></div>'+
+      '<div class="zb3-row">'+big+'</div>'+
+      '<div class="zper"><div class="zper-h"><span>'+E(dk)+'</span><em>'+E(until)+'</em></div><div class="zper-v"><b>'+E(bs[0]?bs[0].textContent:'')+'</b><i>→</i><b>'+E(bs[1]?bs[1].textContent:'')+'</b></div><div class="zc-bar"><i style="width:'+E(pct)+'"></i></div></div></div>'+
+      '<div class="zrows">'+act+'</div>';
+  }
+  new MutationObserver(function(){ later(); }).observe(B,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(function(){ later(); }).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  var t0=0; function later(){ clearTimeout(t0); t0=setTimeout(build,60); }
+  new MutationObserver(later).observe(bento,{childList:true,subtree:true,characterData:true});
+  var pl=document.getElementById('v2-person-line'); if(pl) new MutationObserver(later).observe(pl,{childList:true,characterData:true,subtree:true});
+  build();
+  home.addEventListener('click',function(e){
+    var b=e.target.closest('[data-ztab]'); if(!b) return;
+    var t=document.querySelector('#v2-tabbar [data-tab="'+b.getAttribute('data-ztab')+'"]');
+    if(window.__zs) window.__zs('panel'); if(t) t.click(); setTimeout(syncPager,30);
+  });
+  home.addEventListener('scroll',function(e){ if(!e.target.id||e.target.id!=='zcards') return; var c=e.target, i=Math.round(c.scrollLeft/c.clientWidth); [].forEach.call(document.querySelectorAll('#zdotsh i'),function(d,k){d.classList.toggle('on',k===i);}); },true);
+
+  /* pager */
+  var pg=document.querySelector('.v2-panels'), tb=document.getElementById('v2-tabbar'); if(!pg||!tb) return;
+  var dots=document.createElement('div'); dots.className='zdots'; tb.parentNode.insertBefore(dots,pg);
+  function tabsList(){ return [].slice.call(tb.querySelectorAll('.v2-tab')).filter(function(t){ return getComputedStyle(t).display!=='none'; }); }
+  function panels(){ return [].slice.call(pg.querySelectorAll('.v2-panel')); }
+  function activeIdx(){ var t=tabsList(); for(var i=0;i<t.length;i++) if(t[i].classList.contains('active')) return i; return 0; }
+  function drawDots(i){ var n=tabsList().length; var tid=(tabsList()[i]||{dataset:{}}).dataset.tab; if(window.__znSelect&&B.getAttribute('data-zs')==='panel') window.__znSelect(tid==='chart'?0:tid==='periods'?1:2,false); if(dots.children.length!==n) dots.innerHTML=new Array(n+1).join('<i></i>'); [].forEach.call(dots.children,function(d,k){d.classList.toggle('on',k===i);}); }
+  var lock=0;
+  function syncPager(smooth){
+    if(B.getAttribute('data-zs')!=='panel') return; var i=activeIdx(), w=pg.clientWidth; drawDots(i);
+    if(Math.abs(pg.scrollLeft-i*w)>4){ lock=Date.now(); pg.scrollTo({left:i*w,behavior:smooth===false?'auto':'smooth'}); }
+  }
+  new MutationObserver(function(){ syncPager(); }).observe(tb,{attributes:true,subtree:true,attributeFilter:['class']});
+  new MutationObserver(function(){ if(B.getAttribute('data-zs')==='panel') setTimeout(function(){ syncPager(false); },40); }).observe(B,{attributes:true,attributeFilter:['data-zs']});
+  var st=0;
+  pg.addEventListener('scroll',function(){
+    clearTimeout(st); st=setTimeout(function(){
+      var w=pg.clientWidth, i=Math.round(pg.scrollLeft/w), t=tabsList();
+      if(i!==activeIdx() && t[i] && Date.now()-lock>500){ userTsBump(); t[i].click(); }
+      drawDots(i);
+    },90);
+  },{passive:true});
+  function userTsBump(){ document.dispatchEvent(new Event('pointerdown')); }
+  window.addEventListener('resize',function(){ syncPager(false); });
+})();
+
+/* ---- nav labels follow the app language ---- */
+(function(){
+  var T={
+   en:{chart:'Chart',periods:'Dasha',home:'Home',learn:'Learn',profile:'Profile',predictions:'Daily',tools:'Calendar',remedies:'Remedies',unani:'Unani',lalkitab:'Lal Kitab',index:'Index',expert:'Expert'},
+   bn:{chart:'কুণ্ডলী',periods:'দশা',home:'হোম',learn:'শিখুন',profile:'প্রোফাইল',predictions:'দৈনিক',tools:'ক্যালেন্ডার',remedies:'প্রতিকার',unani:'ইউনানি',lalkitab:'লাল কিতাব',index:'সূচি',expert:'বিশেষজ্ঞ'},
+   ur:{chart:'زائچہ',periods:'دشا',home:'ہوم',learn:'سیکھیں',profile:'پروفائل',predictions:'روزانہ',tools:'کیلنڈر',remedies:'علاج',unani:'یونانی',lalkitab:'لال کتاب',index:'فہرست',expert:'ماہر'},
+   hi:{chart:'कुंडली',periods:'दशा',home:'होम',learn:'सीखें',profile:'प्रोफ़ाइल',predictions:'दैनिक',tools:'कैलेंडर',remedies:'उपाय',unani:'यूनानी',lalkitab:'लाल किताब',index:'सूची',expert:'विशेषज्ञ'},
+   ar:{chart:'الخريطة',periods:'الداشا',home:'الرئيسية',learn:'تعلّم',profile:'حسابي',predictions:'اليوم',tools:'التقويم',remedies:'العلاج',unani:'اليوناني',lalkitab:'لال كتاب',index:'الفهرس',expert:'الخبير'},
+   zh:{chart:'命盘',periods:'大运',home:'首页',learn:'学习',profile:'我的',predictions:'每日',tools:'日历',remedies:'化解',unani:'尤那尼',lalkitab:'红皮书',index:'索引',expert:'专家'}
+  };
+  function apply(){
+    var d=T[document.documentElement.lang]||T.en;
+    [].forEach.call(document.querySelectorAll('[data-zb]'),function(b){ var s=b.querySelector('span'); var k=b.getAttribute('data-zb'); if(s&&d[k]) s.textContent=d[k]; });
+    [].forEach.call(document.querySelectorAll('#zn-sheet [data-go]'),function(b){ var k=b.getAttribute('data-go'); if(!d[k]) return; var n=[].filter.call(b.childNodes,function(x){return x.nodeType===3;})[0]; if(n) n.nodeValue=d[k]; else b.appendChild(document.createTextNode(d[k])); });
+  }
+  apply();
+  new MutationObserver(apply).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+})();
+
+/* ---- tab bar drag + today detail sheet ---- */
+(function(){
+  var bar=document.getElementById('v2-tabbar');
+  if(bar){
+    var drag=null;
+    function tabs(){ return [].slice.call(bar.querySelectorAll('.v2-tab')).filter(function(t){ return t.offsetWidth>0||getComputedStyle(t).display!=='none'; }); }
+    function mode(){ var ex=document.body.classList.contains('mode-expert'); var a=bar.querySelector('.v2-tab.active'); var k=a&&a.getAttribute('data-tab'); var all=ex||(k&&['predictions','remedies','expert'].indexOf(k)<0); var was=document.body.classList.contains('zt-simple'); bar.classList.toggle('zt-all',!!all); bar.classList.toggle('zt-3',!all); document.body.classList.toggle('zt-simple',!all); if(was===!!all) setTimeout(function(){ window.dispatchEvent(new Event('resize')); },30); }
+    new MutationObserver(function(){ mode(); sync(); }).observe(document.body,{attributes:true,attributeFilter:['class']});
+    function idxAt(x){ var r=bar.getBoundingClientRect(),n=tabs().length||6; var i=Math.floor((x-r.left-4)/((r.width-8)/n)); return Math.max(0,Math.min(n-1,i)); }
+    function ring(i,x){ var ind=bar.querySelector('.v2-tab-ind'), t=tabs()[i]; if(!ind||!t) return; var w=t.offsetWidth, h=t.offsetHeight;
+      var left=(x==null)?t.offsetLeft:Math.max(2,Math.min(bar.clientWidth-w-2,x-w/2-bar.getBoundingClientRect().left));
+      ind.style.setProperty('width',w-2+'px','important'); ind.style.setProperty('height',h+'px','important'); ind.style.setProperty('transform','translate('+left+'px,'+t.offsetTop+'px)','important'); }
+    function sync(){ mode(); if(drag&&drag.moved) return; var a=tabs().filter(function(t){return t.classList.contains('active');})[0]; if(!a||!a.offsetWidth) return; var ind=bar.querySelector('.v2-tab-ind'); if(ind) ind.style.setProperty('opacity','1','important'); ring(tabs().indexOf(a),null); }
+    new MutationObserver(sync).observe(bar,{subtree:true,attributes:true,attributeFilter:['class']});
+    new MutationObserver(function(){ setTimeout(sync,0); }).observe(bar,{childList:true});
+    window.addEventListener('resize',sync); if(window.ResizeObserver) new ResizeObserver(sync).observe(bar);
+    setInterval(sync,700); window.__ztSync=sync;
+    bar.addEventListener('pointerdown',function(e){ var t=e.target.closest('.v2-tab'); if(!t) return; drag={x:e.clientX,moved:false,i:idxAt(e.clientX)}; drag.pid=e.pointerId; });
+    bar.addEventListener('pointermove',function(e){ if(!drag) return; if(!drag.moved&&Math.abs(e.clientX-drag.x)<6) return; drag.moved=true; try{bar.setPointerCapture(drag.pid);}catch(x){} bar.classList.add('zt-drag'); drag.i=idxAt(e.clientX); ring(drag.i,e.clientX); });
+    function up(e){ if(!drag) return; var d=drag; drag=null; bar.classList.remove('zt-drag');
+      var ind=bar.querySelector('.v2-tab-ind');
+      if(d.moved){ var t=tabs()[d.i]; ring(d.i,null); setTimeout(function(){ if(ind){ ind.style.removeProperty('transform'); ind.style.removeProperty('width'); ind.style.removeProperty('height'); } if(t&&!t.classList.contains('active')) t.click(); else sync(); },30);
+        bar.dataset.zdrag='1'; setTimeout(function(){ delete bar.dataset.zdrag; },60); } }
+    bar.addEventListener('pointerup',up); bar.addEventListener('pointercancel',up);
+    bar.addEventListener('click',function(e){ if(bar.dataset.zdrag){ e.stopPropagation(); e.preventDefault(); } },true);
+  }
+  // today tiles -> sheet
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('#daily-routine-list .v2-topic-card'); if(!c||!document.body.classList.contains('app-mode')) return;
+    e.stopPropagation(); e.preventDefault();
+    var old=document.getElementById('zdm'); if(old) old.remove();
+    var tag=c.querySelector('.tag'), ps=[].slice.call(c.querySelectorAll('.icon-card-body > p')), bd=c.querySelector('.icon-card-badge');
+    var el=document.createElement('div'); el.id='zdm'; el.style.setProperty('--tc',getComputedStyle(c).getPropertyValue('--tc')||'#C3B4FF'); el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+    el.innerHTML='<div class="zdm-c"><div class="zdm-h"><span class="zdm-b">'+(bd?bd.innerHTML:'')+'</span><h3></h3><button type="button" class="zdm-x" aria-label="Close">✕</button></div></div>';
+    el.querySelector('h3').textContent=tag?(tag.getAttribute('data-full')||tag.textContent):'';
+    var box=el.firstChild; ps.forEach(function(p){ var q=document.createElement('p'); q.textContent=p.textContent; if(p.classList.contains('daily-basis')) q.className='daily-basis'; box.appendChild(q); });
+    document.body.appendChild(el); document.documentElement.classList.add('zl-lock');
+    function close(){ el.remove(); document.documentElement.classList.remove('zl-lock'); }
+    el.addEventListener('click',function(ev){ if(ev.target===el||ev.target.closest('.zdm-x')) close(); });
+  },true);
+})();
+
+(function(){
+  var l=document.getElementById('daily-routine-list'); if(!l) return;
+  function fix(){ [].forEach.call(l.querySelectorAll('.icon-card-body > .tag'),function(t){ var s=t.textContent; if(s.indexOf(' · ')>0){ t.setAttribute('data-full',s); t.textContent=s.split(' · ')[0]; } }); }
+  fix(); new MutationObserver(fix).observe(l,{childList:true,subtree:true});
+})();
+
+/* ---- profile sheet: cover, avatar, stats, extra rows ---- */
+(function(){
+  var body=document.getElementById('v2-menu-body'); if(!body) return;
+  function g(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function s(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+  function E(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var L={
+   en:{guest:'Guest',charts:'Charts',lang:'Language',mode:'View',simple:'Simple',expert:'Expert',photo:'Change photo',cover:'Change cover',settings:'Settings',language:'Language',account:'Account'},
+   bn:{guest:'অতিথি',charts:'কুণ্ডলী',lang:'ভাষা',mode:'দৃশ্য',simple:'সহজ',expert:'বিশেষজ্ঞ',photo:'ছবি বদলান',cover:'কভার বদলান',settings:'সেটিংস',language:'ভাষা',account:'অ্যাকাউন্ট'},
+   ur:{guest:'مہمان',charts:'زائچے',lang:'زبان',mode:'انداز',simple:'عام',expert:'ماہر',photo:'تصویر بدلیں',cover:'کور بدلیں',settings:'سیٹنگز',language:'زبان',account:'اکاؤنٹ'},
+   hi:{guest:'अतिथि',charts:'कुंडलियाँ',lang:'भाषा',mode:'दृश्य',simple:'सरल',expert:'विशेषज्ञ',photo:'फ़ोटो बदलें',cover:'कवर बदलें',settings:'सेटिंग्स',language:'भाषा',account:'खाता'},
+   ar:{guest:'ضيف',charts:'الخرائط',lang:'اللغة',mode:'العرض',simple:'بسيط',expert:'خبير',photo:'تغيير الصورة',cover:'تغيير الغلاف',settings:'الإعدادات',language:'اللغة',account:'الحساب'},
+   zh:{guest:'访客',charts:'命盘',lang:'语言',mode:'视图',simple:'简单',expert:'专家',photo:'更换头像',cover:'更换封面',settings:'设置',language:'语言',account:'账户'}
+  };
+  var NATIVE={en:'English',ur:'اردو',hi:'हिन्दी',ar:'العربية',zh:'中文',bn:'বাংলা'};
+  var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none'; document.body.appendChild(fi);
+  var target=null;
+  fi.addEventListener('change',function(){
+    var f=fi.files&&fi.files[0]; if(!f) return;
+    var r=new FileReader(); r.onload=function(){ var im=new Image(); im.onload=function(){
+      var W=target==='cover'?900:420, H=target==='cover'?320:420, c=document.createElement('canvas'); c.width=W; c.height=H; var x=c.getContext('2d');
+      var sc=Math.max(W/im.width,H/im.height), w=im.width*sc, h=im.height*sc; x.drawImage(im,(W-w)/2,(H-h)/2,w,h);
+      s(target==='cover'?'zaicha.cover':'zaicha.avatar',c.toDataURL('image/jpeg',.82)); fi.value=''; decorate(true);
+    }; im.src=r.result; }; r.readAsDataURL(f);
+  });
+  function decorate(force){
+    if(!force&&body.querySelector('.zpf')) return;
+    var old=body.querySelector('.zpf'); if(old) old.remove(); var oldx=body.querySelector('.zpf-x'); if(oldx) oldx.remove();
+    var lg=document.documentElement.lang||'en', T=L[lg]||L.en;
+    var pl=(document.getElementById('v2-person-line')||{}).textContent||''; var parts=pl.split('·').map(function(z){return z.trim();});
+    var nm=parts[0]||T.guest, sub=parts.slice(1).join(' · ');
+    var av=g('zaicha.avatar'), cv=g('zaicha.cover'), ini=(nm.charAt(0)||'✦').toUpperCase();
+    var n=body.querySelectorAll('.zp-row').length, ex=document.body.classList.contains('mode-expert');
+    var h=document.createElement('div'); h.className='zpf';
+    h.innerHTML='<div class="zpf-cover"'+(cv?' style="background-image:url('+cv+')"':'')+'><button type="button" class="zpf-cc" data-pick="cover" aria-label="'+E(T.cover)+'"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>'+
+      '<div class="zpf-main"><div class="zpf-av"'+(av?' style="background-image:url('+av+')"':'')+'>'+(av?'':E(ini))+'<button type="button" class="zpf-ac" data-pick="avatar" aria-label="'+E(T.photo)+'"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>'+
+      '<div class="zpf-id"><div class="zpf-n">'+E(nm)+'</div><div class="zpf-s">'+E(sub)+'</div></div></div>'+
+      '<div class="zpf-stats"><div><b>'+n+'</b><small>'+E(T.charts)+'</small></div><div><b>'+E(NATIVE[lg]||lg)+'</b><small>'+E(T.lang)+'</small></div><div><b>'+E(ex?T.expert:T.simple)+'</b><small>'+E(T.mode)+'</small></div></div>';
+    body.insertBefore(h,body.firstChild);
+    var x=document.createElement('section'); x.className='v2-menu-sec zpf-x';
+    x.innerHTML='<button type="button" class="v2-menu-item zx" data-zx="lang"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></i>'+E(T.language)+'<em>'+E(NATIVE[lg]||'')+'</em></button>'+
+      '<button type="button" class="v2-menu-item zx" data-zx="settings"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></i>'+E(T.settings)+'</button>';
+    var secs=body.querySelectorAll('.v2-menu-sec'); body.insertBefore(x,secs[0]||null);
+  }
+  var busy=false;
+  new MutationObserver(function(){ if(busy) return; busy=true; setTimeout(function(){ try{ decorate(false); }catch(e){} busy=false; },30); }).observe(body,{childList:true});
+  body.addEventListener('click',function(e){
+    var p=e.target.closest('[data-pick]'); if(p){ e.stopPropagation(); e.preventDefault(); target=p.getAttribute('data-pick'); fi.click(); return; }
+    var z=e.target.closest('[data-zx]'); if(z){ e.stopPropagation(); e.preventDefault(); var k=z.getAttribute('data-zx');
+      if(k==='lang'){ if(window.ZUI&&ZUI.closeSheets) ZUI.closeSheets(); setTimeout(function(){ window.__zlang&&window.__zlang(true); },250); }
+      else { var pf=body.querySelector('[data-act="profile"]'); if(pf) pf.click(); } }
+  },true);
+  decorate(false);
+})();
+
+/* ---- tools panel: compact Milan + info popup + more-tools sheet ---- */
+(function(){
+  var T={
+    en:{intro:'Check marriage compatibility from two birth charts (Ashtakoot, 36 points).',info:'Details',more:'More tools',pick:'More tools',prasna:'Prasna',prasnaD:'Horary chart — answer a question',panch:'Panchang',panchD:'Daily almanac',about:'About Kundli Milan'},
+    ur:{intro:'دو پیدائشی زائچوں سے رشتے کی مطابقت دیکھیں (اشٹکوٹ، 36 پوائنٹس)۔',info:'تفصیل',more:'مزید ٹولز',pick:'مزید ٹولز',prasna:'پرشنا',prasnaD:'سوال کا زائچہ',panch:'پنچانگ',panchD:'روزانہ کیلنڈر',about:'کنڈلی ملان کے بارے میں'},
+    bn:{intro:'দুটি জন্মকোষ্ঠী থেকে বিবাহের মিল দেখুন (অষ্টকূট, ৩৬ পয়েন্ট)।',info:'বিস্তারিত',more:'আরও টুল',pick:'আরও টুল',prasna:'প্রশ্ন',prasnaD:'প্রশ্ন কুণ্ডলী',panch:'পঞ্জিকা',panchD:'দৈনিক পঞ্জিকা',about:'কুণ্ডলী মিলান সম্পর্কে'},
+    hi:{intro:'दो जन्म कुंडलियों से विवाह मिलान देखें (अष्टकूट, 36 अंक)।',info:'विवरण',more:'और टूल',pick:'और टूल',prasna:'प्रश्न',prasnaD:'प्रश्न कुंडली',panch:'पंचांग',panchD:'दैनिक पंचांग',about:'कुंडली मिलान के बारे में'},
+    ar:{intro:'تحقق من توافق الزواج من خريطتي ميلاد (أشتاكوت، 36 نقطة).',info:'التفاصيل',more:'أدوات أخرى',pick:'أدوات أخرى',prasna:'براشنا',prasnaD:'خريطة السؤال',panch:'بانشانغ',panchD:'التقويم اليومي',about:'عن مطابقة الكندلي'},
+    zh:{intro:'通过两张出生图查看婚配契合度（八重配对，36分）。',info:'详情',more:'更多工具',pick:'更多工具',prasna:'问卜盘',prasnaD:'针对问题起盘',panch:'五支历',panchD:'每日历书',about:'关于合盘'}
+  };
+  function L(){var l=(document.documentElement.lang||'en').slice(0,2);return T[l]||T.en;}
+  var moved=null,home=null;
+  function el(h){var d=document.createElement('div');d.innerHTML=h;return d.firstChild;}
+  function close(){
+    var o=document.getElementById('ztl-over');if(o)o.remove();
+    var s=document.getElementById('ztl-sheet');if(s)s.remove();
+    var i=document.getElementById('ztl-info');if(i)i.remove();
+    if(moved&&home){home.parent.insertBefore(moved,home.next);moved.classList.remove('zt-moved');moved=null;}
+  }
+  function info(){
+    close();
+    var a=document.querySelector('#phone-milan [data-i18n="milanSub"]'),b=document.querySelector('#phone-milan [data-i18n="milanNote"]');
+    var n=el('<div id="ztl-info" class="ztl-scrim"><div class="ztl-pop"><button class="ztl-x" aria-label="Close">×</button><h3></h3><p></p><p class="n"></p></div></div>');
+    n.querySelector('h3').textContent=L().about;
+    n.querySelector('p').textContent=a?a.textContent:'';
+    n.querySelector('.n').textContent=b?b.textContent:'';
+    n.addEventListener('click',function(e){if(e.target===n||e.target.className==='ztl-x')close();});
+    document.body.appendChild(n);
+  }
+  function openTool(id){
+    close();
+    var d=document.getElementById(id);if(!d)return;
+    home={parent:d.parentNode,next:d.nextSibling};moved=d;
+    d.open=true;d.classList.add('zt-moved');
+    var o=el('<div id="ztl-over"><button class="ztl-x" aria-label="Close">×</button><div class="ztl-in"></div></div>');
+    o.querySelector('.ztl-in').appendChild(d);
+    o.querySelector('.ztl-x').onclick=close;
+    document.body.appendChild(o);
+    /* app may render panchang lazily */
+    try{window.dispatchEvent(new Event('resize'));}catch(e){}
+  }
+  function sheet(){
+    close();var t=L();
+    var n=el('<div id="ztl-sheet" class="ztl-scrim ztl-bottom"><div class="ztl-pop"><button class="ztl-x" aria-label="Close">×</button><h3></h3>'+
+      '<button class="ztl-tile" data-t="sec-prasna"><i class="a"></i><span><b></b><small></small></span></button>'+
+      '<button class="ztl-tile" data-t="sec-panchang"><i class="b"></i><span><b></b><small></small></span></button></div></div>');
+    n.querySelector('h3').textContent=t.pick;
+    var tl=n.querySelectorAll('.ztl-tile');
+    tl[0].querySelector('b').textContent=t.prasna;tl[0].querySelector('small').textContent=t.prasnaD;
+    tl[1].querySelector('b').textContent=t.panch;tl[1].querySelector('small').textContent=t.panchD;
+    n.addEventListener('click',function(e){
+      if(e.target===n||e.target.className==='ztl-x')return close();
+      var b=e.target.closest('.ztl-tile');if(b)openTool(b.getAttribute('data-t'));
+    });
+    document.body.appendChild(n);
+  }
+  function build(){
+    var ph=document.getElementById('phone-milan');if(!ph)return;
+    var bar=document.getElementById('ztl-bar'),t=L();
+    if(!bar){
+      bar=el('<div id="ztl-bar"><p></p><div class="r"><button type="button" class="ztl-b i1"><i></i><span></span></button><button type="button" class="ztl-b i2"><i></i><span></span></button></div></div>');
+      var fh=ph.querySelector('.feed-head');
+      (fh||ph.firstChild).insertAdjacentElement(fh?'afterend':'beforebegin',bar);
+      bar.querySelector('.i1').onclick=info;bar.querySelector('.i2').onclick=sheet;
+    }
+    bar.querySelector('p').textContent=t.intro;
+    bar.querySelector('.i1 span').textContent=t.info;
+    bar.querySelector('.i2 span').textContent=t.more;
+  }
+  function init(){build();new MutationObserver(build).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});}
+  if(document.readyState!=='loading')setTimeout(init,300);else document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});
+})();
+
+/* ---- Expert mode paywall: Rs 500 / month ---- */
+(function(){
+  var T={
+    en:{t:'Unlock Expert mode',p:'Rs 500',per:'/ month',f:['All 6 sections: Periods, Chart details, Tools','Reasons behind every prediction','Dasha systems, Lal Kitab, Unani & more','Kundli Milan, Prasna and Panchang'],go:'Subscribe — Rs 500 / month',no:'Not now',demo:'Demo: payment gateway not connected yet — this unlocks 30 days for testing.',on:'Expert mode active until '},
+    ur:{t:'ایکسپرٹ موڈ کھولیں',p:'500 روپے',per:'/ ماہانہ',f:['تمام 6 سیکشنز: دشا، چارٹ کی تفصیل، ٹولز','ہر پیش گوئی کی وجوہات','دشا سسٹمز، لال کتاب، یونانی اور مزید','کنڈلی ملان، پرشنا اور پنچانگ'],go:'سبسکرائب کریں — 500 روپے / ماہ',no:'ابھی نہیں',demo:'ڈیمو: پیمنٹ گیٹ وے ابھی منسلک نہیں — یہ ٹیسٹنگ کے لیے 30 دن کھول دیتا ہے۔',on:'ایکسپرٹ موڈ فعال ہے، تاریخ: '},
+    bn:{t:'এক্সপার্ট মোড আনলক করুন',p:'৫০০ টাকা',per:'/ মাস',f:['সব ৬টি অংশ: দশা, চার্টের বিস্তারিত, টুলস','প্রতিটি ভবিষ্যদ্বাণীর কারণ','দশা সিস্টেম, লাল কিতাব, ইউনানি ও আরও','কুণ্ডলী মিলান, প্রশ্ন ও পঞ্জিকা'],go:'সাবস্ক্রাইব — ৫০০ টাকা / মাস',no:'এখন নয়',demo:'ডেমো: পেমেন্ট গেটওয়ে এখনও যুক্ত নয় — পরীক্ষার জন্য ৩০ দিন আনলক হবে।',on:'এক্সপার্ট মোড চালু, মেয়াদ: '},
+    hi:{t:'एक्सपर्ट मोड अनलॉक करें',p:'₹500',per:'/ माह',f:['सभी 6 सेक्शन: दशा, चार्ट विवरण, टूल्स','हर भविष्यवाणी के कारण','दशा सिस्टम, लाल किताब, यूनानी और अधिक','कुंडली मिलान, प्रश्न और पंचांग'],go:'सब्सक्राइब — ₹500 / माह',no:'अभी नहीं',demo:'डेमो: पेमेंट गेटवे अभी जुड़ा नहीं — टेस्टिंग के लिए 30 दिन अनलॉक होगा।',on:'एक्सपर्ट मोड सक्रिय, तिथि: '},
+    ar:{t:'افتح وضع الخبير',p:'500 روبية',per:'/ شهريًا',f:['كل الأقسام الستة','أسباب كل توقع','أنظمة الداشا، لال كتاب، اليوناني والمزيد','مطابقة الكندلي، براشنا وبانشانغ'],go:'اشترك — 500 روبية / شهر',no:'ليس الآن',demo:'تجريبي: بوابة الدفع غير متصلة بعد — يفتح 30 يومًا للاختبار.',on:'وضع الخبير مفعّل حتى '},
+    zh:{t:'解锁专家模式',p:'500卢比',per:'/ 月',f:['全部6个板块','每条预测的依据','大运体系、红皮书、尤那尼等','合盘、问卜盘与五支历'],go:'订阅 — 500卢比 / 月',no:'暂不',demo:'演示：支付网关尚未接入 — 将解锁30天用于测试。',on:'专家模式有效期至 '}
+  };
+  function L(){return T[(document.documentElement.lang||'en').slice(0,2)]||T.en;}
+  function subOK(){try{return +localStorage.getItem('zaicha.sub')>Date.now();}catch(e){return false;}}
+  function pop(onYes){
+    var old=document.getElementById('zpay');if(old)old.remove();
+    var t=L(),d=document.createElement('div');d.id='zpay';
+    d.innerHTML='<div class="zpay-c"><div class="zpay-ic"></div><h3></h3><div class="zpay-pr"><b></b><span></span></div><ul></ul><button type="button" class="zpay-go"></button><button type="button" class="zpay-no"></button><p></p></div>';
+    d.querySelector('h3').textContent=t.t;d.querySelector('.zpay-pr b').textContent=t.p;d.querySelector('.zpay-pr span').textContent=t.per;
+    d.querySelector('ul').innerHTML=t.f.map(function(x){return '<li></li>';}).join('');
+    [].forEach.call(d.querySelectorAll('li'),function(li,i){li.textContent=t.f[i];});
+    d.querySelector('.zpay-go').textContent=t.go;d.querySelector('.zpay-no').textContent=t.no;d.querySelector('p').textContent=t.demo;
+    function close(){d.remove();}
+    d.addEventListener('click',function(e){
+      if(e.target===d||e.target.closest('.zpay-no'))return close();
+      if(e.target.closest('.zpay-go')){try{localStorage.setItem('zaicha.sub',String(Date.now()+30*864e5));}catch(x){} close(); onYes();}
+    });
+    document.body.appendChild(d);
+  }
+  function wrap(){
+    if(!window.ZUI||!ZUI.setExpert||ZUI.__paid)return false;
+    var orig=ZUI.setExpert;ZUI.__paid=1;
+    ZUI.setExpert=function(on,silent){
+      if(on&&!subOK()){
+        if(silent){return orig.call(ZUI,false,true);}
+        pop(function(){orig.call(ZUI,true);});
+        return;
+      }
+      return orig.call(ZUI,on,silent);
+    };
+    var cur=null;try{cur=localStorage.getItem('zaicha.expert')==='1';}catch(e){}
+    if(cur&&!subOK())orig.call(ZUI,false,true);
+    return true;
+  }
+  var n=0,iv=setInterval(function(){if(wrap()||++n>50)clearInterval(iv);},100);
+})();
+
+/* ---- floating chart button + chart popup ---- */
+(function(){
+  var TT={en:['Birth chart','Planet positions'],ur:['زائچہ','سیاروں کی پوزیشن'],bn:['জন্মকোষ্ঠী','গ্রহের অবস্থান'],hi:['जन्म कुंडली','ग्रहों की स्थिति'],ar:['خريطة الميلاد','مواقع الكواكب'],zh:['本命盘','行星位置']};
+  function L(){return TT[(document.documentElement.lang||'en').slice(0,2)]||TT.en;}
+  var tile=null,home=null;
+  function close(){
+    var o=document.getElementById('zchart');if(o)o.remove();
+    if(tile&&home&&home.parent){home.parent.insertBefore(tile,home.next);tile=null;}
+  }
+  function open(){
+    close();
+    var t=document.querySelector('.v2-sum-chart');if(!t)return;
+    var l=L();
+    home={parent:t.parentNode,next:t.nextSibling};tile=t;
+    var o=document.createElement('div');o.id='zchart';
+    o.innerHTML='<div class="zch-c"><button type="button" class="zch-x" aria-label="Close">×</button><div class="zch-in"></div></div>';
+    o.querySelector('.zch-in').appendChild(t);
+    var src=document.getElementById('chart-deg-table');
+    if(src&&src.innerHTML.indexOf('placeholder')<0){
+      var d=document.createElement('div');d.className='zch-pos';
+      d.innerHTML='<h4></h4><div class="zch-tb"></div>';d.querySelector('h4').textContent=l[1];
+      d.querySelector('.zch-tb').innerHTML=src.innerHTML;
+      o.querySelector('.zch-in').appendChild(d);
+    }
+    o.addEventListener('click',function(e){if(e.target===o||e.target.closest('.zch-x'))close();});
+    document.body.appendChild(o);
+  }
+  function init(){
+    if(document.getElementById('zcb'))return;
+    var b=document.createElement('button');b.id='zcb';b.type='button';b.setAttribute('aria-label','Birth chart');
+    b.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#3a1b8f" stroke="#fff" stroke-width="2.4"/><g fill="none" stroke="#f0a93a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M24 9l11 11-11 19L13 20z"/><path d="M24 9v30M13 20h22"/><path d="M17 14l14 14M31 14L17 28" stroke="#fdcc01"/><path d="M9 24l15-10 15 10-15 14z" opacity=".55"/></g></svg>';
+    var w=document.createElement('div');w.id='zcw';
+    var hint=document.createElement('div');hint.id='zch';
+    hint.innerHTML='<span class="t">D60 chart</span><svg viewBox="0 0 44 56" aria-hidden="true"><path d="M8 3C8 26 20 36 32 46" fill="none" stroke="#fdcc01" stroke-width="3.2" stroke-linecap="round"/><path d="M20 47l13 1 0-13" fill="none" stroke="#fdcc01" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var seen=false;try{seen=localStorage.getItem('zaicha.chartHint')==='1';}catch(e){}
+    if(seen)hint.className='gone';
+    b.addEventListener('click',function(){hint.className='gone';try{localStorage.setItem('zaicha.chartHint','1');}catch(e){} open();});
+    w.appendChild(hint);w.appendChild(b);document.body.appendChild(w);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  }
+  if(document.readyState!=='loading')init();else document.addEventListener('DOMContentLoaded',init);
+})();
+
 </script>
 </body>
 </html>

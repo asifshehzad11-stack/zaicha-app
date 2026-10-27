@@ -4,8 +4,8 @@
    v10 (pass 2.2, app lock): the lock page is never cached, and when the server
    answers "locked" the cached app shell is deleted, so a locked visitor is
    never shown the app from cache (not even offline). */
-const CACHE = 'zaicha-shell-v10';
-const SHELL = ['/', '/tehzeeb-logo.svg', '/preface-content.js', '/zaicha-skin.css', '/zaicha-ui.js', '/i18n-extra.js', '/i18n-hi.js', '/i18n-ar.js', '/i18n-zh.js', '/i18n-s8.js', '/learn-content.js', '/planet-house.js', '/icon.svg', '/icon-192.png', '/manifest.webmanifest'];
+const CACHE = 'zaicha-shell-v11';   // v11: new UI (zaicha-newui.css, Bengali strings, new hero/profile images)
+const SHELL = ['/', '/tehzeeb-logo.svg', '/preface-content.js', '/zaicha-skin.css', '/zaicha-newui.css', '/zaicha-ui.js', '/i18n-extra.js', '/i18n-hi.js', '/i18n-ar.js', '/i18n-zh.js', '/i18n-bn.js', '/i18n-s8.js', '/learn-content.js', '/planet-house.js', '/icon.svg', '/icon-192.png', '/hero-m.webp', '/hero-d.webp', '/manifest.webmanifest'];
 function isLockResponse(res) { return !!res && (res.status === 401 || res.headers.get('X-Zaicha-Locked') === '1'); }
 function dropShell() { return caches.keys().then((keys) => Promise.all(keys.filter((k) => k.indexOf('zaicha-shell-') === 0).map((k) => caches.delete(k)))); }
 self.addEventListener('install', (e) => {
