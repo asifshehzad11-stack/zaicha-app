@@ -549,6 +549,12 @@
     <path d="M75 298C280 310 400 380 432 508H195Z" fill="url(#zg-p2)"/>
     <path d="M468 42Q500 235 605 283Q500 335 468 508Q440 310 145 274Q440 250 468 42Z" fill="url(#zg-y)" stroke="#0a0214" stroke-width="26" stroke-linejoin="round" paint-order="stroke"/>
   </symbol>
+  <!-- same mark without the dark outline round the star (nav bar Home button) -->
+  <symbol id="zlogo-nav" viewBox="60 30 560 490">
+    <path d="M195 40H432C415 140 300 225 75 252Z" fill="url(#zg-p1)"/>
+    <path d="M75 298C280 310 400 380 432 508H195Z" fill="url(#zg-p2)"/>
+    <path d="M468 42Q500 235 605 283Q500 335 468 508Q440 310 145 274Q440 250 468 42Z" fill="url(#zg-y)"/>
+  </symbol>
 </defs></svg>
 <script src="/i18n-bn.js"></script>
 <div class="page">
@@ -6057,7 +6063,7 @@
   <div class="zn-bar" id="zn-bar">
     <button type="button" data-zb="chart" data-i="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v5.500M12 15v5.500M3.5 12H9M15 12h5.500"/></svg><span>Chart</span></button>
     <button type="button" data-zb="periods" data-i="1"><svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 10 6 10 9s-10 4-10 9M17 3c0 5-10 6-10 9s10 4 10 9"/></svg><span>Dasha</span></button>
-    <button type="button" data-zb="home" data-i="2" class="zn-home"><svg viewBox="60 30 560 490" class="zn-logo"><use href="#zlogo" width="560" height="490" x="60" y="30"/></svg><span>Home</span></button>
+    <button type="button" data-zb="home" data-i="2" class="zn-home"><svg viewBox="60 30 560 490" class="zn-logo"><use href="#zlogo-nav" width="560" height="490" x="60" y="30"/></svg><span>Home</span></button>
     <button type="button" data-zb="learn" data-i="3"><svg viewBox="0 0 24 24"><path d="M12 6.3C10 4.6 7 4 3.5 4.3v13.9c3.5-.3 6.5.3 8.5 2 2-1.7 5-2.3 8.5-2V4.3C17 4 14 4.6 12 6.3z"/><path d="M12 6.3v13.9"/></svg><span>Learn</span></button>
     <button type="button" data-zb="profile" data-i="4"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.500 20.500c.8-4 4-6 7.500-6s6.700 2 7.500 6"/></svg><span>Profile</span></button>
     <div class="zn-c" id="zn-c" role="slider" tabindex="0" aria-label="Section slider: drag to a section, tap for more" aria-valuemin="0" aria-valuemax="4" aria-valuenow="2"></div>
@@ -6656,16 +6662,17 @@
     if(!/hero-m\.webp/.test(img.currentSrc||'')||!img.naturalHeight) return;
     var H=hero.clientHeight, W=hero.clientWidth; if(!H||!W) return;
     var hr=hero.getBoundingClientRect(), k=document.querySelector('.kitaba'), tb=document.getElementById('v2-topbar');
-    var top=Math.max(k?k.getBoundingClientRect().bottom-hr.top:0, tb?tb.getBoundingClientRect().bottom-hr.top:0)+8;
-    var bottom=card.offsetTop-10; if(bottom-top<120) return;
-    var target=(top+bottom)/2, c=(B.top+B.bot)/2, ih=img.naturalHeight, iw=img.naturalWidth;
-    // the image fills the box by height when the box is taller (phones); growing the box by s and lifting it by s
-    // moves the brand to: c*(H+s) - s. Solve for s, then keep the whole block between top and bottom.
-    if(W/iw > H/ih) return;                          // width-limited (very wide): leave as is
-    var s=(c*H-target)/(1-c);
-    s=Math.max(0, Math.min(s, H*0.45));
-    var blk=(B.bot-B.top)*(H+s);
-    if(blk>bottom-top){ return; }
+    var iwSafe=function(){return img.naturalWidth;}, ihSafe=function(){return img.naturalHeight;};
+    var kBot=0; if(k){ [].forEach.call(k.querySelectorAll('*'),function(e){ var r=e.getBoundingClientRect(); if(r.height) kBot=Math.max(kBot,r.bottom); }); kBot=Math.max(kBot,k.getBoundingClientRect().bottom); }
+    var top=Math.max(kBot-hr.top, tb?tb.getBoundingClientRect().bottom-hr.top:0)+22;   // clear of the verse and its glow
+    var bottom=card.offsetTop-12;
+    if(W/iwSafe() > H/ihSafe()) return;              // width-limited (very wide): leave as is
+    var c=(B.top+B.bot)/2, target=(top+bottom)/2;
+    // growing the box by s and lifting it by s puts an image row at fraction f to: f*(H+s) - s
+    var sT=(c*H-target)/(1-c);                        // brand centred
+    var sMaxTop=(B.top*H-top)/(1-B.top);              // largest lift that keeps the logo below the verse
+    var sMinBot=(B.bot*H-bottom)/(1-B.bot);           // smallest lift that keeps the tagline above the card
+    var s=Math.max(sT, sMinBot); s=Math.min(s, sMaxTop); s=Math.max(0, Math.min(s, H*0.4));
     img.style.top=(-s)+'px'; img.style.height=(H+s)+'px';
   }
   var raf=0; function later(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(place); }
@@ -6673,7 +6680,12 @@
   window.addEventListener('resize',later);
   if('ResizeObserver' in window) new ResizeObserver(later).observe(card);
   new MutationObserver(later).observe(card,{attributes:true,attributeFilter:['class']});
-  setTimeout(later,1800);
+  setTimeout(later,1800); setTimeout(later,4000);
+  // the verse at the top uses a web font: it grows when the font arrives, so measure again then
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(later);
+  if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener('loadingdone',later);
+  var kb=document.querySelector('.kitaba'), tb=document.getElementById('v2-topbar');
+  if('ResizeObserver' in window){ if(kb) new ResizeObserver(later).observe(kb); if(tb) new ResizeObserver(later).observe(tb); }
 })();
 </script>
 </body>
