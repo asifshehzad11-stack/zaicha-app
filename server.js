@@ -684,8 +684,11 @@ app.post('/api/kundli', async (req, res) => {
     // mein ar/zh ka matn (text) abhi tak nahi (ya jo sirf en/ur/hi jaante
     // hain) woh khud en par fallback karte hain; `uiLang` frontend ko wapas
     // jata hai taake poora interface usi zaban mein rahe.
-    const uiLang = ['en', 'ur', 'hi', 'ar', 'zh'].indexOf(lang) !== -1 ? lang : 'en';
-    const reqLang = uiLang;
+    // 2026-10-27: Bengali (bn) joined the interface. The generated reading text
+    // has no Bengali templates yet, so it is produced in English (`reqLang`),
+    // while `uiLang` stays 'bn' so the app does not flip back to English.
+    const uiLang = ['en', 'ur', 'hi', 'ar', 'zh', 'bn'].indexOf(lang) !== -1 ? lang : 'en';
+    const reqLang = uiLang === 'bn' ? 'en' : uiLang;
 
     let effective = { name, dob, time, lat, lon, ayanamsa, utcOffset };
     let profileRow = null;
