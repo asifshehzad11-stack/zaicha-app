@@ -6685,7 +6685,18 @@
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(later);
   if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener('loadingdone',later);
   var kb=document.querySelector('.kitaba'), tb=document.getElementById('v2-topbar');
-  if('ResizeObserver' in window){ if(kb) new ResizeObserver(later).observe(kb); if(tb) new ResizeObserver(later).observe(tb); }
+  if('ResizeObserver' in window){ if(kb) new ResizeObserver(later).observe(kb); if(tb) new ResizeObserver(later).observe(tb); new ResizeObserver(later).observe(hero); }
+  if(window.visualViewport) window.visualViewport.addEventListener('resize',later);
+  window.addEventListener('pageshow',later); window.addEventListener('orientationchange',later);
+  // safety net: phones settle their layout late (splash, browser bars, fonts). While the opening screen is
+  // showing, check the geometry once a second and re-place whenever anything moved.
+  var sig='';
+  setInterval(function(){
+    if(document.hidden||document.body.classList.contains('app-mode')||!hero.offsetHeight) return;
+    var hr=hero.getBoundingClientRect(), kr=kb?kb.getBoundingClientRect():{bottom:0};
+    var n=[Math.round(hr.top),Math.round(hr.height),Math.round(hr.width),Math.round(kr.bottom),card.offsetTop,card.offsetHeight].join(',');
+    if(n!==sig){ sig=n; place(); }
+  },1000);
 })();
 </script>
 </body>
