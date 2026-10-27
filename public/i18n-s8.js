@@ -1027,11 +1027,11 @@ window.I18N_S8 = {
 /* Session 9b: Tehzeeb-ul-Ilm watermark + founder line (Asif Shehzad Mughal) */
 (function(){
   var add = {
-    en: { wmName: 'Tehzeeb-ul-Ilm', founderLine: 'Disclaimer: this chart and its predictions are guidance in the light of traditional astrology, not a final verdict. Knowledge of the unseen belongs to Allah alone. For health, legal or financial matters, always consult a qualified professional. — Presented by Asif Shehzad Mughal, Pattoki, Punjab, Pakistan' },
-    ur: { wmName: 'تہذیب العلم', founderLine: 'تنبیہ: یہ زائچہ اور پیشگوئیاں روایتی علمِ نجوم کی روشنی میں رہنمائی ہیں، حتمی فیصلہ نہیں۔ غیب کا علم صرف اللہ کے پاس ہے۔ صحت، قانونی یا مالی معاملات میں متعلقہ ماہر سے ضرور مشورہ کریں۔ — پیشکش: آصف شہزاد مغل، پتوکی، پنجاب، پاکستان' },
-    hi: { wmName: 'तहज़ीब-उल-इल्म', founderLine: 'अस्वीकरण: यह कुंडली और भविष्यवाणियाँ पारंपरिक ज्योतिष की रोशनी में मार्गदर्शन हैं, अंतिम फ़ैसला नहीं। ग़ैब का इल्म सिर्फ़ अल्लाह के पास है। सेहत, क़ानूनी या आर्थिक मामलों में योग्य विशेषज्ञ से ज़रूर सलाह लें। — पेशकश: आसिफ़ शहज़ाद मुग़ल, पत्तोकी, पंजाब, पाकिस्तान' },
-    ar: { wmName: 'تهذيب العلم', founderLine: 'تنبيه: هذا الطالع وتوقعاته إرشادٌ في ضوء علم النجوم التقليدي، لا حكمٌ نهائي. وعلم الغيب لله وحده. في الأمور الصحية والقانونية والمالية استشر مختصًا مؤهلًا. — تقديم: آصف شهزاد مغل، بتوكي، البنجاب، باكستان' },
-    zh: { wmName: 'Tehzeeb-ul-Ilm · 学识修养', founderLine: '免责声明：本星盘及其预测是依据传统星象学的参考，而非最终结论。幽玄之事唯有真主知道。涉及健康、法律或财务问题，请务必咨询合格的专业人士。——出品：Asif Shehzad Mughal，巴基斯坦旁遮普省帕托基（Pattoki）' }
+    en: { wmName: 'Asbaq Al Najoon', founderLine: 'Disclaimer: this chart and its predictions are guidance in the light of traditional astrology, not a final verdict. Knowledge of the unseen belongs to Allah alone. For health, legal or financial matters, always consult a qualified professional. — Presented by Asif Shehzad Mughal, Pattoki, Punjab, Pakistan' },
+    ur: { wmName: 'اسباق النجوم', founderLine: 'تنبیہ: یہ زائچہ اور پیشگوئیاں روایتی علمِ نجوم کی روشنی میں رہنمائی ہیں، حتمی فیصلہ نہیں۔ غیب کا علم صرف اللہ کے پاس ہے۔ صحت، قانونی یا مالی معاملات میں متعلقہ ماہر سے ضرور مشورہ کریں۔ — پیشکش: آصف شہزاد مغل، پتوکی، پنجاب، پاکستان' },
+    hi: { wmName: 'अस्बाक़ अल-नजूम', founderLine: 'अस्वीकरण: यह कुंडली और भविष्यवाणियाँ पारंपरिक ज्योतिष की रोशनी में मार्गदर्शन हैं, अंतिम फ़ैसला नहीं। ग़ैब का इल्म सिर्फ़ अल्लाह के पास है। सेहत, क़ानूनी या आर्थिक मामलों में योग्य विशेषज्ञ से ज़रूर सलाह लें। — पेशकश: आसिफ़ शहज़ाद मुग़ल, पत्तोकी, पंजाब, पाकिस्तान' },
+    ar: { wmName: 'أسباق النجوم', founderLine: 'تنبيه: هذا الطالع وتوقعاته إرشادٌ في ضوء علم النجوم التقليدي، لا حكمٌ نهائي. وعلم الغيب لله وحده. في الأمور الصحية والقانونية والمالية استشر مختصًا مؤهلًا. — تقديم: آصف شهزاد مغل، بتوكي، البنجاب، باكستان' },
+    zh: { wmName: 'Asbaq Al Najoon', founderLine: '免责声明：本星盘及其预测是依据传统星象学的参考，而非最终结论。幽玄之事唯有真主知道。涉及健康、法律或财务问题，请务必咨询合格的专业人士。——出品：Asif Shehzad Mughal，巴基斯坦旁遮普省帕托基（Pattoki）' }
   };
   var S = window.I18N_S8 = window.I18N_S8 || {};
   Object.keys(add).forEach(function(l){ S[l] = S[l] || {}; Object.keys(add[l]).forEach(function(k){ S[l][k] = add[l][k]; }); });
@@ -1051,7 +1051,7 @@ window.I18N_S8 = {
 })();
 
 /* Session 9c: learning section renamed to Tehzeeb-ul-Ilm (Asif) */
-(function(){ var n = {"en": "Tehzeeb-ul-Ilm", "ur": "تہذیب العلم", "hi": "तहज़ीब-उल-इल्म", "ar": "تهذيب العلم", "zh": "Tehzeeb-ul-Ilm 学堂"}; var S = window.I18N_S8 = window.I18N_S8 || {}; Object.keys(n).forEach(function(l){ S[l] = S[l] || {}; ['dock_learn','sys_learn','heroLearn','learnH3'].forEach(function(k){ S[l][k] = n[l]; }); }); })();
+(function(){ var n = {"en": "Asbaq Al Najoon", "ur": "اسباق النجوم", "hi": "अस्बाक़ अल-नजूम", "ar": "أسباق النجوم", "zh": "Asbaq Al Najoon 学堂"}; var S = window.I18N_S8 = window.I18N_S8 || {}; Object.keys(n).forEach(function(l){ S[l] = S[l] || {}; ['dock_learn','sys_learn','heroLearn','learnH3'].forEach(function(k){ S[l][k] = n[l]; }); }); })();
 
 /* Session 9c: فہرست (Index) tab */
 (function(){
@@ -1251,7 +1251,7 @@ window.I18N_S8 = {
       "heroTitle": "Create your Zaicha",
       "heroLine": "Enter your birth details and see your chart in seconds.",
       "heroBtn": "Create my Zaicha",
-      "heroLearn": "Learn astrology — Tehzeeb-ul-Ilm",
+      "heroLearn": "Learn astrology — Asbaq Al Najoon",
       "heroWelcome": "Welcome back",
       "heroWelcomeLine": "Open a saved chart or make a new one.",
       "heroNew": "＋ New zaicha",
@@ -1385,7 +1385,7 @@ window.I18N_S8 = {
       "heroTitle": "اپنا زائچہ بنائیں",
       "heroLine": "اپنی پیدائش کی تفصیلات درج کریں اور چند لمحوں میں اپنا زائچہ دیکھیں۔",
       "heroBtn": "میرا زائچہ بنائیں",
-      "heroLearn": "علمِ نجوم سیکھیں — تہذیب العلم",
+      "heroLearn": "علمِ نجوم سیکھیں — اسباق النجوم",
       "heroWelcome": "خوش آمدید",
       "heroWelcomeLine": "محفوظ زائچہ کھولیں یا نیا بنائیں۔",
       "heroNew": "＋ نیا زائچہ",
@@ -1519,7 +1519,7 @@ window.I18N_S8 = {
       "heroTitle": "अपनी कुंडली बनाएँ",
       "heroLine": "अपने जन्म का विवरण भरें और कुछ ही पलों में अपनी कुंडली देखें।",
       "heroBtn": "मेरी कुंडली बनाएँ",
-      "heroLearn": "ज्योतिष सीखें — तहज़ीब-उल-इल्म",
+      "heroLearn": "ज्योतिष सीखें — अस्बाक़ अल-नजूम",
       "heroWelcome": "फिर से स्वागत है",
       "heroWelcomeLine": "सहेजी कुंडली खोलें या नई बनाएँ।",
       "heroNew": "＋ नई कुंडली",
@@ -1653,7 +1653,7 @@ window.I18N_S8 = {
       "heroTitle": "أنشئ طالعك",
       "heroLine": "أدخل بيانات ميلادك وشاهد طالعك خلال ثوانٍ.",
       "heroBtn": "أنشئ طالعي",
-      "heroLearn": "تعلّم علم النجوم — تهذيب العلم",
+      "heroLearn": "تعلّم علم النجوم — أسباق النجوم",
       "heroWelcome": "مرحبًا بعودتك",
       "heroWelcomeLine": "افتح طالعًا محفوظًا أو أنشئ طالعًا جديدًا.",
       "heroNew": "＋ طالع جديد",
@@ -1787,7 +1787,7 @@ window.I18N_S8 = {
       "heroTitle": "创建你的星盘",
       "heroLine": "输入出生信息，几秒内即可看到你的星盘。",
       "heroBtn": "创建我的星盘",
-      "heroLearn": "学习占星 — Tehzeeb-ul-Ilm",
+      "heroLearn": "学习占星 — Asbaq Al Najoon",
       "heroWelcome": "欢迎回来",
       "heroWelcomeLine": "打开已保存的星盘，或新建一个。",
       "heroNew": "＋ 新建星盘",

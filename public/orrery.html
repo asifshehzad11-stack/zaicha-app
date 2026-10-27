@@ -878,7 +878,7 @@ const Q = new URLSearchParams(location.search);
 const EMBED = Q.get('embed') === '1';
 if (EMBED) document.body.classList.add('embed');
 if (Q.get('mini') === '0') document.body.classList.add('no-mini');
-if (window.top === window) { const w = document.createElement('div'); w.className = 'twm'; w.innerHTML = '<svg viewBox="0 0 240 240" width="20" height="20" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"><path d="M52 214 V110 C52 70 86 44 120 22 C154 44 188 70 188 110 V214"/><path d="M72 200 C92 188 108 190 120 200 C132 190 148 188 168 200"/><path d="M36 214 H204"/></g><path d="M134 80 A30 30 0 1 0 152 136 A24 24 0 1 1 134 80Z" fill="currentColor"/></svg> '; w.append('Tehzeeb-ul-Ilm · تہذیب العلم'); document.body.appendChild(w); }
+if (window.top === window) { const w = document.createElement('div'); w.className = 'twm'; w.innerHTML = '<svg viewBox="0 0 240 240" width="20" height="20" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"><path d="M52 214 V110 C52 70 86 44 120 22 C154 44 188 70 188 110 V214"/><path d="M72 200 C92 188 108 190 120 200 C132 190 148 188 168 200"/><path d="M36 214 H204"/></g><path d="M134 80 A30 30 0 1 0 152 136 A24 24 0 1 1 134 80Z" fill="currentColor"/></svg> '; w.append('Asbaq Al Najoon · اسباق النجوم'); document.body.appendChild(w); }
 sunLight.castShadow = false;           // point-light shadows = 6 extra renders/frame; too heavy for phones
 renderer.shadowMap.enabled = false;
 

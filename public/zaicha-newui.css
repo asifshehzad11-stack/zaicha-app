@@ -215,7 +215,7 @@ body.app-mode .zq{ display:none; }
 .zn-bar > button[data-zb]{ justify-content:center !important; gap:4px !important; padding:0 !important; height:100% !important; line-height:1; }
 .zn-bar > button[data-zb] span{ display:block; line-height:1; font-size:.68rem; }
 .zn-bar > button[data-zb] svg{ width:24px !important; height:24px !important; flex:none; }
-.zn-bar > button.zn-home svg.zn-logo{ width:38px !important; height:31px !important; }   /* logo-only centre button (no "Home" label) */
+.zn-bar > button.zn-home svg.zn-logo{ width:30px !important; height:24px !important; }
 .zn-c{ top:50% !important; margin-top:-28px !important; height:56px !important; width:70px !important; border-radius:28px !important; }
 .zn-c::after{ opacity:.22 !important; }
 
@@ -643,3 +643,8 @@ body.app-mode:not(.sheet-open):not([data-zs=form]) #zcw{display:flex}
 #zch .t{padding:7px 14px;border-radius:999px;background:linear-gradient(135deg,#fdcc01,#ffa800);color:#2a0a52;font:700 .8rem Poppins,sans-serif;white-space:nowrap;box-shadow:0 8px 22px rgba(253,204,1,.35)}
 #zch svg{width:30px;height:38px;margin:2px 14px 0 0;filter:drop-shadow(0 4px 8px rgba(253,204,1,.35))}
 @keyframes zchb{50%{transform:translateY(5px)}}
+
+/* nav: Home is just the Zaicha logo (no word); the name stays for screen readers */
+.zn-bar > button.zn-home > span{ position:absolute !important; width:1px !important; height:1px !important; overflow:hidden !important; clip:rect(0 0 0 0) !important; white-space:nowrap !important; }
+.zn-bar > button.zn-home{ justify-content:center !important; gap:0 !important; }
+.zn-bar > button.zn-home svg.zn-logo{ width:40px !important; height:34px !important; }
