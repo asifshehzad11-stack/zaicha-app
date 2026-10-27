@@ -648,3 +648,23 @@ body.app-mode:not(.sheet-open):not([data-zs=form]) #zcw{display:flex}
 .zn-bar > button.zn-home > span{ position:absolute !important; width:1px !important; height:1px !important; overflow:hidden !important; clip:rect(0 0 0 0) !important; white-space:nowrap !important; }
 .zn-bar > button.zn-home{ justify-content:center !important; gap:0 !important; }
 .zn-bar > button.zn-home svg.zn-logo{ width:40px !important; height:34px !important; }
+
+/* birth form: gender (male / female) as two pill buttons, same height as the inputs */
+.zgen{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.zgen .zgen-o{ position:relative; display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:0 12px; border-radius:16px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.04); color:#d9d1ff; font-size:.95rem; cursor:pointer; text-transform:none !important; letter-spacing:normal !important; margin:0 !important; transition:border-color .2s, background .2s, color .2s; -webkit-tap-highlight-color:transparent; }
+.zgen .zgen-o input{ position:absolute; opacity:0; width:1px; height:1px; pointer-events:none; }
+.zgen-i{ font-size:1.05rem; line-height:1; opacity:.8; }
+.zgen .zgen-o.is-on{ border-color:var(--zg,#fdcc01); background:rgba(253,204,1,.12); color:#fff; box-shadow:0 0 0 1px rgba(253,204,1,.35) inset; }
+.zgen .zgen-o.is-on .zgen-i{ color:var(--zg,#fdcc01); opacity:1; }
+.zgen .zgen-o:has(input:focus-visible){ outline:2px solid var(--zg,#fdcc01); outline-offset:2px; }
+.zgen .zgen-o, .zgen .zgen-o span{ font-size:1rem !important; font-weight:500; }
+body.lang-ur .zgen .zgen-o span, body.lang-ar .zgen .zgen-o span{ font-size:1.1rem !important; }
+.zgen .zgen-o .zgen-i{ font-size:1.15rem !important; }
+
+/* Developer option (owner only) */
+#v2-menu-body .v2-menu-small{ -webkit-tap-highlight-color:transparent; user-select:none; padding:6px 0; }
+.zdev-pop{ text-align:start; }
+.zdev-pop .zdev-go{ display:block; width:100%; margin:12px 0 10px; padding:14px 16px; border-radius:16px; border:1px solid rgba(253,204,1,.5); background:rgba(253,204,1,.1); color:#fff; font:inherit; text-align:start; cursor:pointer; }
+.zdev-pop .zdev-go b{ display:block; font-size:1rem; color:#fdcc01; margin-bottom:4px; }
+.zdev-pop .zdev-go small{ display:block; font-size:.82rem; line-height:1.5; color:rgba(255,255,255,.75); }
+.zdev-pop .zdev-hide{ display:block; width:100%; padding:10px; border:0; background:none; color:rgba(255,255,255,.55); font:inherit; font-size:.85rem; text-decoration:underline; cursor:pointer; }

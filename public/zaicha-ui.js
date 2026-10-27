@@ -953,7 +953,7 @@
   function peopleLoad(){ try { var a = JSON.parse(localStorage.getItem(PEOPLE_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
   function peopleSave(a){ try { localStorage.setItem(PEOPLE_KEY, JSON.stringify(a.slice(0, 12))); } catch (e) {} }
   function val(id){ var el = document.getElementById(id); return el ? el.value : ''; }
-  function currentForm(){ return { name: val('in-name').trim(), dob: val('in-dob'), time: val('in-time'), city: val('in-city'), lat: val('in-lat'), lon: val('in-lon'), tz: val('in-tz'), off: val('in-offset'), ay: val('in-ayanamsa'), node: val('in-node-type') }; }
+  function currentForm(){ return { name: val('in-name').trim(), dob: val('in-dob'), time: val('in-time'), city: val('in-city'), lat: val('in-lat'), lon: val('in-lon'), tz: val('in-tz'), off: val('in-offset'), ay: val('in-ayanamsa'), node: val('in-node-type'), g: (window.zGetGender ? zGetGender() : '') }; }
   function pKey(p){ return [p.name, p.dob, p.time, (+p.lat).toFixed(3), (+p.lon).toFixed(3)].join('|'); }
   ZUI.rememberPerson = function(data){
     var p = currentForm(); if (!p.dob || !p.time || !p.lat || !p.lon) return;
@@ -966,7 +966,7 @@
     if (ZUI.closeSheets) ZUI.closeSheets();
     setV('in-name', p.name); setV('in-dob', p.dob); setV('in-time', p.time); setV('in-city', p.city); setV('in-lat', p.lat); setV('in-lon', p.lon); setV('in-tz', p.tz);
     if (typeof updateBirthOffset === 'function') updateBirthOffset();
-    if (p.off) setV('in-offset', p.off); if (p.ay) setV('in-ayanamsa', p.ay); if (p.node) setV('in-node-type', p.node);
+    if (p.off) setV('in-offset', p.off); if (p.ay) setV('in-ayanamsa', p.ay); if (p.node) setV('in-node-type', p.node); if (window.zSetGender) zSetGender(p.g || '');
     if (typeof updateCoordHint === 'function') updateCoordHint();
     try { window.loadedProfileId = null; } catch (e) {}
     closeMenu();

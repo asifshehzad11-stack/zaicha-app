@@ -708,6 +708,13 @@
           <label data-i18n="labelName">نام</label>
           <input type="text" id="in-name" placeholder="اپنا نام لکھیں" data-i18n-placeholder="placeholderName">
         </div>
+        <div class="field zgen-field">
+          <label id="in-gender-l" data-i18n="labelGender">Gender</label>
+          <div class="zgen" role="radiogroup" aria-labelledby="in-gender-l">
+            <label class="zgen-o"><input type="radio" name="in-gender" value="male"><span class="zgen-i" aria-hidden="true">♂</span><span data-i18n="genderMale">Male</span></label>
+            <label class="zgen-o"><input type="radio" name="in-gender" value="female"><span class="zgen-i" aria-hidden="true">♀</span><span data-i18n="genderFemale">Female</span></label>
+          </div>
+        </div>
         <div class="field zp-adv-move" id="v2-phone-field">
           <label data-i18n="labelPhone">فون نمبر (اختیاری — کنڈلی محفوظ رکھنے کے لیے)</label>
           <input type="text" id="in-phone" dir="ltr" placeholder="03xxxxxxxxx" data-i18n-placeholder="placeholderPhone">
@@ -2455,6 +2462,12 @@
     merge('hi', window.I18N_HI);
     var S8 = window.I18N_S8 || {};
     LANGS.forEach(function(l){ merge(l, S8[l]); });
+    merge('en', { labelGender: 'Gender', genderMale: 'Male', genderFemale: 'Female' });
+    merge('ur', { labelGender: 'جنس', genderMale: 'مرد', genderFemale: 'عورت' });
+    merge('hi', { labelGender: 'लिंग', genderMale: 'पुरुष', genderFemale: 'महिला' });
+    merge('ar', { labelGender: 'الجنس', genderMale: 'ذكر', genderFemale: 'أنثى' });
+    merge('zh', { labelGender: '性别', genderMale: '男', genderFemale: '女' });
+    merge('bn', { labelGender: 'লিঙ্গ', genderMale: 'পুরুষ', genderFemale: 'মহিলা' });
     merge('en', { langUpdateFailed: 'Could not refresh the written text in this language right now. Labels are updated; try switching the language again in a minute.' });
     merge('ur', { langUpdateFailed: 'اس وقت تحریری متن اس زبان میں تازہ نہیں ہو سکا۔ لیبل بدل گئے ہیں؛ ایک منٹ بعد زبان دوبارہ منتخب کریں۔' });
     merge('hi', { langUpdateFailed: 'अभी लिखित पाठ इस भाषा में अपडेट नहीं हो सका। लेबल बदल गए हैं; एक मिनट बाद भाषा दोबारा चुनें।' });
@@ -3410,6 +3423,13 @@
     11: { signPos:{x:240,y:79},  slots:[{x:276,y:50},{x:276,y:66},{x:276,y:82},{x:276,y:98},{x:276,y:114},{x:276,y:34}] },
     12: { signPos:{x:225,y:66},  slots:[{x:205,y:20},{x:245,y:20},{x:210,y:36},{x:240,y:36},{x:225,y:51},{x:225,y:51}] }
   };
+
+  // Gender (male/female) on the birth form: optional, saved with the person and sent with the chart request.
+  function getGender(){ var r = document.querySelector('input[name="in-gender"]:checked'); return r ? r.value : ''; }
+  function paintGender(){ [].forEach.call(document.querySelectorAll('input[name="in-gender"]'), function(r){ if (r.parentNode) r.parentNode.classList.toggle('is-on', r.checked); }); }
+  function setGender(g){ [].forEach.call(document.querySelectorAll('input[name="in-gender"]'), function(r){ r.checked = (r.value === g); }); paintGender(); }
+  window.zGetGender = getGender; window.zSetGender = setGender;
+  [].forEach.call(document.querySelectorAll('input[name="in-gender"]'), function(r){ r.addEventListener('change', function(){ paintGender(); try { loadedProfileId = null; } catch (e) {} }); });
 
   async function fetchChartData(person){
     var res = await fetch('/api/kundli', {
@@ -5034,6 +5054,7 @@
   document.getElementById('fill-demo-link').addEventListener('click', function(e){
     e.preventDefault();
     document.getElementById('in-name').value = tr('demoName');
+    setGender('female');
     document.getElementById('in-dob').value = '1994-03-14';
     document.getElementById('in-time').value = '06:45';
     document.getElementById('in-city').value = 'Lahore, Pakistan';
@@ -5271,7 +5292,8 @@
             ayanamsa: parseInt(document.getElementById('in-ayanamsa').value, 10) || 1,
             phone: document.getElementById('in-phone').value.trim() || undefined,
             lang: currentLang,
-            nodeType: nodeType
+            nodeType: nodeType,
+            gender: getGender() || undefined
           };
       var data = await fetchChartData(person);
       if (data.profileId) loadedProfileId = data.profileId;
@@ -5458,6 +5480,7 @@
     }
     if (opts.clear) {
       ['in-name', 'in-dob', 'in-time', 'in-city', 'in-lat', 'in-lon', 'in-tz'].forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+      setGender('');
       loadedProfileId = null;
       if (typeof updateCoordHint === 'function') updateCoordHint();
     }
@@ -6432,6 +6455,7 @@
     x.innerHTML='<button type="button" class="v2-menu-item zx" data-zx="lang"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></i>'+E(T.language)+'<em>'+E(NATIVE[lg]||'')+'</em></button>'+
       '<button type="button" class="v2-menu-item zx" data-zx="settings"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></i>'+E(T.settings)+'</button>';
     var secs=body.querySelectorAll('.v2-menu-sec'); body.insertBefore(x,secs[0]||null);
+    if(window.__zdev) window.__zdev.decorate(body,x);
   }
   var busy=false;
   new MutationObserver(function(){ if(busy) return; busy=true; setTimeout(function(){ try{ decorate(false); }catch(e){} busy=false; },30); }).observe(body,{childList:true});
@@ -6442,6 +6466,69 @@
       else { var pf=body.querySelector('[data-act="profile"]'); if(pf) pf.click(); } }
   },true);
   decorate(false);
+})();
+
+/* ---- Developer option (owner only): hidden until the small engine/version line at the bottom of Profile is tapped 7 times on this phone.
+   "Open app with demo chart" makes the Ayesha Raza demo chart from the live engine and opens the whole app,
+   without adding it to Recent charts. ---- */
+(function(){
+  var D={
+   en:{dev:'Developer',devSub:'Preview the app',open:'Open app with demo chart',openD:'Makes the demo chart (Ayesha Raza) and opens every screen. Not saved to Recent charts.',hide:'Hide developer option',on:'Developer option unlocked',more:'more taps to unlock developer option',off:'Developer option hidden',wait:'Making the demo chart…'},
+   ur:{dev:'ڈیولپر',devSub:'ایپ کا جائزہ',open:'ڈیمو زائچے کے ساتھ ایپ کھولیں',openD:'ڈیمو زائچہ (عائشہ رضا) بنا کر ہر اسکرین کھولتا ہے۔ حالیہ زائچوں میں محفوظ نہیں ہوتا۔',hide:'ڈیولپر آپشن چھپائیں',on:'ڈیولپر آپشن کھل گیا',more:'مزید ٹیپ — ڈیولپر آپشن کھولنے کے لیے',off:'ڈیولپر آپشن چھپا دیا گیا',wait:'ڈیمو زائچہ بن رہا ہے…'},
+   hi:{dev:'डेवलपर',devSub:'ऐप देखें',open:'डेमो कुंडली के साथ ऐप खोलें',openD:'डेमो कुंडली (आयशा रज़ा) बनाकर हर स्क्रीन खोलता है। हाल की कुंडलियों में सेव नहीं होती।',hide:'डेवलपर विकल्प छिपाएँ',on:'डेवलपर विकल्प खुल गया',more:'और टैप — डेवलपर विकल्प खोलने के लिए',off:'डेवलपर विकल्प छिपा दिया',wait:'डेमो कुंडली बन रही है…'},
+   ar:{dev:'المطوّر',devSub:'معاينة التطبيق',open:'افتح التطبيق بخريطة تجريبية',openD:'ينشئ الخريطة التجريبية (عائشة رضا) ويفتح كل الشاشات. لا تُحفظ في الخرائط الأخيرة.',hide:'إخفاء خيار المطوّر',on:'تم فتح خيار المطوّر',more:'نقرات أخرى لفتح خيار المطوّر',off:'تم إخفاء خيار المطوّر',wait:'جارٍ إنشاء الخريطة التجريبية…'},
+   zh:{dev:'开发者',devSub:'预览应用',open:'用示例命盘打开应用',openD:'生成示例命盘（Ayesha Raza）并打开所有页面，不会保存到最近命盘。',hide:'隐藏开发者选项',on:'已开启开发者选项',more:'次点按即可开启开发者选项',off:'已隐藏开发者选项',wait:'正在生成示例命盘…'},
+   bn:{dev:'ডেভেলপার',devSub:'অ্যাপ দেখুন',open:'ডেমো কুণ্ডলী দিয়ে অ্যাপ খুলুন',openD:'ডেমো কুণ্ডলী (আয়েশা রাজা) তৈরি করে সব স্ক্রিন খোলে। সাম্প্রতিক কুণ্ডলীতে সংরক্ষিত হয় না।',hide:'ডেভেলপার অপশন লুকান',on:'ডেভেলপার অপশন চালু হয়েছে',more:'বার ট্যাপ করলে ডেভেলপার অপশন চালু হবে',off:'ডেভেলপার অপশন লুকানো হয়েছে',wait:'ডেমো কুণ্ডলী তৈরি হচ্ছে…'}
+  };
+  function T(){ return D[(document.documentElement.lang||'en').slice(0,2)]||D.en; }
+  function on(){ try{ return localStorage.getItem('zaicha.dev')==='1'; }catch(e){ return false; } }
+  function setOn(v){ try{ if(v) localStorage.setItem('zaicha.dev','1'); else localStorage.removeItem('zaicha.dev'); }catch(e){} }
+  function toast(m){ if(window.ZUI&&ZUI.toast) ZUI.toast(m); }
+  function E(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var ICON='<svg viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>';
+  var taps=0, tapT=0;
+  function decorate(body, sec){
+    var t=T();
+    var old=body.querySelector('.zdev-row'); if(old) old.remove();
+    if(on()&&sec){ var b=document.createElement('button'); b.type='button'; b.className='v2-menu-item zx zdev-row'; b.setAttribute('data-zdev','1');
+      b.innerHTML='<i>'+ICON+'</i>'+E(t.dev)+'<em>'+E(t.devSub)+'</em>'; sec.appendChild(b); }
+  }
+  function panel(){
+    var t=T(), old=document.getElementById('zdev-pop'); if(old) old.remove();
+    var d=document.createElement('div'); d.id='zdev-pop'; d.className='ztl-scrim';
+    d.innerHTML='<div class="ztl-pop zdev-pop"><button type="button" class="ztl-x" aria-label="Close">×</button><h3></h3>'+
+      '<button type="button" class="zdev-go"><b></b><small></small></button><button type="button" class="zdev-hide"></button></div>';
+    d.querySelector('h3').textContent=t.dev; d.querySelector('.zdev-go b').textContent=t.open; d.querySelector('.zdev-go small').textContent=t.openD; d.querySelector('.zdev-hide').textContent=t.hide;
+    d.addEventListener('click',function(e){
+      if(e.target===d||e.target.closest('.ztl-x')) return d.remove();
+      if(e.target.closest('.zdev-hide')){ setOn(false); d.remove(); toast(t.off); refresh(); return; }
+      if(e.target.closest('.zdev-go')){ d.remove(); openDemo(); }
+    });
+    document.body.appendChild(d);
+  }
+  function refresh(){ var body=document.getElementById('v2-menu-body'); var sec=body&&body.querySelector('.zpf-x'); if(body) decorate(body,sec); }
+  function openDemo(){
+    if(window.ZUI&&ZUI.closeSheets) ZUI.closeSheets();
+    var link=document.getElementById('fill-demo-link'), btn=document.getElementById('generate-btn'); if(!link||!btn) return;
+    link.click();
+    // this run must not land in Recent charts
+    if(window.ZUI&&ZUI.rememberPerson&&!ZUI.__devWrap){ var orig=ZUI.rememberPerson; ZUI.__devWrap=1; ZUI.rememberPerson=function(){ if(window.__zdevSkip){ window.__zdevSkip=false; return; } return orig.apply(ZUI,arguments); }; }
+    window.__zdevSkip=true; setTimeout(function(){ window.__zdevSkip=false; },120000);
+    toast(T().wait);
+    btn.click();
+  }
+  document.addEventListener('click',function(e){
+    var v=e.target.closest&&e.target.closest('#v2-menu-body .v2-menu-small');
+    if(v){ e.preventDefault(); e.stopPropagation(); var now=Date.now(); if(now-tapT>1500) taps=0; tapT=now; taps++;
+      if(on()){ if(taps===1) toast(T().on); return; }
+      if(taps>=7){ taps=0; setOn(true); toast(T().on); refresh(); }
+      else if(taps>=3){ toast((7-taps)+' '+T().more); }
+      return; }
+    var r=e.target.closest&&e.target.closest('[data-zdev]');
+    if(r){ e.preventDefault(); e.stopPropagation(); panel(); }
+  },true);
+  window.__zdev={ decorate:decorate };
+  setTimeout(refresh,0);
 })();
 
 /* ---- tools panel: compact Milan + info popup + more-tools sheet ---- */
