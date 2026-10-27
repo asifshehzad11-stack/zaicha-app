@@ -215,7 +215,7 @@ body.app-mode .zq{ display:none; }
 .zn-bar > button[data-zb]{ justify-content:center !important; gap:4px !important; padding:0 !important; height:100% !important; line-height:1; }
 .zn-bar > button[data-zb] span{ display:block; line-height:1; font-size:.68rem; }
 .zn-bar > button[data-zb] svg{ width:24px !important; height:24px !important; flex:none; }
-.zn-bar > button.zn-home svg.zn-logo{ width:30px !important; height:24px !important; }
+.zn-bar > button.zn-home svg.zn-logo{ width:38px !important; height:31px !important; }   /* logo-only centre button (no "Home" label) */
 .zn-c{ top:50% !important; margin-top:-28px !important; height:56px !important; width:70px !important; border-radius:28px !important; }
 .zn-c::after{ opacity:.22 !important; }
 
