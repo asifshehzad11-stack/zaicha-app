@@ -3432,6 +3432,12 @@
   [].forEach.call(document.querySelectorAll('input[name="in-gender"]'), function(r){ r.addEventListener('change', function(){ paintGender(); try { loadedProfileId = null; } catch (e) {} }); });
 
   async function fetchChartData(person){
+    if (window.__zdevOffline) {               // Developer offline tester: stored sample data, no engine call
+      var dl = LANGS.indexOf(person.lang) !== -1 ? person.lang : 'en', dr;
+      try { dr = await fetch('/dev/demo-' + dl + '.json'); } catch (e) { dr = null; }
+      if (!dr || !dr.ok) dr = await fetch('/dev/demo-en.json');
+      var dj = await dr.json(); dj.lang = person.lang || dj.lang; return dj;
+    }
     var res = await fetch('/api/kundli', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -4143,7 +4149,7 @@
     var combinedList = document.getElementById('transit-combined-list');
     var combined = data.transitCombined || [];
     combinedList.innerHTML = combined.length ? combined.map(function(c){
-      return '<div class="pred-card icon-card"><span class="icon-card-badge" style="--_c:' + planetColorVar(c.planet) + '">' + (PLANET_EMOJI[c.planet] || '✦') + '</span><div class="icon-card-body">' +
+      return '<div class="pred-card icon-card ztg-card" data-planet="' + esc(c.planet) + '" role="button" tabindex="0"><span class="icon-card-badge" style="--_c:' + planetColorVar(c.planet) + '">' + (PLANET_EMOJI[c.planet] || '✦') + '</span><div class="icon-card-body">' +
         '<span class="tag">' + esc(PN(c.planet)) + (c.house ? ' · ' + esc(tr('houseN', { n: c.house })) : '') + '</span><p>' + esc(c.transitText) + '</p>' +
         (c.aspects || []).map(function(a){ return '<p class="muted" style="margin:.3rem 0 0;font-size:.84rem">↳ ' + esc(a.text) + '</p>'; }).join('') + '</div></div>';
     }).join('') : '<div class="placeholder">' + esc(tr('waitingData')) + '</div>';
@@ -5474,6 +5480,7 @@
   function showEntryForm(opts){
     opts = opts || {};
     if (window.ZUI && ZUI.closeSheets) ZUI.closeSheets();
+    if ((opts.reset || opts.clear) && window.__zdev && window.__zdev.exit) window.__zdev.exit();   // leaving the offline tester
     if (opts.reset) {                       // Close chart: forget the chart completely
       lastZaichaData = null;
       if (window.ZUI) { try { ZUI.current = null; } catch (e) {} }
@@ -6400,6 +6407,7 @@
     el.innerHTML='<div class="zdm-c"><div class="zdm-h"><span class="zdm-b">'+(bd?bd.innerHTML:'')+'</span><h3></h3><button type="button" class="zdm-x" aria-label="Close">✕</button></div></div>';
     el.querySelector('h3').textContent=tag?(tag.getAttribute('data-full')||tag.textContent):'';
     var box=el.firstChild; ps.forEach(function(p){ var q=document.createElement('p'); q.textContent=p.textContent; if(p.classList.contains('daily-basis')) q.className='daily-basis'; box.appendChild(q); });
+    if(window.ZTGui){ try{ ZTGui.enrich(box, c.getAttribute('data-topic')); }catch(x){ console.warn('guide',x); } }
     document.body.appendChild(el); document.documentElement.classList.add('zl-lock');
     function close(){ el.remove(); document.documentElement.classList.remove('zl-lock'); }
     el.addEventListener('click',function(ev){ if(ev.target===el||ev.target.closest('.zdm-x')) close(); });
@@ -6468,17 +6476,107 @@
   decorate(false);
 })();
 
+
+/* ---- AstroMatrix-style phase guide: duration, verdict, plain explanation, opportunities, challenges,
+   affirmation and classical source, for the daily cards (mood = Moon; topics = lord of that house) and for
+   each planet transit card. Content: content/transit/*.js -> /tg/<lang>.js (Brihat Samhita ch. 104),
+   houses counted from the natal Moon sign as in the classical texts. ---- */
+(function(){
+  var U={
+   en:{gen:'Classical transit results are general; your dasha and the strength of your own chart change how strongly they are felt (Brihat Samhita 104.46).',dur:'Duration of this phase',since:'Since',until:'until',left:'left',d:'d',h:'h',m:'min',good:'Favourable',mixed:'Mixed',bad:'Challenging',simple:'In simple words',opp:'Opportunities',chal:'Challenges',aff:'Affirmation',src:'Classical source',from:'from your Moon sign',bs:'Brihat Samhita (Varahamihira) ch. 104, v.',conv:'Rahu and Ketu are not covered in Brihat Samhita; this follows the later convention (good in 3, 6, 11).',topic:'{t} ({h} house) is ruled by {p}. {p} is now passing through the {n} house from your Moon sign.',enOnly:'Detailed guidance is in English for now.',approx:'Node dates are approximate.',loading:'Loading guidance…',ord:function(n){return n+(n%10==1&&n!=11?'st':n%10==2&&n!=12?'nd':n%10==3&&n!=13?'rd':'th');},place:function(p,n){return p+' · '+U.en.ord(n)+' house from your Moon sign';}},
+   ur:{gen:'کلاسیکی گوچر نتائج عمومی ہیں؛ آپ کی دشا اور اپنے زائچے کی طاقت طے کرتی ہے کہ یہ کتنی شدت سے محسوس ہوں گے (برہت سمہتا ۱۰۴:۴۶)۔',dur:'اس مرحلے کی مدت',since:'آغاز',until:'اختتام',left:'باقی',d:'دن',h:'گھنٹے',m:'منٹ',good:'سازگار',mixed:'ملا جلا',bad:'مشکل',simple:'آسان الفاظ میں',opp:'مواقع',chal:'چیلنج',aff:'مثبت عزم',src:'کلاسیکی ماخذ',from:'آپ کے چاند کے برج سے',bs:'برہت سمہتا (وراہ مہر) باب ۱۰۴، شعر',conv:'برہت سمہتا میں راہو کیتو کا ذکر نہیں؛ یہ بعد کی عام روایت ہے (۳، ۶، ۱۱ میں اچھے)۔',topic:'{t} ({h} گھر) کا مالک {p} ہے۔ {p} اس وقت آپ کے چاند کے برج سے {n} گھر سے گزر رہا ہے۔',enOnly:'تفصیلی رہنمائی ابھی انگریزی میں ہے۔',approx:'راہو کیتو کی تاریخیں تخمینی ہیں۔',loading:'رہنمائی لوڈ ہو رہی ہے…',ord:function(n){return ['','پہلے','دوسرے','تیسرے','چوتھے','پانچویں','چھٹے','ساتویں','آٹھویں','نویں','دسویں','گیارہویں','بارہویں'][n]||n;},ordD:function(n){return ['','پہلا','دوسرا','تیسرا','چوتھا','پانچواں','چھٹا','ساتواں','آٹھواں','نواں','دسواں','گیارہواں','بارہواں'][n]||n;},place:function(p,n){return p+' · آپ کے چاند کے برج سے '+(['','پہلا','دوسرا','تیسرا','چوتھا','پانچواں','چھٹا','ساتواں','آٹھواں','نواں','دسواں','گیارہواں','بارہواں'][n]||n)+' گھر';},q:['«','»']},
+   hi:{gen:'शास्त्रीय गोचर फल सामान्य हैं; आपकी दशा और कुंडली की शक्ति तय करती है कि ये कितने तीव्र होंगे (बृहत् संहिता 104.46)।',dur:'इस चरण की अवधि',since:'शुरू',until:'तक',left:'बाकी',d:'दिन',h:'घंटे',m:'मिनट',good:'अनुकूल',mixed:'मिला-जुला',bad:'चुनौतीपूर्ण',simple:'आसान शब्दों में',opp:'अवसर',chal:'चुनौतियाँ',aff:'सकारात्मक संकल्प',src:'शास्त्रीय स्रोत',from:'आपकी चंद्र राशि से',bs:'बृहत् संहिता (वराहमिहिर) अध्याय 104, श्लोक',conv:'बृहत् संहिता में राहु-केतु नहीं हैं; यह बाद की परंपरा है (3, 6, 11 में शुभ)।',topic:'{t} ({h} भाव) का स्वामी {p} है। {p} अभी आपकी चंद्र राशि से {n} भाव से गुज़र रहा है।',enOnly:'विस्तृत मार्गदर्शन अभी अंग्रेज़ी में है।',approx:'राहु-केतु की तिथियाँ अनुमानित हैं।',loading:'मार्गदर्शन लोड हो रहा है…',ord:function(n){return n+'वें';},place:function(p,n){return p+' · आपकी चंद्र राशि से '+n+'वाँ भाव';}},
+   ar:{gen:'نتائج العبور الكلاسيكية عامة؛ فترتك (الداشا) وقوة خريطتك تحددان مدى شعورك بها (بريهات سامهيتا 104.46).',dur:'مدة هذه المرحلة',since:'من',until:'حتى',left:'متبقٍ',d:'يوم',h:'ساعة',m:'دقيقة',good:'مواتية',mixed:'مختلطة',bad:'صعبة',simple:'بكلمات بسيطة',opp:'الفرص',chal:'التحديات',aff:'عبارة إيجابية',src:'المصدر الكلاسيكي',from:'من برج قمرك',bs:'بريهات سامهيتا (فاراهاميهيرا) الفصل 104، البيت',conv:'لا يذكر بريهات سامهيتا راهو وكيتو؛ هذا وفق العرف اللاحق (جيدان في 3 و6 و11).',topic:'{t} (البيت {h}) يحكمه {p}. يمر {p} الآن بالبيت {n} من برج قمرك.',enOnly:'الإرشاد التفصيلي بالإنجليزية حاليًا.',approx:'تواريخ العقدتين تقريبية.',loading:'جارٍ تحميل الإرشاد…',ord:function(n){return n;},place:function(p,n){return p+' · البيت '+n+' من برج قمرك';},q:['«','»']},
+   zh:{gen:'古典行运结论为一般性论断；您的大运与本命盘强弱决定其影响程度（《广集》104.46）。',dur:'此阶段的时长',since:'自',until:'至',left:'剩余',d:'天',h:'小时',m:'分钟',good:'有利',mixed:'吉凶参半',bad:'有挑战',simple:'简单来说',opp:'机会',chal:'挑战',aff:'肯定语',src:'古典出处',from:'从您的月亮星座起算',bs:'《广集》(伐罗诃密希罗)第104章，第',conv:'《广集》未论罗睺与计都；此处依后世惯例（3、6、11宫为吉）。',topic:'{t}（第{h}宫）由{p}主管。{p}目前行经从您月亮星座起算的第{n}宫。',enOnly:'详细指导暂以英文提供。',approx:'罗睺/计都日期为近似值。',loading:'正在加载…',ord:function(n){return n;},place:function(p,n){return p+' · 从月亮星座起算第'+n+'宫';},q:['「','」']},
+   bn:{gen:'শাস্ত্রীয় গোচর ফল সাধারণ; আপনার দশা ও কুণ্ডলীর শক্তি ঠিক করে এগুলো কতটা অনুভূত হবে (বৃহৎ সংহিতা 104.46)।',dur:'এই পর্যায়ের সময়কাল',since:'শুরু',until:'পর্যন্ত',left:'বাকি',d:'দিন',h:'ঘণ্টা',m:'মিনিট',good:'অনুকূল',mixed:'মিশ্র',bad:'চ্যালেঞ্জিং',simple:'সহজ কথায়',opp:'সুযোগ',chal:'চ্যালেঞ্জ',aff:'ইতিবাচক সংকল্প',src:'শাস্ত্রীয় উৎস',from:'আপনার চন্দ্র রাশি থেকে',bs:'বৃহৎ সংহিতা (বরাহমিহির) অধ্যায় 104, শ্লোক',conv:'বৃহৎ সংহিতায় রাহু-কেতু নেই; এটি পরবর্তী প্রথা (3, 6, 11-এ শুভ)।',topic:'{t} ({h} ভাব)-এর অধিপতি {p}। {p} এখন আপনার চন্দ্র রাশি থেকে {n} ভাবে আছে।',enOnly:'বিস্তারিত নির্দেশনা আপাতত ইংরেজিতে।',approx:'রাহু-কেতুর তারিখ আনুমানিক।',loading:'লোড হচ্ছে…',ord:function(n){return n;},place:function(p,n){return p+' · চন্দ্র রাশি থেকে '+n+' নম্বর ভাব';}}
+  };
+  var LOCALE={en:'en-GB',ur:'ur-PK',hi:'hi-IN',ar:'ar',zh:'zh-CN',bn:'bn-BD'};
+  var TOPIC_HOUSE={career:10,wealth:2,health:1,relationships:7,family:4};
+  function lang(){ return (document.documentElement.lang||'en').slice(0,2); }
+  function L(){ return U[lang()]||U.en; }
+  function E(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmt(t,v){ return t.replace(/\{(\w)\}/g,function(m,k){ return v[k]!=null?v[k]:''; }); }
+  function female(){ try{ var p=(window.ZUI&&ZUI.current)||null; if(p&&p.g) return p.g==='female'; return window.zGetGender&&zGetGender()==='female'; }catch(e){ return false; } }
+  function gender(t,l){ if(!female()) return t; if(l==='ur') return t.replace(/تا ہوں/g,'تی ہوں').replace(/تا رہتا ہوں/g,'تی رہتی ہوں').replace(/رہتا ہوں/g,'رہتی ہوں').replace(/ہوا ہوں/g,'ہوئی ہوں'); if(l==='hi') return t.replace(/ता हूँ/g,'ती हूँ'); return t; }
+  var loaded={}, waiting={};
+  var AVAIL=['en','ur'];   // languages whose guide text is written so far (others show English)
+  function load(l){ if(AVAIL.indexOf(l)===-1) return Promise.resolve(null); if(window.ZTG&&ZTG[l]) return Promise.resolve(ZTG[l]); if(loaded[l]===false) return Promise.resolve(null);
+    if(!waiting[l]) waiting[l]=new Promise(function(res){ var sc=document.createElement('script'); sc.src='/tg/'+l+'.js?v=2'; sc.onload=function(){ res(window.ZTG&&ZTG[l]||null); }; sc.onerror=function(){ loaded[l]=false; res(null); }; document.head.appendChild(sc); });
+    return waiting[l]; }
+  function data(){ try{ return window.lastZaichaData||null; }catch(e){ return null; } }
+  function houseFromMoon(d,planet){ var g=d&&d.gochar&&d.gochar.details&&d.gochar.details[planet]; var m=d&&d.natal&&d.natal.moonRasiId; if(!g||typeof g.rasiId!=='number'||typeof m!=='number') return null; return ((g.rasiId-m+12)%12)+1; }
+  function pn(p){ try{ return (typeof PN==='function')?PN(p):p; }catch(e){ return p; } }
+  function span(ms){ var t=L(), d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5), m=Math.floor(ms%36e5/6e4);
+    if(d>=60){ var mo=Math.round(d/30.44); return mo+' '+({en:'months',ur:'ماہ',hi:'महीने',ar:'شهر',zh:'个月',bn:'মাস'}[lang()]||'months'); }
+    if(d>0) return d+' '+t.d+(h?' '+h+' '+t.h:''); if(h>0) return h+' '+t.h+(m?' '+m+' '+t.m:''); return m+' '+t.m; }
+  function dt(iso,withTime){ try{ var o={day:'numeric',month:'short',year:'numeric'}; if(withTime){ o.hour='numeric'; o.minute='2-digit'; } return new Intl.DateTimeFormat(LOCALE[lang()]||'en-GB',o).format(new Date(iso)); }catch(e){ return iso.slice(0,10); } }
+  function durationHtml(planet,d){ var w=d&&d.transitWindows&&d.transitWindows[planet]; if(!w||!w.start||!w.end) return ''; var t=L();
+    var s=new Date(w.start).getTime(), e=new Date(w.end).getTime(), now=Date.now(); var pct=Math.max(0,Math.min(100,(now-s)/(e-s)*100));
+    var withTime=planet==='Moon';
+    return '<div class="ztg-dur"><div class="ztg-dl"><b>'+E(t.dur)+'</b><span>'+E(span(Math.max(0,e-now)))+' '+E(t.left)+'</span></div>'+
+      '<div class="ztg-bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+
+      '<div class="ztg-dd"><span>'+E(t.since)+' '+E(dt(w.start,withTime))+'</span><span>'+E(t.until)+' '+E(dt(w.end,withTime))+'</span></div>'+
+      ((planet==='Rahu'||planet==='Ketu')?'<div class="ztg-note">'+E(t.approx)+'</div>':'')+'</div>'; }
+  function guideHtml(planet,house,entry,isEn){ var t=L(), l=lang();
+    if(!entry) return '';
+    var v=entry.v||'mixed';
+    var h='<div class="ztg-vr"><span class="ztg-v ztg-'+v+'">'+E(t[v]||v)+'</span><span class="ztg-pl">'+E((t.place||U.en.place)(pn(planet),house))+'</span></div>';
+    h+='<h4>'+E(t.simple)+'</h4><p>'+E(entry.x)+'</p>';
+    h+='<div class="ztg-cols"><div class="ztg-o"><h4>'+E(t.opp)+'</h4><ul>'+(entry.o||[]).map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul></div>'+
+       '<div class="ztg-c"><h4>'+E(t.chal)+'</h4><ul>'+(entry.c||[]).map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul></div></div>';
+    var qq=(!isEn&&t.q)||['“','”']; h+='<div class="ztg-aff"><h4>'+E(t.aff)+'</h4><p>'+qq[0]+E(gender(entry.a,isEn?'en':l))+qq[1]+'</p></div>';
+    var vn=String(entry.r||'').replace(/^104\./,''); if(l==='ur'&&!isEn) vn=vn.replace(/[0-9]/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d];});
+    var src=(planet==='Rahu'||planet==='Ketu')?E(t.conv):E(t.bs)+' '+E(vn)+' — '+E(entry.k);
+    h+='<p class="ztg-src"><b>'+E(t.src)+':</b> '+src+'<br>'+E(t.gen)+'</p>';
+    if(isEn&&l!=='en') h+='<p class="ztg-src">'+E(t.enOnly)+'</p>';
+    return h; }
+  function fill(slot,planet,intro){
+    var d=data(); if(!d) return; var house=houseFromMoon(d,planet); if(!house) return;
+    var l=lang(), t=L();
+    slot.innerHTML=(intro?'<p class="ztg-intro">'+E(intro)+'</p>':'')+durationHtml(planet,d)+'<p class="ztg-load">'+E(t.loading)+'</p>';
+    load(l).then(function(G){ var entry=G&&G[planet]&&G[planet][house], isEn=false;
+      if(entry) return [entry,false]; return load('en').then(function(GE){ return [GE&&GE[planet]&&GE[planet][house], true]; }); })
+    .then(function(r){ var ld=slot.querySelector('.ztg-load'); if(ld) ld.remove(); if(!r||!r[0]) return; slot.insertAdjacentHTML('beforeend',guideHtml(planet,house,r[0],r[1])); });
+  }
+  function enrich(box,topic){
+    var d=data(); if(!d||!topic) return;
+    var slot=document.createElement('div'); slot.className='ztg'; box.appendChild(slot);
+    if(topic==='mood'){ fill(slot,'Moon'); return; }
+    var hn=TOPIC_HOUSE[topic]; var hd=hn&&d.houses&&d.houses[hn-1]; var lord=hd&&(hd.lordLatin||hd.lord); if(!lord) return;
+    var cat=(d.dailyRoutine&&d.dailyRoutine.categories||[]).filter(function(c){return c.key===topic;})[0];
+    var hm=houseFromMoon(d,lord); var t=L();
+    var intro=fmt(t.topic,{t:(cat&&cat.label)||topic,h:(t.ordD||t.ord)(hn),p:pn(lord),n:t.ord(hm||0)});
+    fill(slot,lord,intro);
+  }
+  function openPlanet(planet,card){
+    var old=document.getElementById('zdm'); if(old) old.remove();
+    var el=document.createElement('div'); el.id='zdm'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+    var bd=card&&card.querySelector('.icon-card-badge'); var tag=card&&card.querySelector('.tag');
+    el.style.setProperty('--tc','#C3B4FF');
+    el.innerHTML='<div class="zdm-c"><div class="zdm-h"><span class="zdm-b">'+(bd?E(bd.textContent):'✦')+'</span><h3></h3><button type="button" class="zdm-x" aria-label="Close">✕</button></div></div>';
+    el.querySelector('h3').textContent=tag?tag.textContent:pn(planet);
+    var box=el.firstChild; var p=card&&card.querySelector('.icon-card-body > p'); if(p){ var q=document.createElement('p'); q.textContent=p.textContent; box.appendChild(q); }
+    var slot=document.createElement('div'); slot.className='ztg'; box.appendChild(slot); fill(slot,planet);
+    document.body.appendChild(el); document.documentElement.classList.add('zl-lock');
+    function close(){ el.remove(); document.documentElement.classList.remove('zl-lock'); }
+    el.addEventListener('click',function(ev){ if(ev.target===el||ev.target.closest('.zdm-x')) close(); });
+  }
+  document.addEventListener('click',function(e){ var c=e.target.closest&&e.target.closest('.ztg-card[data-planet]'); if(!c) return; e.preventDefault(); openPlanet(c.getAttribute('data-planet'),c); },true);
+  document.addEventListener('keydown',function(e){ if(e.key!=='Enter') return; var c=e.target.closest&&e.target.closest('.ztg-card[data-planet]'); if(c) openPlanet(c.getAttribute('data-planet'),c); });
+  window.ZTGui={ enrich:enrich, openPlanet:openPlanet };
+})();
+
 /* ---- Developer option (owner only): hidden until the small engine/version line at the bottom of Profile is tapped 7 times on this phone.
    "Open app with demo chart" makes the Ayesha Raza demo chart from the live engine and opens the whole app,
    without adding it to Recent charts. ---- */
 (function(){
   var D={
-   en:{dev:'Developer',devSub:'Preview the app',open:'Open app with demo chart',openD:'Makes the demo chart (Ayesha Raza) and opens every screen. Not saved to Recent charts.',hide:'Hide developer option',on:'Developer option unlocked',more:'more taps to unlock developer option',off:'Developer option hidden',wait:'Making the demo chart…'},
-   ur:{dev:'ڈیولپر',devSub:'ایپ کا جائزہ',open:'ڈیمو زائچے کے ساتھ ایپ کھولیں',openD:'ڈیمو زائچہ (عائشہ رضا) بنا کر ہر اسکرین کھولتا ہے۔ حالیہ زائچوں میں محفوظ نہیں ہوتا۔',hide:'ڈیولپر آپشن چھپائیں',on:'ڈیولپر آپشن کھل گیا',more:'مزید ٹیپ — ڈیولپر آپشن کھولنے کے لیے',off:'ڈیولپر آپشن چھپا دیا گیا',wait:'ڈیمو زائچہ بن رہا ہے…'},
-   hi:{dev:'डेवलपर',devSub:'ऐप देखें',open:'डेमो कुंडली के साथ ऐप खोलें',openD:'डेमो कुंडली (आयशा रज़ा) बनाकर हर स्क्रीन खोलता है। हाल की कुंडलियों में सेव नहीं होती।',hide:'डेवलपर विकल्प छिपाएँ',on:'डेवलपर विकल्प खुल गया',more:'और टैप — डेवलपर विकल्प खोलने के लिए',off:'डेवलपर विकल्प छिपा दिया',wait:'डेमो कुंडली बन रही है…'},
-   ar:{dev:'المطوّر',devSub:'معاينة التطبيق',open:'افتح التطبيق بخريطة تجريبية',openD:'ينشئ الخريطة التجريبية (عائشة رضا) ويفتح كل الشاشات. لا تُحفظ في الخرائط الأخيرة.',hide:'إخفاء خيار المطوّر',on:'تم فتح خيار المطوّر',more:'نقرات أخرى لفتح خيار المطوّر',off:'تم إخفاء خيار المطوّر',wait:'جارٍ إنشاء الخريطة التجريبية…'},
-   zh:{dev:'开发者',devSub:'预览应用',open:'用示例命盘打开应用',openD:'生成示例命盘（Ayesha Raza）并打开所有页面，不会保存到最近命盘。',hide:'隐藏开发者选项',on:'已开启开发者选项',more:'次点按即可开启开发者选项',off:'已隐藏开发者选项',wait:'正在生成示例命盘…'},
-   bn:{dev:'ডেভেলপার',devSub:'অ্যাপ দেখুন',open:'ডেমো কুণ্ডলী দিয়ে অ্যাপ খুলুন',openD:'ডেমো কুণ্ডলী (আয়েশা রাজা) তৈরি করে সব স্ক্রিন খোলে। সাম্প্রতিক কুণ্ডলীতে সংরক্ষিত হয় না।',hide:'ডেভেলপার অপশন লুকান',on:'ডেভেলপার অপশন চালু হয়েছে',more:'বার ট্যাপ করলে ডেভেলপার অপশন চালু হবে',off:'ডেভেলপার অপশন লুকানো হয়েছে',wait:'ডেমো কুণ্ডলী তৈরি হচ্ছে…'}
+   en:{dev:'Developer',devSub:'Preview the app',open:'Open offline tester',openD:'Opens every screen with demo data stored in the app (Ayesha Raza). No engine, works offline, not saved. Planet positions are approximate — sample only, not a real reading.',badge:'Demo data · offline',badgeT:'Offline tester: demo data. Make or open a real chart to leave.',hide:'Hide developer option',on:'Developer option unlocked',more:'more taps to unlock developer option',off:'Developer option hidden',wait:'Opening the offline tester…'},
+   ur:{dev:'ڈیولپر',devSub:'ایپ کا جائزہ',open:'آف لائن ٹیسٹر کھولیں',openD:'ایپ میں محفوظ ڈیمو ڈیٹا (عائشہ رضا) سے ہر اسکرین کھولتا ہے۔ انجن نہیں، آف لائن چلتا ہے، محفوظ نہیں ہوتا۔ سیاروں کی پوزیشن تخمینی ہے — صرف نمونہ، اصل زائچہ نہیں۔',badge:'ڈیمو ڈیٹا · آف لائن',badgeT:'آف لائن ٹیسٹر: ڈیمو ڈیٹا۔ نکلنے کے لیے اصل زائچہ بنائیں یا کھولیں۔',hide:'ڈیولپر آپشن چھپائیں',on:'ڈیولپر آپشن کھل گیا',more:'مزید ٹیپ — ڈیولپر آپشن کھولنے کے لیے',off:'ڈیولپر آپشن چھپا دیا گیا',wait:'آف لائن ٹیسٹر کھل رہا ہے…'},
+   hi:{dev:'डेवलपर',devSub:'ऐप देखें',open:'ऑफ़लाइन टेस्टर खोलें',openD:'ऐप में रखे डेमो डेटा (आयशा रज़ा) से हर स्क्रीन खोलता है। इंजन नहीं, ऑफ़लाइन चलता है, सेव नहीं होता। ग्रहों की स्थिति अनुमानित है — सिर्फ़ नमूना, असली कुंडली नहीं।',badge:'डेमो डेटा · ऑफ़लाइन',badgeT:'ऑफ़लाइन टेस्टर: डेमो डेटा। बाहर निकलने के लिए असली कुंडली बनाएँ या खोलें।',hide:'डेवलपर विकल्प छिपाएँ',on:'डेवलपर विकल्प खुल गया',more:'और टैप — डेवलपर विकल्प खोलने के लिए',off:'डेवलपर विकल्प छिपा दिया',wait:'ऑफ़लाइन टेस्टर खुल रहा है…'},
+   ar:{dev:'المطوّر',devSub:'معاينة التطبيق',open:'افتح أداة الاختبار دون اتصال',openD:'يفتح كل الشاشات ببيانات تجريبية مخزّنة في التطبيق (عائشة رضا). بلا محرّك، يعمل دون اتصال، ولا يُحفظ. مواقع الكواكب تقريبية — عيّنة فقط وليست قراءة حقيقية.',badge:'بيانات تجريبية · دون اتصال',badgeT:'أداة الاختبار: بيانات تجريبية. أنشئ أو افتح خريطة حقيقية للخروج.',hide:'إخفاء خيار المطوّر',on:'تم فتح خيار المطوّر',more:'نقرات أخرى لفتح خيار المطوّر',off:'تم إخفاء خيار المطوّر',wait:'جارٍ فتح أداة الاختبار…'},
+   zh:{dev:'开发者',devSub:'预览应用',open:'打开离线测试器',openD:'使用应用内置的示例数据（Ayesha Raza）打开所有页面。不调用引擎，可离线使用，不会保存。行星位置为近似值——仅为示例，并非真实解读。',badge:'示例数据 · 离线',badgeT:'离线测试器：示例数据。新建或打开真实命盘即可退出。',hide:'隐藏开发者选项',on:'已开启开发者选项',more:'次点按即可开启开发者选项',off:'已隐藏开发者选项',wait:'正在打开离线测试器…'},
+   bn:{dev:'ডেভেলপার',devSub:'অ্যাপ দেখুন',open:'অফলাইন টেস্টার খুলুন',openD:'অ্যাপে রাখা ডেমো ডেটা (আয়েশা রাজা) দিয়ে সব স্ক্রিন খোলে। ইঞ্জিন নেই, অফলাইনে চলে, সংরক্ষিত হয় না। গ্রহের অবস্থান আনুমানিক — শুধু নমুনা, আসল পাঠ নয়।',badge:'ডেমো ডেটা · অফলাইন',badgeT:'অফলাইন টেস্টার: ডেমো ডেটা। বের হতে আসল কুণ্ডলী তৈরি বা খুলুন।',hide:'ডেভেলপার অপশন লুকান',on:'ডেভেলপার অপশন চালু হয়েছে',more:'বার ট্যাপ করলে ডেভেলপার অপশন চালু হবে',off:'ডেভেলপার অপশন লুকানো হয়েছে',wait:'অফলাইন টেস্টার খুলছে…'}
   };
   function T(){ return D[(document.documentElement.lang||'en').slice(0,2)]||D.en; }
   function on(){ try{ return localStorage.getItem('zaicha.dev')==='1'; }catch(e){ return false; } }
@@ -6512,22 +6610,39 @@
     var link=document.getElementById('fill-demo-link'), btn=document.getElementById('generate-btn'); if(!link||!btn) return;
     link.click();
     // this run must not land in Recent charts
-    if(window.ZUI&&ZUI.rememberPerson&&!ZUI.__devWrap){ var orig=ZUI.rememberPerson; ZUI.__devWrap=1; ZUI.rememberPerson=function(){ if(window.__zdevSkip){ window.__zdevSkip=false; return; } return orig.apply(ZUI,arguments); }; }
+    if(window.ZUI&&ZUI.rememberPerson&&!ZUI.__devWrap){ var orig=ZUI.rememberPerson; ZUI.__devWrap=1; ZUI.rememberPerson=function(){ if(window.__zdevOffline||window.__zdevSkip){ window.__zdevSkip=false; return; } return orig.apply(ZUI,arguments); }; }
     window.__zdevSkip=true; setTimeout(function(){ window.__zdevSkip=false; },120000);
+    window.__zdevOffline=true; document.body.classList.add('zdev-demo'); badge();
     toast(T().wait);
     btn.click();
   }
+  function badge(){
+    var b=document.getElementById('zdev-badge');
+    if(!window.__zdevOffline){ if(b) b.remove(); return; }
+    if(!b){ b=document.createElement('button'); b.type='button'; b.id='zdev-badge'; document.body.appendChild(b);
+      b.addEventListener('click',function(){ toast(T().badgeT); }); }
+    b.textContent=T().badge;
+  }
+  function exit(){ if(!window.__zdevOffline) return; window.__zdevOffline=false; window.__zdevSkip=false; document.body.classList.remove('zdev-demo'); badge(); }
+  // a real chart (the user presses Generate, or opens a saved person) ends the tester
+  document.addEventListener('click',function(e){ if(e.isTrusted&&e.target.closest&&e.target.closest('#generate-btn')) exit(); },true);
+  if(window.ZUI&&ZUI.openPerson){ var op=ZUI.openPerson; ZUI.openPerson=function(){ exit(); return op.apply(ZUI,arguments); }; }
+  new MutationObserver(badge).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   document.addEventListener('click',function(e){
     var v=e.target.closest&&e.target.closest('#v2-menu-body .v2-menu-small');
     if(v){ e.preventDefault(); e.stopPropagation(); var now=Date.now(); if(now-tapT>1500) taps=0; tapT=now; taps++;
       if(on()){ if(taps===1) toast(T().on); return; }
-      if(taps>=7){ taps=0; setOn(true); toast(T().on); refresh(); }
+      if(taps>=7){ taps=0; setOn(true); toast(T().on); refresh(); prefetch(); }
       else if(taps>=3){ toast((7-taps)+' '+T().more); }
       return; }
     var r=e.target.closest&&e.target.closest('[data-zdev]');
     if(r){ e.preventDefault(); e.stopPropagation(); panel(); }
   },true);
-  window.__zdev={ decorate:decorate };
+  window.__zdev={ decorate:decorate, exit:exit };
+  // keep the demo data on this phone (the app's offline cache stores it), so the tester also opens without internet
+  function prefetch(){ if(!on()) return; try{ if(sessionStorage.getItem('zdev.pf')) return; sessionStorage.setItem('zdev.pf','1'); }catch(e){}
+    ['en','ur','hi','ar','zh','bn'].forEach(function(l,i){ setTimeout(function(){ fetch('/dev/demo-'+l+'.json').catch(function(){}); },i*400); }); }
+  setTimeout(prefetch,6000);
   setTimeout(refresh,0);
 })();
 
