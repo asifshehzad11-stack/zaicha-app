@@ -64,6 +64,7 @@ const { buildNatalAspects } = require('./lib/natal-aspects');
 const { buildKpInfo } = require('./lib/kp-system');
 const { buildKpCuspal } = require('./lib/kp-cuspal');
 const { buildWesternChart, ayanamsaValueForDate } = require('./lib/western-chart');
+const { transitWindows } = require('./lib/transit-windows');
 const { buildArabianParts } = require('./lib/arabian-parts');
 const { buildPrasnaJudgment, CATEGORY_HOUSES } = require('./lib/prasna');
 const { buildKundliMilan } = require('./lib/kundli-milan');
@@ -873,6 +874,9 @@ app.post('/api/kundli', async (req, res) => {
     const monthlyOutlook = buildMonthlyOutlook(data.gochar.details, reqLang);
     const yearlyOutlook = buildYearlyOutlook(data.gochar.details, data.dasha, data.sadeSati, reqLang);
     const dailyRoutine = buildDailyRoutine(data.houses, data.gochar.details.Moon, now, reqLang);
+    // when each planet entered / leaves its current sign (offline ephemeris, no engine calls) — for the detail popups
+    let transitWindowsData = null;
+    try { transitWindowsData = transitWindows(now instanceof Date ? now : new Date(), ayanamsaVal); } catch (e) { console.warn('transit windows:', e.message); }
     // ---- Yoga Detection — poori tarah FREE hai (koi extra API call
     // nahi lagti, sirf pehle se maujood natal data par classical rules
     // apply hoti hain). Feature-list mein sab se pehle add kiya gaya
@@ -1018,6 +1022,7 @@ app.post('/api/kundli', async (req, res) => {
       monthlyOutlook: withLockFlag(monthlyOutlook, premiumStatus.isPremium),
       yearlyOutlook: withLockFlag(yearlyOutlook, premiumStatus.isPremium),
       dailyRoutine,
+      transitWindows: transitWindowsData,
       remedies,
       yogas,
       navamsa,
